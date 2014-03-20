@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>pandora_hardware_interface</name>
+  <version>0.0.0</version>
+  <description>Containts pandora hardware interface.</description>
+
+  <maintainer email="apostoee@gmail.com">Evangelos Apostolidis</maintainer>
+
+  <license>BSD</license>
+
+  <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_controllers/issues</url>
+  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_controllers</url>
+  
+  <author>Evangelos Apostolidis</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+
+  <export>
+  </export>  
+</package>
