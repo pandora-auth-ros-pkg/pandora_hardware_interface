@@ -1,0 +1,14 @@
+motor_joints:
+  robot_movement_joints:
+    left_front_joint: p3at_front_left_wheel_joint
+    right_front_joint: p3at_front_right_wheel_joint
+    left_rear_joint: p3at_rear_left_wheel_joint
+    right_rear_joint: p3at_rear_right_wheel_joint
+
+  stabilizer_joints:
+    roll_joint: laser_roll_joint
+    pitch_joint: laser_pitch_joint
+
+  kinect_orientation_joints:
+    pitch_joint: kinect_pitch_joint
+    yaw_joint: kinect_yaw_joint

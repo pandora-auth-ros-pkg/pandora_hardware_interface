@@ -1,0 +1,10 @@
+<launch>
+  <!-- Launch controller manager with pandora hardware interface-->
+  <include
+    file="$(find pandora_hardware_interface)/launch/pandora_hardware_interface.launch" />
+
+  <!-- Load imu controller -->
+  <include
+    file="$(find pandora_imu_controller)/launch/pandora_imu_sensor_controller.launch" />
+
+</launch>
