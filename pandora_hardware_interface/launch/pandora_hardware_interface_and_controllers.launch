@@ -2,9 +2,22 @@
   <!-- Launch controller manager with pandora hardware interface-->
   <include
     file="$(find pandora_hardware_interface)/launch/pandora_hardware_interface.launch" />
-
-  <!-- Load imu controller -->
-  <include
-    file="$(find pandora_imu_controller)/launch/pandora_imu_sensor_controller.launch" />
+    
+  <!-- spawn controller -->
+  <node
+    name="joint_state_controller_spawner"
+    pkg="controller_manager"
+    type="spawner" output="screen"
+    args="
+      imu_sensor_controller
+      joint_state_controller
+      movement_left_front_joint_velocity_controller
+      movement_right_front_joint_velocity_controller
+      movement_left_rear_joint_velocity_controller
+      movement_right_rear_joint_velocity_controller
+      laser_roll_joint_position_controller
+      laser_pitch_joint_position_controller
+      kinect_orientation_pitch_joint_position_controller
+      kinect_orientation_yaw_joint_position_controller" />
 
 </launch>

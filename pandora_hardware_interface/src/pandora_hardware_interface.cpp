@@ -42,6 +42,7 @@ namespace pandora_controllers
     ros::NodeHandle nodeHandle)
     : nodeHandle_(nodeHandle)
   {
+    // Variable initialization ?
     registerInterfaces();
   }
 

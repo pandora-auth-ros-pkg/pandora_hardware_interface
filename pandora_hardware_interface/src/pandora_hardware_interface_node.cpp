@@ -46,13 +46,10 @@ int main(int argc, char **argv)
     &pandoraHardwareInterface,
     nodeHandle);
 
-  // Timer variables
-  struct timespec ts = {0, 0};
-  clock_gettime(CLOCK_REALTIME, &ts);
-
   ros::Time
-    last(ts.tv_sec, ts.tv_nsec),
-    now(ts.tv_sec, ts.tv_nsec);
+    last,
+    now;
+  now = last = ros::Time::now();
   ros::Duration period(1.0);
 
   ros::AsyncSpinner spinner(4);
@@ -60,9 +57,7 @@ int main(int argc, char **argv)
 
   while ( ros::ok() )
   {
-    clock_gettime(CLOCK_REALTIME, &ts);
-    now.sec = ts.tv_sec;
-    now.nsec = ts.tv_nsec;
+    now = ros::Time::now();
     period = now - last;
     last = now;
 

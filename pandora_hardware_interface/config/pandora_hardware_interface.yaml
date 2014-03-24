@@ -1,14 +1,54 @@
 motor_joints:
   robot_movement_joints:
-    left_front_joint: p3at_front_left_wheel_joint
-    right_front_joint: p3at_front_right_wheel_joint
-    left_rear_joint: p3at_rear_left_wheel_joint
-    right_rear_joint: p3at_rear_right_wheel_joint
+    left_front_joint: &movement_left_front_joint p3at_front_left_wheel_joint
+    right_front_joint: &movement_right_front_joint p3at_front_right_wheel_joint
+    left_rear_joint: &movement_left_rear_joint p3at_rear_left_wheel_joint
+    right_rear_joint: &movement_right_rear_joint p3at_rear_right_wheel_joint
 
   stabilizer_joints:
-    roll_joint: laser_roll_joint
-    pitch_joint: laser_pitch_joint
+    roll_joint: &stabilizer_roll_joint laser_roll_joint
+    pitch_joint: &stabilizer_pitch_joint laser_pitch_joint
 
   kinect_orientation_joints:
-    pitch_joint: kinect_pitch_joint
-    yaw_joint: kinect_yaw_joint
+    pitch_joint: &kinect_orientation_pitch_joint kinect_pitch_joint
+    yaw_joint: &kinect_orientation_yaw_joint kinect_yaw_joint
+
+imu_sensor_controller:
+  type: imu_sensor_controller/ImuSensorController
+  publish_rate: 50
+
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+movement_left_front_joint_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: *movement_left_front_joint
+
+movement_right_front_joint_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: *movement_right_front_joint
+  
+movement_left_rear_joint_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: *movement_left_rear_joint
+  
+movement_right_rear_joint_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: *movement_right_rear_joint
+
+laser_roll_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *stabilizer_roll_joint
+  
+laser_pitch_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *stabilizer_pitch_joint
+
+kinect_orientation_pitch_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *kinect_orientation_pitch_joint
+  
+kinect_orientation_yaw_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *kinect_orientation_yaw_joint
