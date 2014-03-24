@@ -55,6 +55,9 @@ int main(int argc, char **argv)
     now(ts.tv_sec, ts.tv_nsec);
   ros::Duration period(1.0);
 
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
+
   while ( ros::ok() )
   {
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -66,7 +69,7 @@ int main(int argc, char **argv)
     pandoraHardwareInterface.read();
     controllerManager.update(now, period);
     pandoraHardwareInterface.write();
-    ros::spinOnce();
   }
+  spinner.stop();
   return 0;
 }

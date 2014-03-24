@@ -42,11 +42,6 @@ namespace pandora_controllers
     ros::NodeHandle nodeHandle)
     : nodeHandle_(nodeHandle)
   {
-    imuOrientation[0]=1;
-    imuOrientation[1]=2;
-    imuOrientation[2]=4;
-    imuOrientation[3]=6;
-    imuData_.orientation=imuOrientation;
     registerInterfaces();
   }
 
@@ -56,12 +51,6 @@ namespace pandora_controllers
 
   void PandoraHardwareInterface::read()
   {
-    // put read IMU and fill imuData_;
-
-    imuOrientation[0]=imuOrientation[0]+0.001;
-    imuOrientation[1]=imuOrientation[0]+0.001;
-    imuOrientation[2]=imuOrientation[0]+0.001;
-    imuOrientation[3]=imuOrientation[0]+0.001;
   }
 
   void PandoraHardwareInterface::write()
@@ -111,6 +100,11 @@ namespace pandora_controllers
   void PandoraHardwareInterface::registerInterfaces()
   {
     // connect and register imu sensor interface
+    imuOrientation[0] = 0;
+    imuOrientation[1] = 0;
+    imuOrientation[2] = 0;
+    imuOrientation[3] = 1;
+    imuData_.orientation = imuOrientation;
     imuData_.name="/sensors/imu";  // /sensors might become namespace
     imuData_.frame_id="base_link";
     hardware_interface::ImuSensorHandle imuSensorHandle(imuData_);
