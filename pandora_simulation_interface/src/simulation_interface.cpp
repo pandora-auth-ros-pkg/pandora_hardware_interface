@@ -34,11 +34,11 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_simulation_interface/pandora_simulation_interface.h"
+#include "pandora_simulation_interface/simulation_interface.h"
 
-namespace pandora_controllers
+namespace pandora_simulation_interface
 {
-  bool PandoraSimulationInterface::initSim(
+  bool SimulationInterface::initSim(
     const std::string& robot_namespace,
     ros::NodeHandle model_nh,
     gazebo::physics::ModelPtr parent_model,
@@ -58,11 +58,11 @@ namespace pandora_controllers
     }
   }
 
-  PandoraSimulationInterface::~PandoraSimulationInterface()
+  SimulationInterface::~SimulationInterface()
   {
   }
 
-  void PandoraSimulationInterface::readSim(ros::Time time, ros::Duration period)
+  void SimulationInterface::readSim(ros::Time time, ros::Duration period)
   {
     // Read robot orientation for IMU
     gazebo::math::Pose pose;
@@ -83,7 +83,7 @@ namespace pandora_controllers
     }
   }
 
-  void PandoraSimulationInterface::writeSim(ros::Time time, ros::Duration period)
+  void SimulationInterface::writeSim(ros::Time time, ros::Duration period)
   {
     for (int ii = 0; ii < 3; ii++)
     {
@@ -95,7 +95,7 @@ namespace pandora_controllers
     }
   }
 
-  std::vector<std::string> PandoraSimulationInterface::getJointNameFromParamServer()
+  std::vector<std::string> SimulationInterface::getJointNameFromParamServer()
   {
     std::vector<std::string> jointNames;
     std::string name;
@@ -135,7 +135,7 @@ namespace pandora_controllers
     return jointNames;
   }
 
-  void PandoraSimulationInterface::registerInterfaces()
+  void SimulationInterface::registerInterfaces()
   {
     // connect and register imu sensor interface
     imuOrientation[0] = 0;
@@ -182,4 +182,4 @@ namespace pandora_controllers
     }
     registerInterface(&positionJointInterface_);
   }
-}  // namespace pandora_controllers
+}  // namespace pandora_simulation_interface

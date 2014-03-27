@@ -23,19 +23,12 @@ include_directories(
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_library(
-  pandora_dynamixel_hardware_interface
-  src/pandora_dynamixel_hardware_interface.cpp)
-target_link_libraries(
-  pandora_dynamixel_hardware_interface
-  ${catkin_LIBRARIES})
-
 add_executable(
-  pandora_dynamixel_hardware_interface_node
-  src/pandora_dynamixel_hardware_interface_node.cpp)
+  dynamixel_hardware_interface_node
+  src/dynamixel_hardware_interface.cpp
+  src/dynamixel_hardware_interface_node.cpp)
 target_link_libraries(
-  pandora_dynamixel_hardware_interface_node
-  pandora_dynamixel_hardware_interface
+  dynamixel_hardware_interface_node
   ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_dynamixel_hardware_interface
@@ -45,9 +38,9 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_dynamixel_hardware_interface/pandora_dynamixel_hardware_interface.h
-  src/pandora_dynamixel_hardware_interface.cpp
-  src/pandora_dynamixel_hardware_interface_node.cpp
+  include/pandora_dynamixel_hardware_interface/dynamixel_hardware_interface.h
+  src/dynamixel_hardware_interface.cpp
+  src/dynamixel_hardware_interface_node.cpp
 
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

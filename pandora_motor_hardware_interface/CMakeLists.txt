@@ -23,19 +23,12 @@ include_directories(
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_library(
-  pandora_motor_hardware_interface
-  src/pandora_motor_hardware_interface.cpp)
-target_link_libraries(
-  pandora_motor_hardware_interface
-  ${catkin_LIBRARIES})
-
 add_executable(
-  pandora_motor_hardware_interface_node
-  src/pandora_motor_hardware_interface_node.cpp)
+  motor_hardware_interface_node
+  src/motor_hardware_interface.cpp
+  src/motor_hardware_interface_node.cpp)
 target_link_libraries(
-  pandora_motor_hardware_interface_node
-  pandora_motor_hardware_interface
+  motor_hardware_interface_node
   ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
@@ -45,9 +38,9 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_motor_hardware_interface/pandora_motor_hardware_interface.h
-  src/pandora_motor_hardware_interface.cpp
-  src/pandora_motor_hardware_interface_node.cpp
+  include/pandora_motor_hardware_interface/motor_hardware_interface.h
+  src/motor_hardware_interface.cpp
+  src/motor_hardware_interface_node.cpp
 
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

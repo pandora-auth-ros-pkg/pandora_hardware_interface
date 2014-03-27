@@ -34,11 +34,11 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_motor_hardware_interface/pandora_motor_hardware_interface.h"
+#include "pandora_motor_hardware_interface/motor_hardware_interface.h"
 
 namespace pandora_motor_hardware_interface
 {
-  PandoraMotorHardwareInterface::PandoraMotorHardwareInterface(
+  MotorHardwareInterface::MotorHardwareInterface(
     ros::NodeHandle nodeHandle)
     : nodeHandle_(nodeHandle)
   {
@@ -66,20 +66,20 @@ namespace pandora_motor_hardware_interface
     registerInterface(&velocityJointInterface_);
   }
 
-  PandoraMotorHardwareInterface::~PandoraMotorHardwareInterface()
+  MotorHardwareInterface::~MotorHardwareInterface()
   {
   }
 
-  void PandoraMotorHardwareInterface::read()
+  void MotorHardwareInterface::read()
   {
   }
 
-  void PandoraMotorHardwareInterface::write()
+  void MotorHardwareInterface::write()
   {
   }
 
   std::vector<std::string>
-    PandoraMotorHardwareInterface::getJointNameFromParamServer()
+    MotorHardwareInterface::getJointNameFromParamServer()
   {
     std::vector<std::string> jointNames;
     std::string name;

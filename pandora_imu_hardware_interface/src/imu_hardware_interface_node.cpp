@@ -34,17 +34,16 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_dynamixel_hardware_interface/pandora_dynamixel_hardware_interface.h"
+#include "pandora_imu_hardware_interface/imu_hardware_interface.h"
   int main(int argc, char **argv)
   {
-    ros::init(argc, argv, "pandora_dynamixel_hardware_interface_node");
+    ros::init(argc, argv, "imu_hardware_interface_node");
     ros::NodeHandle nodeHandle;
 
-    pandora_dynamixel_hardware_interface::PandoraDynamixelHardwareInterface
-      pandoraDynamixelHardwareInterface(
-        nodeHandle);
+    pandora_imu_hardware_interface::ImuHardwareInterface imuHardwareInterface(
+      nodeHandle);
     controller_manager::ControllerManager controllerManager(
-      &pandoraDynamixelHardwareInterface,
+      &imuHardwareInterface,
       nodeHandle);
 
     ros::Time
@@ -62,9 +61,8 @@
       period = now - last;
       last = now;
 
-      pandoraDynamixelHardwareInterface.read();
+      imuHardwareInterface.read();
       controllerManager.update(now, period);
-      pandoraDynamixelHardwareInterface.write();
     }
     spinner.stop();
     return 0;

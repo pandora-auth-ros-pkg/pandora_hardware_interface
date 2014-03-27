@@ -2,7 +2,7 @@
   <!-- load configuration -->
   <rosparam
     command="load"
-    file="$(find pandora_imu_hardware_interface)/config/pandora_imu_sensor_controller.yaml"
+    file="$(find pandora_imu_hardware_interface)/config/imu_sensor_controller.yaml"
     ns = "/imu"/>
 
   <!-- spawn controller -->

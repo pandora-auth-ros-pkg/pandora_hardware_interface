@@ -34,11 +34,11 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_dynamixel_hardware_interface/pandora_dynamixel_hardware_interface.h"
+#include "pandora_dynamixel_hardware_interface/dynamixel_hardware_interface.h"
 
 namespace pandora_dynamixel_hardware_interface
 {
-  PandoraDynamixelHardwareInterface::PandoraDynamixelHardwareInterface(
+  DynamixelHardwareInterface::DynamixelHardwareInterface(
     ros::NodeHandle nodeHandle)
     : nodeHandle_(nodeHandle)
   {
@@ -66,20 +66,20 @@ namespace pandora_dynamixel_hardware_interface
     registerInterface(&positionJointInterface_);
   }
 
-  PandoraDynamixelHardwareInterface::~PandoraDynamixelHardwareInterface()
+  DynamixelHardwareInterface::~DynamixelHardwareInterface()
   {
   }
 
-  void PandoraDynamixelHardwareInterface::read()
+  void DynamixelHardwareInterface::read()
   {
   }
 
-  void PandoraDynamixelHardwareInterface::write()
+  void DynamixelHardwareInterface::write()
   {
   }
 
   std::vector<std::string>
-    PandoraDynamixelHardwareInterface::getJointNameFromParamServer()
+    DynamixelHardwareInterface::getJointNameFromParamServer()
   {
     std::vector<std::string> jointNames;
     std::string name;

@@ -34,32 +34,37 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
-#define PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
+#ifndef PANDORA_MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
+#define PANDORA_MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 
 #include "ros/ros.h"
-#include "tf/tf.h"
-#include <hardware_interface/imu_sensor_interface.h>
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include <pandora_imu_hardware_interface/imu_serial_interface.h>
 
-namespace pandora_imu_hardware_interface
+namespace pandora_motor_hardware_interface
 {
-  class PandoraImuHardwareInterface : public hardware_interface::RobotHW
+  class MotorHardwareInterface : public hardware_interface::RobotHW
   {
     private:
       ros::NodeHandle nodeHandle_;
 
-      ImuSerialInterface imuSerialInterface;
-      hardware_interface::ImuSensorInterface imuSensorInterface_;
-      hardware_interface::ImuSensorHandle::Data imuData_;
+      hardware_interface::JointStateInterface jointStateInterface_;
+      hardware_interface::VelocityJointInterface velocityJointInterface_;
+      double command[4];
+      double position[4];
+      double velocity[4];
+      double effort[4];
+
+      std::vector<std::string> getJointNameFromParamServer();
 
     public:
-      explicit PandoraImuHardwareInterface(
+      explicit MotorHardwareInterface(
         ros::NodeHandle nodeHandle);
-      ~PandoraImuHardwareInterface();
+      ~MotorHardwareInterface();
       void read();
+      void write();
   };
-}  // namespace pandora_imu_hardware_interface
-#endif  // PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
+}  // namespace pandora_motor_hardware_interface
+#endif  // PANDORA_MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H

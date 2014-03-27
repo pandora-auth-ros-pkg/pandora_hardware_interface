@@ -34,73 +34,37 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_SIMULATION_INTERFACE_PANDORA_SIMULATION_INTERFACE_H
-#define PANDORA_SIMULATION_INTERFACE_PANDORA_SIMULATION_INTERFACE_H
+#ifndef PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_DYNAMIXEL_HARDWARE_INTERFACE_H
+#define PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_DYNAMIXEL_HARDWARE_INTERFACE_H
 
-#include <time.h>
 #include "ros/ros.h"
-#include <hardware_interface/imu_sensor_interface.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
-#include <gazebo/common/common.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/gazebo.hh>
-#include <angles/angles.h>
-#include <pluginlib/class_list_macros.h>
-#include <gazebo_ros_control/robot_hw_sim.h>
+#include <controller_manager/controller_manager.h>
 
-namespace pandora_controllers
+namespace pandora_dynamixel_hardware_interface
 {
-  class PandoraSimulationInterface :
-    public gazebo_ros_control::RobotHWSim
+  class DynamixelHardwareInterface : public hardware_interface::RobotHW
   {
     private:
       ros::NodeHandle nodeHandle_;
-      hardware_interface::ImuSensorInterface imuSensorInterface_;
-      hardware_interface::ImuSensorHandle::Data imuData_;
-      double imuOrientation[4];
 
       hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::VelocityJointInterface velocityJointInterface_;
       hardware_interface::PositionJointInterface positionJointInterface_;
-      std::vector<std::string> jointNames_;
-      double jointCommand_[8];
-      double jointPosition_[8];
-      double jointVelocity_[8];
-      double jointEffort_[8];
-
-      std::vector<gazebo::physics::JointPtr> gazeboJoints_;
-      gazebo::physics::LinkPtr gazeboLink_;
+      double command[4];
+      double position[4];
+      double velocity[4];
+      double effort[4];
 
       std::vector<std::string> getJointNameFromParamServer();
-      void registerInterfaces();
 
     public:
-      ~PandoraSimulationInterface();
-      bool initSim(
-        const std::string& robot_namespace,
-        ros::NodeHandle model_nh,
-        gazebo::physics::ModelPtr parent_model,
-        const urdf::Model *const urdf_model,
-        std::vector<transmission_interface::TransmissionInfo> transmissions);
-
-      void readSim(ros::Time time, ros::Duration period);
-
-      void writeSim(ros::Time time, ros::Duration period);
+      explicit DynamixelHardwareInterface(
+        ros::NodeHandle nodeHandle);
+      ~DynamixelHardwareInterface();
+      void read();
+      void write();
   };
-}  // namespace pandora_controllers
-
-PLUGINLIB_EXPORT_CLASS
-(
-  pandora_controllers::PandoraSimulationInterface,
-  gazebo_ros_control::RobotHWSim)
-
-#endif  // PANDORA_SIMULATION_INTERFACE_PANDORA_SIMULATION_INTERFACE_H
-
-
-
-
-
-
-
+}  // namespace pandora_dynamixel_hardware_interface
+#endif  // PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_DYNAMIXEL_HARDWARE_INTERFACE_H

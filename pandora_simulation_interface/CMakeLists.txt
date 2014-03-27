@@ -16,7 +16,7 @@ find_package(gazebo REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES
-    pandora_simulation_interface
+    simulation_interface
   CATKIN_DEPENDS
     roscpp
     roslint
@@ -39,10 +39,10 @@ link_directories(
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(
-  pandora_simulation_interface
-  src/pandora_simulation_interface.cpp)
+  simulation_interface
+  src/simulation_interface.cpp)
 target_link_libraries(
-  pandora_simulation_interface
+  simulation_interface
   ${catkin_LIBRARIES}
   ${GAZEBO_LIBRARIES})
 
@@ -53,8 +53,8 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_simulation_interface/pandora_simulation_interface.h
-  src/pandora_simulation_interface.cpp
+  include/pandora_simulation_interface/simulation_interface.h
+  src/simulation_interface.cpp
 
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

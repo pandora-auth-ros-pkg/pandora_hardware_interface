@@ -2,7 +2,7 @@
   <!-- load configuration -->
   <rosparam
     command="load"
-    file="$(find pandora_dynamixel_hardware_interface)/config/pandora_dynamixel_hardware_interface.yaml"
+    file="$(find pandora_dynamixel_hardware_interface)/config/dynamixel_hardware_interface.yaml"
     ns="/dynamixel"/>
 
   <!-- spawn controller -->

@@ -2,14 +2,14 @@
   <!-- load configuration -->
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/config/pandora_motor_hardware_interface.yaml"
+    file="$(find pandora_motor_hardware_interface)/config/motor_hardware_interface.yaml"
     ns="/motor"/>
 
   <!-- Launch controller manager with pandora hardware interface-->
   <node
-    name="pandora_motor_hardware_interface_node"
+    name="motor_hardware_interface_node"
     pkg="pandora_motor_hardware_interface"
-    type="pandora_motor_hardware_interface_node"
+    type="motor_hardware_interface_node"
     output="screen"
     ns="/motor"/>
 </launch>

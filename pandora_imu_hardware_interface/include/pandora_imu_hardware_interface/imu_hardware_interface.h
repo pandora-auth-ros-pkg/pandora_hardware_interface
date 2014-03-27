@@ -34,36 +34,33 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_imu_hardware_interface/pandora_imu_hardware_interface.h"
-  int main(int argc, char **argv)
+#ifndef PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H
+#define PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H
+
+#include "ros/ros.h"
+#include "tf/tf.h"
+#include <hardware_interface/imu_sensor_interface.h>
+#include <hardware_interface/robot_hw.h>
+#include <controller_manager/controller_manager.h>
+#include <pandora_imu_hardware_interface/imu_serial_interface.h>
+
+namespace pandora_imu_hardware_interface
+{
+  class ImuHardwareInterface : public hardware_interface::RobotHW
   {
-    ros::init(argc, argv, "pandora_imu_hardware_interface_node");
-    ros::NodeHandle nodeHandle;
+    private:
+      ros::NodeHandle nodeHandle_;
 
-    pandora_imu_hardware_interface::PandoraImuHardwareInterface pandoraImuHardwareInterface(
-      nodeHandle);
-    controller_manager::ControllerManager controllerManager(
-      &pandoraImuHardwareInterface,
-      nodeHandle);
+      ImuSerialInterface imuSerialInterface;
+      hardware_interface::ImuSensorInterface imuSensorInterface_;
+      hardware_interface::ImuSensorHandle::Data imuData_;
+      double imuOrientation[4];
 
-    ros::Time
-      last,
-      now;
-    now = last = ros::Time::now();
-    ros::Duration period(1.0);
-
-    ros::AsyncSpinner spinner(2);
-    spinner.start();
-
-    while ( ros::ok() )
-    {
-      now = ros::Time::now();
-      period = now - last;
-      last = now;
-
-      pandoraImuHardwareInterface.read();
-      controllerManager.update(now, period);
-    }
-    spinner.stop();
-    return 0;
-  }
+    public:
+      explicit ImuHardwareInterface(
+        ros::NodeHandle nodeHandle);
+      ~ImuHardwareInterface();
+      void read();
+  };
+}  // namespace pandora_imu_hardware_interface
+#endif  // PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H

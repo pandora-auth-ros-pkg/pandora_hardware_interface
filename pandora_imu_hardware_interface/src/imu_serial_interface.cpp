@@ -82,6 +82,9 @@ namespace pandora_imu_hardware_interface
 
   void ImuSerialInterface::read()
   {
+    if (serialPtr_ == NULL)
+      throw std::logic_error("read() called before init()!");
+
     std::string buffer;
     size_t start = std::string::npos;
     size_t end = std::string::npos;

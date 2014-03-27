@@ -28,12 +28,12 @@ include_directories(
 set(CMAKE_BUILD_TYPE Debug)
 
 add_executable(
-  pandora_imu_hardware_interface_node
+  imu_hardware_interface_node
   src/imu_serial_interface.cpp
-  src/pandora_imu_hardware_interface.cpp
-  src/pandora_imu_hardware_interface_node.cpp)
+  src/imu_hardware_interface.cpp
+  src/imu_hardware_interface_node.cpp)
 target_link_libraries(
-  pandora_imu_hardware_interface_node
+  imu_hardware_interface_node
   ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_imu_hardware_interface
@@ -43,11 +43,11 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_imu_hardware_interface/imu_serial_interface.h
-  include/pandora_imu_hardware_interface/pandora_imu_hardware_interface.h
+  include/imu_hardware_interface/imu_serial_interface.h
+  include/imu_hardware_interface/imu_hardware_interface.h
   src/imu_serial_interface.cpp
-  src/pandora_imu_hardware_interface.cpp
-  src/pandora_imu_hardware_interface_node.cpp
+  src/imu_hardware_interface.cpp
+  src/imu_hardware_interface_node.cpp
 
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

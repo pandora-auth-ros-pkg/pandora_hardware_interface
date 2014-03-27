@@ -34,38 +34,51 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_motor_hardware_interface/pandora_motor_hardware_interface.h"
-  int main(int argc, char **argv)
+#include "pandora_imu_hardware_interface/imu_hardware_interface.h"
+
+namespace pandora_imu_hardware_interface
+{
+  ImuHardwareInterface::ImuHardwareInterface(
+    ros::NodeHandle nodeHandle)
+  :
+    nodeHandle_(nodeHandle),
+    imuSerialInterface(
+      "/dev/ttyUSB0",
+      38400,
+      100)
+
   {
-    ros::init(argc, argv, "pandora_motor_hardware_interface_node");
-    ros::NodeHandle nodeHandle;
+    imuSerialInterface.init();
 
-    pandora_motor_hardware_interface::PandoraMotorHardwareInterface
-      pandoraMotorHardwareInterface(
-        nodeHandle);
-    controller_manager::ControllerManager controllerManager(
-      &pandoraMotorHardwareInterface,
-      nodeHandle);
-
-    ros::Time
-      last,
-      now;
-    now = last = ros::Time::now();
-    ros::Duration period(1.0);
-
-    ros::AsyncSpinner spinner(2);
-    spinner.start();
-
-    while ( ros::ok() )
-    {
-      now = ros::Time::now();
-      period = now - last;
-      last = now;
-
-      pandoraMotorHardwareInterface.read();
-      controllerManager.update(now, period);
-      pandoraMotorHardwareInterface.write();
-    }
-    spinner.stop();
-    return 0;
+    // connect and register imu sensor interface
+    imuOrientation[0] = 0;
+    imuOrientation[1] = 0;
+    imuOrientation[2] = 0;
+    imuOrientation[3] = 1;
+    imuData_.orientation = imuOrientation;
+    imuData_.name="/sensors/imu";  // /sensors might become namespace
+    imuData_.frame_id="base_link";
+    hardware_interface::ImuSensorHandle imuSensorHandle(imuData_);
+    imuSensorInterface_.registerHandle(imuSensorHandle);
+    registerInterface(&imuSensorInterface_);
   }
+
+  ImuHardwareInterface::~ImuHardwareInterface()
+  {
+  }
+
+  void ImuHardwareInterface::read()
+  {
+    float yaw, pitch, roll;
+    imuSerialInterface.read();
+    imuSerialInterface.getData(&yaw, &pitch, &roll);
+
+    tf::Quaternion orientation;
+    orientation.setEuler(yaw, pitch, roll);
+    imuOrientation[0] = orientation.getAxis()[0];
+    imuOrientation[1] = orientation.getAxis()[1];
+    imuOrientation[2] = orientation.getAxis()[2];
+    imuOrientation[3] = orientation.getW();
+  }
+
+}  // namespace pandora_imu_hardware_interface

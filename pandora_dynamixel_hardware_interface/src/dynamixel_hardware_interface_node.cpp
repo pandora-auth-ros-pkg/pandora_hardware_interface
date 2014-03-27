@@ -34,37 +34,38 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_H
-#define PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_H
-
-#include "ros/ros.h"
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-
-namespace pandora_dynamixel_hardware_interface
-{
-  class PandoraDynamixelHardwareInterface : public hardware_interface::RobotHW
+#include "pandora_dynamixel_hardware_interface/dynamixel_hardware_interface.h"
+  int main(int argc, char **argv)
   {
-    private:
-      ros::NodeHandle nodeHandle_;
+    ros::init(argc, argv, "dynamixel_hardware_interface_node");
+    ros::NodeHandle nodeHandle;
 
-      hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::PositionJointInterface positionJointInterface_;
-      double command[4];
-      double position[4];
-      double velocity[4];
-      double effort[4];
+    pandora_dynamixel_hardware_interface::DynamixelHardwareInterface
+      dynamixelHardwareInterface(
+        nodeHandle);
+    controller_manager::ControllerManager controllerManager(
+      &dynamixelHardwareInterface,
+      nodeHandle);
 
-      std::vector<std::string> getJointNameFromParamServer();
+    ros::Time
+      last,
+      now;
+    now = last = ros::Time::now();
+    ros::Duration period(1.0);
 
-    public:
-      explicit PandoraDynamixelHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~PandoraDynamixelHardwareInterface();
-      void read();
-      void write();
-  };
-}  // namespace pandora_dynamixel_hardware_interface
-#endif  // PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_H
+    ros::AsyncSpinner spinner(2);
+    spinner.start();
+
+    while ( ros::ok() )
+    {
+      now = ros::Time::now();
+      period = now - last;
+      last = now;
+
+      dynamixelHardwareInterface.read();
+      controllerManager.update(now, period);
+      dynamixelHardwareInterface.write();
+    }
+    spinner.stop();
+    return 0;
+  }
