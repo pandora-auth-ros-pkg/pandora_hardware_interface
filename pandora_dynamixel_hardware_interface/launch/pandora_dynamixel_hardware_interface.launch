@@ -1,0 +1,15 @@
+<launch>
+  <!-- load configuration -->
+  <rosparam
+    command="load"
+    file="$(find pandora_dynamixel_hardware_interface)/config/pandora_dynamixel_hardware_interface.yaml"
+    ns="/dynamixel"/>
+
+  <!-- Launch controller manager with pandora hardware interface-->
+  <node
+    name="pandora_dynamixel_hardware_interface_node"
+    pkg="pandora_dynamixel_hardware_interface"
+    type="pandora_dynamixel_hardware_interface_node"
+    output="screen"
+    ns="/dynamixel"/>
+</launch>

@@ -12,12 +12,12 @@
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_controllers</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
-  <run_depend>pandora_dynamixel_controller</run_depend>
-  <run_depend>pandora_imu_controller</run_depend>
-  <run_depend>pandora_linear_motor_controller</run_depend>
-  <run_depend>pandora_motor_controller</run_depend>
-  <run_depend>pandora_xmega_controller</run_depend>
+
+  <run_depend>pandora_dynamixel_hardware_interface</run_depend>
+  <run_depend>pandora_imu_hardware_interface</run_depend>
+  <run_depend>pandora_motor_hardware_interface</run_depend>
+  <run_depend>pandora_xmega_hardware_interface</run_depend>
+  <run_depend>pandora_simulation_interface</run_depend>
 
   <export>
     <metapackage/>

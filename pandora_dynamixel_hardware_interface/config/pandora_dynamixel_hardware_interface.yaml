@@ -1,0 +1,29 @@
+motor_joints:
+  stabilizer_joints:
+    roll_joint: &stabilizer_roll_joint laser_roll_joint
+    pitch_joint: &stabilizer_pitch_joint laser_pitch_joint
+
+  kinect_orientation_joints:
+    pitch_joint: &kinect_orientation_pitch_joint kinect_pitch_joint
+    yaw_joint: &kinect_orientation_yaw_joint kinect_yaw_joint
+
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+laser_roll_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *stabilizer_roll_joint
+  
+laser_pitch_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *stabilizer_pitch_joint
+
+kinect_orientation_pitch_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *kinect_orientation_pitch_joint
+  
+kinect_orientation_yaw_joint_position_controller:
+  type: position_controllers/JointPositionController
+  joint: *kinect_orientation_yaw_joint
+

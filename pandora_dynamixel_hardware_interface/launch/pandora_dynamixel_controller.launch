@@ -1,0 +1,20 @@
+<launch>
+  <!-- load configuration -->
+  <rosparam
+    command="load"
+    file="$(find pandora_dynamixel_hardware_interface)/config/pandora_dynamixel_hardware_interface.yaml"
+    ns="/dynamixel"/>
+
+  <!-- spawn controller -->
+  <node
+    name="dynamixel_controller_spawner"
+    pkg="controller_manager"
+    type="spawner" output="screen"
+    ns="/dynamixel"
+    args="
+    joint_state_controller
+    laser_roll_joint_position_controller
+    laser_pitch_joint_position_controller
+    kinect_orientation_pitch_joint_position_controller
+    kinect_orientation_yaw_joint_position_controller"/>
+</launch>

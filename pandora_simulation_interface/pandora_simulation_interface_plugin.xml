@@ -1,0 +1,10 @@
+<library path="lib/libpandora_simulation_interface">
+  <class
+    name="pandora_controllers/PandoraSimulationInterface"
+    type="pandora_controllers::PandoraSimulationInterface"
+    base_class_type="gazebo_ros_control::RobotSim">
+    <description>
+      This is the simulation interface for Pandora robot.
+    </description>
+  </class>
+</library>
