@@ -40,14 +40,20 @@ namespace pandora_imu_hardware_interface
 {
   PandoraImuHardwareInterface::PandoraImuHardwareInterface(
     ros::NodeHandle nodeHandle)
-    : nodeHandle_(nodeHandle)
+  :
+    nodeHandle_(nodeHandle),
+    imuSerialInterface(
+      "/dev/ttyUSB0",
+      38400,
+      100)
+
   {
     // connect and register imu sensor interface
-    imuOrientation[0] = 0;
-    imuOrientation[1] = 0;
-    imuOrientation[2] = 0;
-    imuOrientation[3] = 1;
-    imuData_.orientation = imuOrientation;
+    imuData_.orientation = new double(4);
+    imuData_.orientation[0] = 0;
+    imuData_.orientation[1] = 0;
+    imuData_.orientation[2] = 0;
+    imuData_.orientation[3] = 1;
     imuData_.name="/sensors/imu";  // /sensors might become namespace
     imuData_.frame_id="base_link";
     hardware_interface::ImuSensorHandle imuSensorHandle(imuData_);
@@ -61,9 +67,16 @@ namespace pandora_imu_hardware_interface
 
   void PandoraImuHardwareInterface::read()
   {
+    float yaw, pitch, roll;
+    imuSerialInterface.read();
+    imuSerialInterface.getData(&yaw, &pitch, &roll);
+
+    tf::Quaternion orientation;
+    orientation.setEuler(yaw, pitch, roll);
+    imuData_.orientation[0] = orientation.getAxis()[0];
+    imuData_.orientation[1] = orientation.getAxis()[1];
+    imuData_.orientation[2] = orientation.getAxis()[2];
+    imuData_.orientation[3] = orientation.getW();
   }
 
-  void PandoraImuHardwareInterface::write()
-  {
-  }
 }  // namespace pandora_imu_hardware_interface

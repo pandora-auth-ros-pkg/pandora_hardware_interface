@@ -63,7 +63,6 @@
 
       pandoraImuHardwareInterface.read();
       controllerManager.update(now, period);
-      pandoraImuHardwareInterface.write();
     }
     spinner.stop();
     return 0;

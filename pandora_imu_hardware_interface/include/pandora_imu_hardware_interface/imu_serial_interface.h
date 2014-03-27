@@ -32,34 +32,76 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Chris Zalidis
 *********************************************************************/
-#ifndef PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
-#define PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
 
-#include "ros/ros.h"
-#include "tf/tf.h"
-#include <hardware_interface/imu_sensor_interface.h>
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-#include <pandora_imu_hardware_interface/imu_serial_interface.h>
+#ifndef PANDORA_IMU_HARDWARE_INTERFACE_IMU_SERIAL_INTERFACE_H
+#define PANDORA_IMU_HARDWARE_INTERFACE_IMU_SERIAL_INTERFACE_H
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/utility.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <iostream>
+#include <stdexcept>
+
+#include <ros/ros.h>
+#include <serial/serial.h>
 
 namespace pandora_imu_hardware_interface
 {
-  class PandoraImuHardwareInterface : public hardware_interface::RobotHW
+  class ImuSerialInterface : private boost::noncopyable
   {
-    private:
-      ros::NodeHandle nodeHandle_;
+   public:
+    ImuSerialInterface(
+      const std::string& device,
+      int speed,
+      int timeout);
 
-      ImuSerialInterface imuSerialInterface;
-      hardware_interface::ImuSensorInterface imuSensorInterface_;
-      hardware_interface::ImuSensorHandle::Data imuData_;
+    void init();
 
-    public:
-      explicit PandoraImuHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~PandoraImuHardwareInterface();
-      void read();
+    void read();
+
+    inline float getRoll() const
+    {
+      return roll_;
+    }
+    inline float getPitch() const
+    {
+      return pitch_;
+    }
+    inline float getYaw() const
+    {
+      return yaw_;
+    }
+
+    inline void getData(
+      float* yaw,
+      float* pitch,
+      float* roll) const
+    {
+      *yaw = yaw_;
+      *pitch = pitch_;
+      *roll = roll_;
+    }
+
+   private:
+    void parse(const std::string& packet);
+    bool check(const std::string& packet, int crc);
+
+   private:
+    float yaw_;
+    float pitch_;
+    float roll_;
+
+    const std::string device_;
+    const int speed_;
+    const int timeout_;
+
+    const boost::regex regex_;
+
+    boost::scoped_ptr<serial::Serial> serialPtr_;
   };
 }  // namespace pandora_imu_hardware_interface
-#endif  // PANDORA_IMU_HARDWARE_INTERFACE_PANDORA_IMU_HARDWARE_INTERFACE_H
+
+#endif  // PANDORA_IMU_HARDWARE_INTERFACE_IMU_SERIAL_INTERFACE_H
