@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>pandora_xmega_controller</name>
+  <name>pandora_xmega_hardware_interface</name>
   <version>0.0.0</version>
-  <description>Containts pandora xmega controller.</description>
+  <description>Containts pandora xmega hardware interface.</description>
 
   <maintainer email="apostoee@gmail.com">Evangelos Apostolidis</maintainer>
 
@@ -14,8 +14,15 @@
   <author>Evangelos Apostolidis</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>roslint</build_depend>
+  <build_depend>controller_manager</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>roslint</run_depend>
+  <run_depend>controller_manager</run_depend>
 
   <export>
-  </export>  
+  </export>
 </package>
