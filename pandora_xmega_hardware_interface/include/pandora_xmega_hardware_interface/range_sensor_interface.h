@@ -34,46 +34,35 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
+#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
+#define PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
 
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <string>
 
 namespace pandora_xmega_hardware_interface
 {
-  class XmegaHandle
+  class RangeSensorHandle
   {
   public:
     struct Data
     {
       Data()
-      :
-        name(),
-        frame_id(),
-        voltage(0),
-        radiationType(0),
-        fieldOfView(0),
-        minRange(0),
-        maxRange(0),
-        range(0)
       {
       }
 
-      std::string name;
-      std::string frame_id;
-      float* voltage;
-      unsigned int* radiationType;
-      float* fieldOfView;
-      float* minRange;
-      float* maxRange;
-      float* range;
+      std::vector<std::string>* name;
+      std::vector<std::string>* frameId;
+      std::vector<unsigned int>* radiationType;
+      std::vector<double>* fieldOfView;
+      std::vector<double>* minRange;
+      std::vector<double>* maxRange;
+      std::vector<double[5]>* range;
     };
 
-    XmegaHandle(const Data& data = Data())
+    RangeSensorHandle(const Data& data = Data())
       : name_(data.name),
-        frame_id_(data.frame_id),
-        voltage_(data.voltage),
+        frameId_(data.frameId),
         radiationType_(data.radiationType),
         fieldOfView_(data.fieldOfView),
         minRange_(data.minRange),
@@ -82,55 +71,49 @@ namespace pandora_xmega_hardware_interface
     {
     }
 
-    inline std::string getName() const
+    inline std::vector<std::string>* getName() const
     {
       return name_;
     }
-    inline std::string getFrameId() const
+    inline std::vector<std::string>* getFrameId() const
     {
-      return frame_id_;
+      return frameId_;
     }
-    inline const float* getVoltage() const
-    {
-      return voltage_;
-    }
-    inline const unsigned int* getRadiationType() const
+    inline const std::vector<unsigned int>* getRadiationType() const
     {
       return radiationType_;
     }
-    inline const float* getFieldOfView() const
+    inline const std::vector<double>* getFieldOfView() const
     {
       return fieldOfView_;
     }
-    inline const float* getMinRange() const
+    inline const std::vector<double>* getMinRange() const
     {
       return minRange_;
     }
-    inline const float* getMaxRange() const
+    inline const std::vector<double>* getMaxRange() const
     {
       return maxRange_;
     }
-    inline const float* getRange() const
+    inline const std::vector<double[5]>* getRange() const
     {
       return range_;
     }
 
   private:
-    std::string name_;
-    std::string frame_id_;
-
-    float* voltage_;
-    unsigned int* radiationType_;
-    float* fieldOfView_;
-    float* minRange_;
-    float* maxRange_;
-    float* range_;
+    std::vector<std::string>* name_;
+    std::vector<std::string>* frameId_;
+    std::vector<unsigned int>* radiationType_;
+    std::vector<double>* fieldOfView_;
+    std::vector<double>* minRange_;
+    std::vector<double>* maxRange_;
+    std::vector<double[5]>* range_;
   };
 
-  class XmegaInterface :
-    public hardware_interface::HardwareResourceManager<XmegaHandle>
+  class RangeSensorInterface :
+    public hardware_interface::HardwareResourceManager<RangeSensorHandle>
   {
   };
 }  // namespace pandora_xmega_hardware_interface
 
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
+#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
