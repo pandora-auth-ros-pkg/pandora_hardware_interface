@@ -36,100 +36,27 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef XMEGA_SERIAL_INTERFACE
-#define XMEGA_SERIAL_INTERFACE
-
-#include <stdexcept>
-#include <sys/time.h>
-#include <boost/scoped_ptr.hpp>
-
-#include <ros/ros.h>
-#include <serial/serial.h>
-
-#include "pandora_xmega_hardware_interface/enums.h"
-#include "pandora_xmega_hardware_interface/default_sensor.h"
-#include "pandora_xmega_hardware_interface/range_sensor.h"
-#include "pandora_xmega_hardware_interface/battery_sensor.h"
+#include <pandora_xmega_hardware_interface/range_sensor.h>
 
 namespace pandora_xmega {
 
-class SerialIO
+RangeSensor::RangeSensor()
 {
- public:
-  
-  SerialIO(const std::string& device, 
-           int speed, 
-           int timeout);
-  
-  void init();
-  
-  int readMessageType();
-  int readSize(uint16_t *dataSize);
-  int readData(uint16_t dataSize, unsigned char *dataBuffer);
-  int readCRC();
-  bool write(const uint8_t *data, size_t size);
-  
- private:
-  
-  int CRC_;
-  
-  const std::string device_;
-  const int speed_;
-  const int timeout_;
-  
-  boost::scoped_ptr<serial::Serial> serialPtr_;
+  dataLength = SRF05_TINY_LEN;
+}
 
-};
-
-class XmegaSerialInterface
+void RangeSensor::handleData()
 {
- public:
+  RangeData ranges;
+  
+  ranges.sonarRange = ((data[2] << 8) | data[3]);
+  ranges.irRange = data[1];
+  
+  sensors[i2c_address] = ranges;
+}
 
-  XmegaSerialInterface(const std::string& device, 
-                       int speed, 
-                       int timeout);
-  void init();
-  
-  void read();
-
-  inline void getBatteryData(float* psuVoltage, float* motorVoltage) const
-  {
-    *psuVoltage = batterySensor_.psuVoltage;
-    *motorVoltage = batterySensor_.motorVoltage;
-  }
-  
-  inline std::map<int, RangeData> getRangeData() const 
-  {
-    return rangeSensors_.sensors;
-  }
-  
- private:
- 
-  void receiveData();
-  int processData();
-  
-  SensorBase* getSensor(int sensorType);
-  
- private:
-  
-  unsigned char *pdataBuffer_;
-  
-  int currentState_;
-  timeval tim_;
-  double t1_;
-  double t2_;
-  int deviceID_;
-  uint16_t dataSize_;
-  
-  DefaultSensor defaultSensor_;
-  BatterySensor batterySensor_;
-  RangeSensor rangeSensors_;
-    
-  SerialIO serialIO_;
-};
-
-static unsigned char myatoi(char *array, int size);
+RangeSensor::~RangeSensor()
+{
+}
 
 } // namespace pandora_xmega
-
-#endif

@@ -4,6 +4,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
   controller_manager
+  serial
 )
 
 catkin_package(
@@ -13,6 +14,7 @@ catkin_package(
     roscpp
     roslint
     controller_manager
+    serial
 #  DEPENDS
 )
 
@@ -29,6 +31,15 @@ add_executable(
 target_link_libraries(
   xmega_hardware_interface
   ${catkin_LIBRARIES})
+
+add_library(xmega_interface
+              src/battery_sensor.cpp
+              src/range_sensor.cpp
+              src/xmega_serial_interface.cpp)
+target_link_libraries(xmega_interface ${catkin_LIBRARIES})
+
+add_executable(xmega_test src/test.cpp)
+target_link_libraries(xmega_test ${catkin_LIBRARIES} xmega_interface)
 
 # To check lint : catkin_make roslint_pandora_xmega_hardware_interface
 set(ROSLINT_CPP_OPTS

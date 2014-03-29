@@ -40,20 +40,242 @@
 
 namespace pandora_xmega {
 
+
 XmegaSerialInterface::XmegaSerialInterface(const std::string& device, 
                                       int speed,
                                       int timeout) :
-  serialPtr_(NULL),                                 
-  device_(device),
-  speed_(speed),
-  timeout_(timeout),
-  psuVoltage_(0),
-  motorVoltage_(0),
-  CRC_(0)
+  serialIO_(device, speed, timeout),
+  t1_(0),
+  t2_(0),
+  deviceID_(0),
+  dataSize_(0),
+  currentState_(IDLE_STATE)
 {
 }
 
 void XmegaSerialInterface::init()
+{
+  serialIO_.init();
+}
+
+void XmegaSerialInterface::read()
+{
+  receiveData();
+}
+
+//------------- Private Members -------------------//
+
+void XmegaSerialInterface::receiveData()
+{
+
+  timeval start, current;
+  long ms_elapsed, seconds, useconds;
+  int timer_flag = 1;
+
+  int currentState_ = IDLE_STATE;
+  int previousState = IDLE_STATE;
+  int counter_ack = 0;
+  int counter_nak = 0;
+  int counter_timeout = 0;
+
+  uint8_t ACK[] = {6};
+  uint8_t NAK[] = {2, 1};
+  
+  bool done = false;
+
+  gettimeofday(&start, NULL);
+
+  while (!done)
+  {
+
+    ROS_DEBUG("[xmega] current state: %d !", currentState_);
+
+    ROS_DEBUG("[xmega] COUNTER_TIMEOUT: %d", counter_timeout);
+    ROS_DEBUG("[xmega] COUNTER_ACK: %d", counter_ack);
+    ROS_DEBUG("[xmega] COUNTER_NAK: %d", counter_nak);
+    switch (currentState_)
+    {
+    case IDLE_STATE:
+      currentState_ = serialIO_.readMessageType();
+      gettimeofday(&current, NULL);
+      seconds = current.tv_sec - start.tv_sec;
+      useconds = current.tv_usec - start.tv_usec;
+      ms_elapsed = ((seconds) * 1000 + useconds / 1000.0) + 0.5; 		// +0.5 is used for rounding positive values
+      if(ms_elapsed >= 10000)
+        throw std::runtime_error(
+                "xmega doesn't seem to respond! Is it connected?");
+      
+      if (timer_flag == 0)
+      {
+        if(ms_elapsed >= 500)
+        {
+          currentState_ = previousState;
+          timer_flag = 0;
+          ms_elapsed = 0;
+          counter_timeout++;
+        }
+      }
+      break;
+    case READ_SIZE_STATE:
+      gettimeofday(&tim_, NULL);
+      t1_ = tim_.tv_sec + (tim_.tv_usec / 1000000.0);
+      currentState_ = serialIO_.readSize(&dataSize_);
+      break;
+    case READ_DATA_STATE:
+      pdataBuffer_ = new unsigned char[dataSize_];
+      memset(pdataBuffer_, 0x00, dataSize_);
+      currentState_ = serialIO_.readData( dataSize_, pdataBuffer_);
+      break;
+    case READ_CRC_STATE:
+      currentState_ = serialIO_.readCRC();
+      break;
+    case ACK_STATE:
+      previousState = ACK_STATE;
+      timer_flag = 1;
+      gettimeofday(&start, NULL);
+      if(!serialIO_.write(ACK, 1))
+        ROS_ERROR("[xmega] Failed to write ACK!\n");
+      counter_ack++;
+      ROS_DEBUG("[xmega] counter_ack: %d \n", counter_ack);
+      currentState_ = PROCESS_DATA_STATE;
+      break;
+    case NAK_STATE:
+      previousState = NAK_STATE;
+      timer_flag = 1;
+      gettimeofday(&start, NULL);
+      if(!serialIO_.write(NAK, 2))
+        ROS_ERROR("[xmega] Failed to write NAK!\n");
+      currentState_ = IDLE_STATE;
+      counter_nak++;
+      delete[] pdataBuffer_; // cleanup
+      done = true;
+      break;
+    case PROCESS_DATA_STATE:
+      currentState_ = processData();
+      gettimeofday(&tim_, NULL);
+      t2_ = tim_.tv_sec + (tim_.tv_usec / 1000000.0);
+      ROS_DEBUG("[xmega] %.8f seconds elapsed\n", t2_ - t1_);
+      delete[] pdataBuffer_; // cleanup
+      done = true;
+      break;
+    default:
+      currentState_ = IDLE_STATE;
+      dataSize_ = 0;
+      *pdataBuffer_ = NULL;
+      break;
+
+    }
+
+  }
+}
+
+int XmegaSerialInterface::processData()
+{
+  int bufferPointer = 0;
+  int readState = SENSOR_ID;
+  int type;
+  char temp[2];
+  int dataLength;
+
+  while(bufferPointer < dataSize_)
+  {
+    switch(readState)
+    {
+    case SENSOR_ID:
+      ROS_DEBUG("Sensor ID: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
+      bufferPointer += 3;	// ' ' after sensor id
+      readState = SENSOR_TYPE;
+      break;
+    case SENSOR_TYPE:
+      ROS_DEBUG("Sensor type: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
+      temp[0] = pdataBuffer_[bufferPointer];
+      temp[1] = pdataBuffer_[bufferPointer + 1];
+      type = myatoi(temp, 2);
+      deviceID_ = type;
+      bufferPointer += 3;	// ' ' after sensor type
+      readState = SENSOR_I2C_ADDRESS;
+      if(type == 7)			// battery, not i2c sensor
+        readState = SENSOR_DATA;
+      break;
+    case SENSOR_I2C_ADDRESS:
+      ROS_DEBUG("Sensor I2C address: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
+      temp[0] = pdataBuffer_[bufferPointer];
+      temp[1] = pdataBuffer_[bufferPointer + 1];
+      getSensor(type)->i2c_address = myatoi(temp, 2);
+      bufferPointer += 3;	// ' ' after sensor i2c address
+      readState = SENSOR_STATUS;
+      break;
+    case SENSOR_STATUS:
+      ROS_DEBUG("Sensor status: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
+      temp[0] = pdataBuffer_[bufferPointer];
+      temp[1] = pdataBuffer_[bufferPointer + 1];
+      getSensor(type)->status = myatoi(temp, 2);
+      bufferPointer += 3;	// ' ' after sensor status
+      readState = SENSOR_CURRENT_STATE;
+      break;
+    case SENSOR_CURRENT_STATE:
+      ROS_DEBUG("Sensor current state: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
+      temp[0] = pdataBuffer_[bufferPointer];
+      temp[1] = pdataBuffer_[bufferPointer + 1];
+      getSensor(type)->state = myatoi(temp, 2);
+      bufferPointer += 3;
+      readState = SENSOR_DATA;
+      break;
+    case SENSOR_DATA:
+      dataLength = getSensor(type)->dataLength;
+
+      ROS_DEBUG("Data: %d", dataLength);
+      for(int i = 0; i < dataLength; i++)
+      {
+        temp[0] = pdataBuffer_[bufferPointer];
+        temp[1] = pdataBuffer_[bufferPointer + 1];
+        getSensor(type)->data[i] = myatoi(temp, 2);
+        ROS_DEBUG("%d ", getSensor(type)->data[i]) ;
+        bufferPointer += 2;
+      }
+      bufferPointer++;	// LF after Data
+      ROS_DEBUG("POINTER: %d\n", bufferPointer);
+      getSensor(deviceID_)->handleData();
+      readState = SENSOR_ID;
+      ROS_DEBUG("\n");
+      break;
+    default:
+      return 0; 	// processing error
+    }
+  }
+  return 1;	// successful processing
+}
+
+
+SensorBase* XmegaSerialInterface::getSensor(int sensorType)
+{
+
+  switch (sensorType)
+  {
+  case BATTERY:
+    return &batterySensor_;
+  case SRF05_TINY:
+    return &rangeSensors_;
+  default:
+    return &defaultSensor_;
+  }
+
+}
+
+//----------SerialIO------------------------//
+
+SerialIO::SerialIO(const std::string& device, 
+                    int speed,
+                    int timeout) :
+  serialPtr_(NULL),                                 
+  device_(device),
+  speed_(speed),
+  timeout_(timeout),
+  CRC_(0)
+{
+}
+
+void SerialIO::init()
 {
   if (serialPtr_ == NULL)
   {
@@ -67,7 +289,7 @@ void XmegaSerialInterface::init()
     }
     catch (serial::IOException& ex)
     {
-      ROS_FATAL("[xmega] Cannot open port!!");
+      ROS_FATAL("[xmega-serialIO] Cannot open port!!");
       ROS_FATAL("%s", ex.what());
       exit(-1);
     }
@@ -78,12 +300,7 @@ void XmegaSerialInterface::init()
   }
 }
 
-void XmegaSerialInterface::read()
-{
-  
-}
-
-int XmegaSerialInterface::readMessageType()
+int SerialIO::readMessageType()
 {
 
   uint8_t command[2];
@@ -104,7 +321,7 @@ int XmegaSerialInterface::readMessageType()
 
 }
 
-int XmegaSerialInterface::readSize(uint16_t *dataSize)
+int SerialIO::readSize(uint16_t *dataSize_)
 {
 
   uint8_t dataSiz[5]; //dataSiz buffer where the size of data is written
@@ -115,7 +332,7 @@ int XmegaSerialInterface::readSize(uint16_t *dataSize)
 
   for(int i = 0; i < size; i++)
   {
-    ROS_DEBUG("[xmega] %c", dataSiz[i]);
+    ROS_DEBUG("[xmega-serialIO] %c", dataSiz[i]);
     CRC_ += (int)dataSiz[i];
   }
 
@@ -136,20 +353,19 @@ int XmegaSerialInterface::readSize(uint16_t *dataSize)
   }
   else
   {
-    *dataSize = temp;
+    *dataSize_ = temp;
     return READ_DATA_STATE;
   }
 }
 
-int XmegaSerialInterface::readData(uint16_t dataSize, unsigned char *dataBuffer)
+int SerialIO::readData(uint16_t dataSize_, unsigned char *dataBuffer)
 {
 
-  if(serialPtr_->read((uint8_t*)dataBuffer, dataSize - 5) != dataSize - 5)
-    ROS_DEBUG("[xmega] ERROR!!\n");
+  if(serialPtr_->read((uint8_t*)dataBuffer, dataSize_ - 5) != dataSize_ - 5)
+    ROS_DEBUG("[xmega-serialIO] ERROR!!\n");
 
-  for(int i = 0; i < dataSize; i++)
-  {
-    ROS_DEBUG("[xmega] %c", dataBuffer[i]);
+  for(int i = 0; i < dataSize_; i++) {
+    ROS_DEBUG("[xmega-serialIO] %c", dataBuffer[i]);
     CRC_ += (int)dataBuffer[i];
   }
 
@@ -157,7 +373,7 @@ int XmegaSerialInterface::readData(uint16_t dataSize, unsigned char *dataBuffer)
 
 }
 
-int XmegaSerialInterface::readCRC()
+int SerialIO::readCRC()
 {
 
   uint8_t crc[4];
@@ -178,24 +394,24 @@ int XmegaSerialInterface::readCRC()
     else
       temp += ((int)crc[i] - 55) * pow(16, size - 1 - i);
   }
-  ROS_DEBUG("[xmega] PC_CRC: %d\n", CRC_);
-  ROS_DEBUG("[xmega] uController_CRC: %d\n", temp);
+  ROS_DEBUG("[xmega-serialIO] PC_CRC: %d\n", CRC_);
+  ROS_DEBUG("[xmega-serialIO] uController_CRC: %d\n", temp);
   if (CRC_ == temp)
   {
-    ROS_DEBUG("[xmega] successful read!\n");
+    ROS_DEBUG("[xmega-serialIO] successful read!\n");
     CRC_ = 0;
     return ACK_STATE;
   }
   else
   {
 
-    ROS_DEBUG("[xmega] data error!\n");
+    ROS_DEBUG("[xmega-serialIO] data error!\n");
     CRC_ = 0;
     return NAK_STATE;
   }
 }
 
-bool XmegaSerialInterface::write(const uint8_t *data, size_t size)
+bool SerialIO::write(const uint8_t *data, size_t size)
 {
   if (serialPtr_->write(data, size) == size) {
     return true;
@@ -203,6 +419,23 @@ bool XmegaSerialInterface::write(const uint8_t *data, size_t size)
   else {
     return false;
   }
+}
+
+static unsigned char myatoi(char *array, int size)
+{
+  // negative or dekadiko???????????????
+  int result = 0;
+  for(int i = 0; i < size; i++)
+  {
+    if(((int)array[i] >= 65) && ((int)array[i] <= 70))
+      result += ((int)array[i] - 55) * pow(16, size - i - 1);
+    else if(((int)array[i] >= 48) && ((int)array[i] <= 57))
+      result += ((int)array[i] - 48) * pow(16, size - i - 1);
+    else
+      result = NULL;
+  }
+
+  return result;
 }
 
 } // namespace pandora_xmega
