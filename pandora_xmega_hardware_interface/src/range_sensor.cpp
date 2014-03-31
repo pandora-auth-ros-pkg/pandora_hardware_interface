@@ -42,7 +42,6 @@ namespace pandora_xmega {
 
 RangeSensor::RangeSensor()
 {
-  dataLength = SRF05_TINY_LEN;
 }
 
 void RangeSensor::handleData()

@@ -47,7 +47,6 @@ XmegaSerialInterface::XmegaSerialInterface(const std::string& device,
   serialIO_(device, speed, timeout),
   t1_(0),
   t2_(0),
-  deviceID_(0),
   dataSize_(0),
   currentState_(IDLE_STATE)
 {
@@ -147,7 +146,6 @@ void XmegaSerialInterface::receiveData()
         ROS_ERROR("[xmega] Failed to write NAK!\n");
       currentState_ = IDLE_STATE;
       counter_nak++;
-      delete[] pdataBuffer_; // cleanup
       done = true;
       break;
     case PROCESS_DATA_STATE:
@@ -155,7 +153,6 @@ void XmegaSerialInterface::receiveData()
       gettimeofday(&tim_, NULL);
       t2_ = tim_.tv_sec + (tim_.tv_usec / 1000000.0);
       ROS_DEBUG("[xmega] %.8f seconds elapsed\n", t2_ - t1_);
-      delete[] pdataBuffer_; // cleanup
       done = true;
       break;
     default:
@@ -165,8 +162,8 @@ void XmegaSerialInterface::receiveData()
       break;
 
     }
-
   }
+  delete[] pdataBuffer_; // cleanup
 }
 
 int XmegaSerialInterface::processData()
@@ -175,8 +172,7 @@ int XmegaSerialInterface::processData()
   int readState = SENSOR_ID;
   int type;
   char temp[2];
-  int dataLength;
-
+  
   while(bufferPointer < dataSize_)
   {
     switch(readState)
@@ -191,7 +187,6 @@ int XmegaSerialInterface::processData()
       temp[0] = pdataBuffer_[bufferPointer];
       temp[1] = pdataBuffer_[bufferPointer + 1];
       type = myatoi(temp, 2);
-      deviceID_ = type;
       bufferPointer += 3;	// ' ' after sensor type
       readState = SENSOR_I2C_ADDRESS;
       if(type == 7)			// battery, not i2c sensor
@@ -202,6 +197,7 @@ int XmegaSerialInterface::processData()
       temp[0] = pdataBuffer_[bufferPointer];
       temp[1] = pdataBuffer_[bufferPointer + 1];
       getSensor(type)->i2c_address = myatoi(temp, 2);
+      //std::cout << "ic2: " << getSensor(type)->i2c_address << " type: " << type << std::endl; 
       bufferPointer += 3;	// ' ' after sensor i2c address
       readState = SENSOR_STATUS;
       break;
@@ -222,23 +218,24 @@ int XmegaSerialInterface::processData()
       readState = SENSOR_DATA;
       break;
     case SENSOR_DATA:
-      dataLength = getSensor(type)->dataLength;
-
-      ROS_DEBUG("Data: %d", dataLength);
-      for(int i = 0; i < dataLength; i++)
+    {
+      int i = 0;
+      while( pdataBuffer_[bufferPointer] != '\n' )
       {
         temp[0] = pdataBuffer_[bufferPointer];
         temp[1] = pdataBuffer_[bufferPointer + 1];
         getSensor(type)->data[i] = myatoi(temp, 2);
         ROS_DEBUG("%d ", getSensor(type)->data[i]) ;
         bufferPointer += 2;
+        i++;
       }
       bufferPointer++;	// LF after Data
       ROS_DEBUG("POINTER: %d\n", bufferPointer);
-      getSensor(deviceID_)->handleData();
+      getSensor(type)->handleData();
       readState = SENSOR_ID;
       ROS_DEBUG("\n");
       break;
+    }
     default:
       return 0; 	// processing error
     }

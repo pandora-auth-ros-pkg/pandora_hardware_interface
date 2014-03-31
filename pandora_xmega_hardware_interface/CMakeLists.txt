@@ -25,12 +25,12 @@ include_directories(
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_executable(
-  xmega_hardware_interface
-  src/xmega_hardware_interface.cpp)
-target_link_libraries(
-  xmega_hardware_interface
-  ${catkin_LIBRARIES})
+#add_executable(
+#  xmega_hardware_interface
+#  src/xmega_hardware_interface.cpp)
+#target_link_libraries(
+#  xmega_hardware_interface
+#  ${catkin_LIBRARIES})
 
 add_library(xmega_interface
               src/battery_sensor.cpp

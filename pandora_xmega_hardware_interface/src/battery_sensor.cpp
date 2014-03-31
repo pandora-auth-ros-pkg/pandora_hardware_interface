@@ -42,7 +42,6 @@ namespace pandora_xmega {
 
 BatterySensor::BatterySensor()
 {
-  dataLength = BATTERY_LEN;
 }
 
 void BatterySensor::handleData()

@@ -98,7 +98,7 @@ class XmegaSerialInterface
     *motorVoltage = batterySensor_.motorVoltage;
   }
   
-  inline std::map<int, RangeData> getRangeData() const 
+  inline RangeMap getRangeData() const 
   {
     return rangeSensors_.sensors;
   }
@@ -118,7 +118,6 @@ class XmegaSerialInterface
   timeval tim_;
   double t1_;
   double t2_;
-  int deviceID_;
   uint16_t dataSize_;
   
   DefaultSensor defaultSensor_;

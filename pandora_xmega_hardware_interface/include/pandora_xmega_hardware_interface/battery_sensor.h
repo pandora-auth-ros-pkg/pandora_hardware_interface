@@ -41,8 +41,6 @@
 
 #include <pandora_xmega_hardware_interface/sensor_base.h>
 
-#define BATTERY_LEN 3
-
 namespace pandora_xmega {
 
 class BatterySensor : virtual public SensorBase

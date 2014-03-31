@@ -42,8 +42,6 @@
 #include <map>
 #include <pandora_xmega_hardware_interface/sensor_base.h>
 
-#define SRF05_TINY_LEN 4
-
 namespace pandora_xmega {
 
 struct RangeData
@@ -56,6 +54,8 @@ struct RangeData
   int irRange;
 };
 
+typedef std::map<int, RangeData> RangeMap;
+
 class RangeSensor : virtual public SensorBase
 {
  public:
@@ -66,7 +66,7 @@ class RangeSensor : virtual public SensorBase
   
  public:
   
-  std::map<int, RangeData> sensors;
+  RangeMap sensors;
 };
 
 } // namespace pandora_xmega

@@ -45,7 +45,6 @@ class SensorBase
 {
  public:
   SensorBase() : 
-    dataLength(0),
     i2c_address(0),
     status(0),
     state(0) 
@@ -61,7 +60,6 @@ class SensorBase
   int status;
   int state;
   
-  int dataLength;
   short int data[20];
 };
 
