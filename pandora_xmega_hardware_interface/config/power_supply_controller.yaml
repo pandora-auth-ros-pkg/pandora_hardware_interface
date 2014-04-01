@@ -1,0 +1,3 @@
+power_supply_controller:
+  type: pandora_xmega_hardware_interface/PowerSupplyController
+  publish_rate: 50

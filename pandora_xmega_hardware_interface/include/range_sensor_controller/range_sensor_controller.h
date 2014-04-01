@@ -34,86 +34,46 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
+#ifndef RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
+#define RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
 
-#include <hardware_interface/internal/hardware_resource_manager.h>
-#include <string>
+#include <controller_interface/controller.h>
+#include <pandora_xmega_hardware_interface/range_sensor_interface.h>
+#include <pluginlib/class_list_macros.h>
+#include <sensor_msgs/Range.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <boost/shared_ptr.hpp>
+
+typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
+  sensor_msgs::Range> > RangeRealtimePublisher;
 
 namespace pandora_xmega_hardware_interface
 {
-  class RangeSensorHandle
+  class RangeSensorController :
+    public controller_interface::Controller<
+      pandora_xmega_hardware_interface::RangeSensorInterface>
   {
-  public:
-    struct Data
-    {
-      Data()
-      {
-      }
+    private:
+      const ros::NodeHandle* rootNodeHandle_;
+      std::vector<
+        pandora_xmega_hardware_interface::RangeSensorHandle> sensorHandles_;
+      std::vector<RangeRealtimePublisher> realtimePublishers_;
+      std::vector<ros::Time> lastTimePublished_;
+      pandora_xmega_hardware_interface::RangeSensorInterface*
+        rangeSensorInterface_;
+      double publishRate_;
 
-      std::string name;
-      std::string frameId;
-      int* radiationType;
-      double* fieldOfView;
-      double* minRange;
-      double* maxRange;
-      boost::array<double, 5>* range;
-    };
-
-    RangeSensorHandle(const Data& data = Data())
-      : name_(data.name),
-        frameId_(data.frameId),
-        radiationType_(data.radiationType),
-        fieldOfView_(data.fieldOfView),
-        minRange_(data.minRange),
-        maxRange_(data.maxRange),
-        range_(data.range)
-    {
-    }
-
-    inline std::string getName() const
-    {
-      return name_;
-    }
-    inline std::string getFrameId() const
-    {
-      return frameId_;
-    }
-    inline const int* getRadiationType() const
-    {
-      return radiationType_;
-    }
-    inline const double* getFieldOfView() const
-    {
-      return fieldOfView_;
-    }
-    inline const double* getMinRange() const
-    {
-      return minRange_;
-    }
-    inline const double* getMaxRange() const
-    {
-      return maxRange_;
-    }
-    inline const boost::array<double, 5>* getRange() const
-    {
-      return range_;
-    }
-
-  private:
-    std::string name_;
-    std::string frameId_;
-    int* radiationType_;
-    double* fieldOfView_;
-    double* minRange_;
-    double* maxRange_;
-    boost::array<double, 5>* range_;
-  };
-
-  class RangeSensorInterface :
-    public hardware_interface::HardwareResourceManager<RangeSensorHandle>
-  {
+    public:
+      RangeSensorController();
+      ~RangeSensorController();
+      virtual bool init(
+        pandora_xmega_hardware_interface::RangeSensorInterface*
+          rangeSensorInterface,
+        const ros::NodeHandle& rootNodeHandle,
+        const ros::NodeHandle& controllerNodeHandle);
+      virtual void starting(const ros::Time& time);
+      virtual void update(const ros::Time& time, const ros::Duration& period);
+      virtual void stopping(const ros::Time& time);
   };
 }  // namespace pandora_xmega_hardware_interface
-
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H
+#endif  // RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H

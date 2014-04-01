@@ -41,8 +41,13 @@ namespace pandora_xmega_hardware_interface
   XmegaHardwareInterface::XmegaHardwareInterface(
     ros::NodeHandle nodeHandle)
   :
-    nodeHandle_(nodeHandle)
+    nodeHandle_(nodeHandle),
+    serialInterface(
+      "/dev/ttyUSB0",
+      115200,
+      100)
   {
+    serialInterface.init();
     // connect and register power supply interface
     registerPowerSupplyInterface();
 
@@ -56,6 +61,30 @@ namespace pandora_xmega_hardware_interface
 
   void XmegaHardwareInterface::read()
   {
+    serialInterface.read();
+    serialInterface.getBatteryData(
+      reinterpret_cast<float*>(&voltage_[0]),
+      reinterpret_cast<float*>(&voltage_[1]));
+
+    std::map<int, pandora_xmega::RangeData> sensorMap;
+    sensorMap = serialInterface.getRangeData();
+    // How do I know if the sensor is IR or sonar
+    std::string key;
+    if (nodeHandle_.searchParam("i2c_map/1", key))
+    {
+      std::string val;
+      nodeHandle_.getParam(key, val);
+    }
+    else
+    {
+      std::string string = string + "/sensors" + "1";
+      nodeHandle_.setParam("i2c_map/1", string);
+
+      rangeSensorName_[0] = string;
+      pandora_xmega_hardware_interface::RangeSensorHandle handle(
+          rangeData_[0]);
+        rangeSensorInterface_.registerHandle(handle);
+    }
   }
 
   void XmegaHardwareInterface::registerPowerSupplyInterface()
@@ -85,11 +114,11 @@ namespace pandora_xmega_hardware_interface
         static_cast<double>(maxVoltageList[ii]));
 
       pandora_xmega_hardware_interface::PowerSupplyHandle::Data data;
-      data.name = &powerSupplyNames_[ii];
+      data.name = powerSupplyNames_[ii];
       data.voltage = &voltage_[ii];
       powerSupplyData_.push_back(data);
       pandora_xmega_hardware_interface::PowerSupplyHandle handle(
-        &powerSupplyData_[ii]);
+        powerSupplyData_[ii]);
       powerSupplyInterface_.registerHandle(handle);
     }
     registerInterface(&powerSupplyInterface_);
@@ -127,6 +156,8 @@ namespace pandora_xmega_hardware_interface
     ROS_ASSERT(
       maxRangeList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+    // We use size()-1, because the last value in the list is used for the
+    // default options for an unknown range sensor
     for (int ii = 0; ii < rangeSensorNameList.size(); ii++)
     {
       ROS_ASSERT(
@@ -135,48 +166,51 @@ namespace pandora_xmega_hardware_interface
         static_cast<std::string>(rangeSensorNameList[ii]));
 
       ROS_ASSERT(
-        frameIdList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        frameIdList[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
       frameId_.push_back(
         static_cast<std::string>(frameIdList[ii]));
 
       ROS_ASSERT(
         radiationTypeList[ii].getType() == XmlRpc::XmlRpcValue::TypeInt);
       radiationType_.push_back(
-        static_cast<std::string>(radiationTypeList[ii]));
+        static_cast<int>(radiationTypeList[ii]));
 
       ROS_ASSERT(
         fieldOfViewList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       fieldOfView_.push_back(
-        static_cast<std::string>(fieldOfViewList[ii]));
+        static_cast<double>(fieldOfViewList[ii]));
 
       ROS_ASSERT(
         minRangeList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       minRange_.push_back(
-        static_cast<std::string>(minRangeList[ii]));
+        static_cast<double>(minRangeList[ii]));
 
       ROS_ASSERT(
         maxRangeList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       maxRange_.push_back(
-        static_cast<std::string>(maxRangeList[ii]));
-      double[5] initialRange;
+        static_cast<double>(maxRangeList[ii]));
+      boost::array<double, 5> initialRange;
       initialRange[0] = initialRange[1] =
         initialRange[2] = initialRange[3] =
-        initialRange[4] = static_cast<std::string>(maxRangeList[ii])
+        initialRange[4] = static_cast<double>(maxRangeList[ii]);
       range_.push_back(initialRange);
       bufferCounter_.push_back(0);
 
       pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
-      data.rangeSensorName_ &rangeSensorName_[ii];
-      data.frameId = &frameId_[ii];
+      data.name = rangeSensorName_[ii];
+      data.frameId = frameId_[ii];
       data.radiationType = &radiationType_[ii];
       data.fieldOfView = &fieldOfView_[ii];
       data.minRange = &minRange_[ii];
       data.maxRange = &maxRange_[ii];
       data.range = &range_[ii];
       rangeData_.push_back(data);
-      pandora_xmega_hardware_interface::RangeSensorHandle handle(
-        &rangeData_[ii]);
-      rangeSensorInterface_.registerHandle(handle);
+      if (ii > 0)
+      {
+        pandora_xmega_hardware_interface::RangeSensorHandle handle(
+          rangeData_[ii]);
+        rangeSensorInterface_.registerHandle(handle);
+      }
     }
     registerInterface(&rangeSensorInterface_);
   }

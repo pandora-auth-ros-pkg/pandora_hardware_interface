@@ -39,11 +39,11 @@
 
 #include "ros/ros.h"
 #include "tf/tf.h"
-#include <hardware_interface/imu_sensor_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_xmega_hardware_interface/power_supply_interface.h>
 #include <pandora_xmega_hardware_interface/range_sensor_interface.h>
+#include <pandora_xmega_hardware_interface/xmega_serial_interface.h>
 
 namespace pandora_xmega_hardware_interface
 {
@@ -51,6 +51,8 @@ namespace pandora_xmega_hardware_interface
   {
     private:
       ros::NodeHandle nodeHandle_;
+      pandora_xmega::XmegaSerialInterface serialInterface;
+
       pandora_xmega_hardware_interface::PowerSupplyInterface powerSupplyInterface_;
       pandora_xmega_hardware_interface::RangeSensorInterface rangeSensorInterface_;
       std::vector<pandora_xmega_hardware_interface::PowerSupplyHandle::Data>
@@ -63,12 +65,12 @@ namespace pandora_xmega_hardware_interface
 
       std::vector<std::string> rangeSensorName_;
       std::vector<std::string> frameId_;
-      std::vector<unsigned int> radiationType_;
+      std::vector<int> radiationType_;
       std::vector<double> fieldOfView_;
       std::vector<double> minRange_;
       std::vector<double> maxRange_;
-      std::vector<double[5]> range_;
-      std::vector<unsigned int> bufferCounter_;
+      std::vector< boost::array<double, 5> > range_;
+      std::vector<int> bufferCounter_;
 
       void registerPowerSupplyInterface();
       void registerRangeSensorInterface();

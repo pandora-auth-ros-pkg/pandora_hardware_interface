@@ -24,7 +24,7 @@ include_directories(
 )
 
 #~ set(CMAKE_BUILD_TYPE Debug)
-  
+
 add_executable(
   joint_states_wrapper
   src/joint_states_wrapper.cpp)

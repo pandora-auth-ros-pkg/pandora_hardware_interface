@@ -34,8 +34,8 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
+#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
+#define PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
 
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <string>
@@ -51,8 +51,8 @@ namespace pandora_xmega_hardware_interface
       {
       }
 
-      std::vector<std::string>* name;
-      std::vector<double>* voltage;
+      std::string name;
+      double* voltage;
     };
 
     PowerSupplyHandle(const Data& data = Data())
@@ -61,18 +61,18 @@ namespace pandora_xmega_hardware_interface
     {
     }
 
-    inline const std::vector<std::string>* getName() const
+    inline const std::string getName() const
     {
       return name_;
     }
-    inline const std::vector<double>* getVoltage() const
+    inline const double* getVoltage() const
     {
       return voltage_;
     }
 
   private:
-    std::vector<std::string>* name_;
-    std::vector<double>* voltage_;
+    std::string name_;
+    double* voltage_;
   };
 
   class PowerSupplyInterface :
@@ -81,4 +81,4 @@ namespace pandora_xmega_hardware_interface
   };
 }  // namespace pandora_xmega_hardware_interface
 
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_INTERFACE_H
+#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H

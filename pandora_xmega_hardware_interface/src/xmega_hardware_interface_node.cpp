@@ -34,17 +34,17 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_imu_hardware_interface/imu_hardware_interface.h"
+#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "imu_hardware_interface_node");
+  ros::init(argc, argv, "xmega_hardware_interface_node");
   ros::NodeHandle nodeHandle;
 
-  pandora_imu_hardware_interface::ImuHardwareInterface imuHardwareInterface(
+  pandora_xmega_hardware_interface::XmegaHardwareInterface xmegaHardwareInterface(
     nodeHandle);
   controller_manager::ControllerManager controllerManager(
-    &imuHardwareInterface,
+    &xmegaHardwareInterface,
     nodeHandle);
 
   ros::Time
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     period = now - last;
     last = now;
 
-    imuHardwareInterface.read();
+    xmegaHardwareInterface.read();
     controllerManager.update(now, period);
   }
   spinner.stop();
