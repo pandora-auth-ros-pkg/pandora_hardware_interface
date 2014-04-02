@@ -44,9 +44,11 @@
 #include <pandora_xmega_hardware_interface/power_supply_interface.h>
 #include <pandora_xmega_hardware_interface/range_sensor_interface.h>
 #include <pandora_xmega_hardware_interface/xmega_serial_interface.h>
+#include <sensor_msgs/Range.h>
 
 namespace pandora_xmega_hardware_interface
 {
+  typedef std::map<int, pandora_xmega::RangeData> RangeMap;
   class XmegaHardwareInterface : public hardware_interface::RobotHW
   {
     private:
