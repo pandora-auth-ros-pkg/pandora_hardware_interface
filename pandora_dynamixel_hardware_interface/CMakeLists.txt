@@ -3,7 +3,8 @@ project(pandora_dynamixel_hardware_interface)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
-  controller_manager
+  sensor_msgs
+  dynamixel_msgs
 )
 
 catkin_package(
@@ -12,7 +13,8 @@ catkin_package(
   CATKIN_DEPENDS
     roscpp
     roslint
-    controller_manager
+    sensor_msgs
+    dynamixel_msgs
 #  DEPENDS
 )
 
@@ -21,14 +23,13 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-set(CMAKE_BUILD_TYPE Debug)
-
+#~ set(CMAKE_BUILD_TYPE Debug)
+  
 add_executable(
-  dynamixel_hardware_interface_node
-  src/dynamixel_hardware_interface.cpp
-  src/dynamixel_hardware_interface_node.cpp)
+  joint_states_wrapper
+  src/joint_states_wrapper.cpp)
 target_link_libraries(
-  dynamixel_hardware_interface_node
+  joint_states_wrapper
   ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_dynamixel_hardware_interface
@@ -38,9 +39,7 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_dynamixel_hardware_interface/dynamixel_hardware_interface.h
-  src/dynamixel_hardware_interface.cpp
-  src/dynamixel_hardware_interface_node.cpp
+  src/joint_states_wrapper.cpp
 
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

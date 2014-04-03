@@ -1,15 +1,8 @@
 <launch>
-  <!-- load configuration -->
-  <rosparam
-    command="load"
-    file="$(find pandora_dynamixel_hardware_interface)/config/dynamixel_hardware_interface.yaml"
-    ns="/dynamixel"/>
-
-  <!-- Launch controller manager with pandora hardware interface-->
-  <node
-    name="dynamixel_hardware_interface_node"
-    pkg="pandora_dynamixel_hardware_interface"
-    type="dynamixel_hardware_interface_node"
-    output="screen"
-    ns="/dynamixel"/>
+  <include
+    file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controller_manager.launch" />
+  <include
+    file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controllers.launch" />
+  <include
+    file="$(find pandora_dynamixel_hardware_interface)/launch/joint_states_wrapper.launch" />
 </launch>
