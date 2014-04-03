@@ -68,6 +68,7 @@ namespace pandora_xmega_hardware_interface
       std::vector<std::string> rangeSensorName_;
       std::vector<std::string> frameId_;
       std::vector<int> radiationType_;
+      std::vector<int> i2c_address_; //not stored in handle
       std::vector<double> fieldOfView_;
       std::vector<double> minRange_;
       std::vector<double> maxRange_;

@@ -64,9 +64,7 @@ namespace pandora_xmega_hardware_interface
   void XmegaHardwareInterface::read()
   {
     serialInterface.read();
-    serialInterface.getBatteryData(
-      reinterpret_cast<float*>(&voltage_[0]),
-      reinterpret_cast<float*>(&voltage_[1]));
+    serialInterface.getBatteryData(&voltage_[0], &voltage_[1]);
 
     RangeMap sensorMap;
     sensorMap = serialInterface.getRangeData();
@@ -83,7 +81,7 @@ namespace pandora_xmega_hardware_interface
       std::string name;
       if (nodeHandle_.getParam(i2c + address + sonar, name))
       {
-        for (int ii = 1; ii < rangeData_.size(); ii++)
+        for (int ii = 2; ii < rangeData_.size(); ii++)
         {
           if (rangeData_[ii].name == name)
           {
@@ -125,7 +123,7 @@ namespace pandora_xmega_hardware_interface
 
       if (nodeHandle_.getParam(i2c + address + ir, name))
       {
-        for (int ii = 1; ii < rangeData_.size(); ii++)
+        for (int ii = 2; ii < rangeData_.size(); ii++)
         {
           if (rangeData_[ii].name == name)
           {
@@ -141,13 +139,13 @@ namespace pandora_xmega_hardware_interface
         nodeHandle_.setParam(i2c + address + ir, sensors + address + ir);
 
         rangeSensorName_.push_back(sensors + address + ir);
-        frameId_.push_back(frameId_[0]);
+        frameId_.push_back(frameId_[1]);
         radiationType_.push_back(radiationType_[sensor_msgs::Range::INFRARED]);
-        fieldOfView_.push_back(fieldOfView_[0]);
-        minRange_.push_back(minRange_[0]);
-        maxRange_.push_back(maxRange_[0]);
-        range_.push_back(range_[0]);
-        bufferCounter_.push_back(bufferCounter_[0]);
+        fieldOfView_.push_back(fieldOfView_[1]);
+        minRange_.push_back(minRange_[1]);
+        maxRange_.push_back(maxRange_[1]);
+        range_.push_back(range_[1]);
+        bufferCounter_.push_back(bufferCounter_[1]);
 
         pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
         int ii = rangeData_.size();
@@ -169,29 +167,30 @@ namespace pandora_xmega_hardware_interface
 
   void XmegaHardwareInterface::registerPowerSupplyInterface()
   {
-    XmlRpc::XmlRpcValue powerSupplyNameList;
-    nodeHandle_.getParam("power_supplies/name", powerSupplyNameList);
+    XmlRpc::XmlRpcValue powerSupplyList;
+    nodeHandle_.getParam("power_supplies", powerSupplyList);
     ROS_ASSERT(
-      powerSupplyNameList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    XmlRpc::XmlRpcValue maxVoltageList;
-    nodeHandle_.getParam("power_supplies/max_voltage", maxVoltageList);
-    ROS_ASSERT(
-      maxVoltageList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      powerSupplyList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
     std::vector<pandora_xmega_hardware_interface::PowerSupplyHandle>
       powerSupplyHandle;
-    for (int ii = 0; ii < powerSupplyNameList.size(); ii++)
+    std::string key;
+    for (int ii = 0; ii < powerSupplyList.size(); ii++)
     {
       ROS_ASSERT(
-        powerSupplyNameList[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-      powerSupplyNames_.push_back(
-        static_cast<std::string>(powerSupplyNameList[ii]));
+        powerSupplyList[ii].getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
+      key = "name";
       ROS_ASSERT(
-        maxVoltageList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        powerSupplyList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
+      powerSupplyNames_.push_back(
+        static_cast<std::string>(powerSupplyList[ii][key]));
+
+      key = "max_voltage";
+      ROS_ASSERT(
+        powerSupplyList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       voltage_.push_back(
-        static_cast<double>(maxVoltageList[ii]));
+        static_cast<double>(powerSupplyList[ii][key]));
 
       pandora_xmega_hardware_interface::PowerSupplyHandle::Data data;
       data.name = powerSupplyNames_[ii];
@@ -206,75 +205,65 @@ namespace pandora_xmega_hardware_interface
 
   void XmegaHardwareInterface::registerRangeSensorInterface()
   {
-    XmlRpc::XmlRpcValue rangeSensorNameList;
-    nodeHandle_.getParam("range_sensors/name", rangeSensorNameList);
+    XmlRpc::XmlRpcValue rangeSensorList;
+    nodeHandle_.getParam("range_sensors", rangeSensorList);
     ROS_ASSERT(
-      rangeSensorNameList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      rangeSensorList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-    XmlRpc::XmlRpcValue frameIdList;
-    nodeHandle_.getParam("range_sensors/frame_id", frameIdList);
-    ROS_ASSERT(
-      frameIdList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    XmlRpc::XmlRpcValue radiationTypeList;
-    nodeHandle_.getParam("range_sensors/radiation_type", radiationTypeList);
-    ROS_ASSERT(
-      radiationTypeList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    XmlRpc::XmlRpcValue fieldOfViewList;
-    nodeHandle_.getParam("range_sensors/field_of_view", fieldOfViewList);
-    ROS_ASSERT(
-      fieldOfViewList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    XmlRpc::XmlRpcValue minRangeList;
-    nodeHandle_.getParam("range_sensors/min_range", minRangeList);
-    ROS_ASSERT(
-      minRangeList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    XmlRpc::XmlRpcValue maxRangeList;
-    nodeHandle_.getParam("range_sensors/max_range", maxRangeList);
-    ROS_ASSERT(
-      maxRangeList.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-    // We use size()-1, because the last value in the list is used for the
-    // default options for an unknown range sensor
-    for (int ii = 0; ii < rangeSensorNameList.size(); ii++)
+    std::string key;
+    for (int ii = 0; ii < rangeSensorList.size(); ii++)
     {
       ROS_ASSERT(
-        rangeSensorNameList[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+        rangeSensorList[ii].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+
+      key = "name";
+      ROS_ASSERT(
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
       rangeSensorName_.push_back(
-        static_cast<std::string>(rangeSensorNameList[ii]));
+        static_cast<std::string>(rangeSensorList[ii][key]));
 
+      key = "frame_id";
       ROS_ASSERT(
-        frameIdList[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
       frameId_.push_back(
-        static_cast<std::string>(frameIdList[ii]));
+        static_cast<std::string>(rangeSensorList[ii][key]));
 
+      key = "radiation_type";
       ROS_ASSERT(
-        radiationTypeList[ii].getType() == XmlRpc::XmlRpcValue::TypeInt);
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeInt);
       radiationType_.push_back(
-        static_cast<int>(radiationTypeList[ii]));
+        static_cast<int>(rangeSensorList[ii][key]));
 
+      key = "field_of_view";
       ROS_ASSERT(
-        fieldOfViewList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       fieldOfView_.push_back(
-        static_cast<double>(fieldOfViewList[ii]));
+        static_cast<double>(rangeSensorList[ii][key]));
 
+      key = "min_range";
       ROS_ASSERT(
-        minRangeList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       minRange_.push_back(
-        static_cast<double>(minRangeList[ii]));
+        static_cast<double>(rangeSensorList[ii][key]));
 
+      key = "max_range";
       ROS_ASSERT(
-        maxRangeList[ii].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
       maxRange_.push_back(
-        static_cast<double>(maxRangeList[ii]));
+        static_cast<double>(rangeSensorList[ii][key]));
+
       boost::array<double, 5> initialRange;
       initialRange[0] = initialRange[1] =
         initialRange[2] = initialRange[3] =
-        initialRange[4] = static_cast<double>(maxRangeList[ii]);
+        initialRange[4] = static_cast<double>(rangeSensorList[ii][key]);
       range_.push_back(initialRange);
       bufferCounter_.push_back(0);
+
+      key = "i2c_address";
+      ROS_ASSERT(
+        rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeInt);
+      i2c_address_.push_back(
+        static_cast<int>(rangeSensorList[ii][key]));
 
       pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
       data.name = rangeSensorName_[ii];
@@ -285,7 +274,7 @@ namespace pandora_xmega_hardware_interface
       data.maxRange = &maxRange_[ii];
       data.range = &range_[ii];
       rangeData_.push_back(data);
-      if (ii > 0)
+      if (ii > 1)
       {
         pandora_xmega_hardware_interface::RangeSensorHandle handle(
           rangeData_[ii]);

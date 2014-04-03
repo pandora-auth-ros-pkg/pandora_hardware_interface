@@ -92,7 +92,7 @@ class XmegaSerialInterface
   
   void read();
 
-  inline void getBatteryData(float* psuVoltage, float* motorVoltage) const
+  inline void getBatteryData(double* psuVoltage, double* motorVoltage) const
   {
     *psuVoltage = batterySensor_.psuVoltage;
     *motorVoltage = batterySensor_.motorVoltage;

@@ -53,8 +53,8 @@ class BatterySensor : virtual public SensorBase
 
  public:
   
-  float psuVoltage;
-  float motorVoltage;
+  double psuVoltage;
+  double motorVoltage;
 };
 
 } // namespace pandora_xmega
