@@ -5,8 +5,8 @@
   <description>controllers_and_sensors_communications</description>
   <maintainer email="zalidis@gmail.com">Chris Zalidis</maintainer>
   
-  <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_sensors/issues</url>
-  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_sensors</url>
+  <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
+  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
 
 
   <license>BSD</license>
