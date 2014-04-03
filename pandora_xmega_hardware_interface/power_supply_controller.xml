@@ -1,4 +1,4 @@
-<library path="lib/libpower_supply_controller.so">
+<library path="lib/libpower_supply_controller">
   <class
     name="pandora_xmega_hardware_interface/PowerSupplyController"
     type="pandora_xmega_hardware_interface::PowerSupplyController"

@@ -47,7 +47,9 @@ namespace pandora_xmega_hardware_interface
       115200,
       100)
   {
-    serialInterface.init();
+    // commented for testing 
+    //serialInterface.init();
+    
     // connect and register power supply interface
     registerPowerSupplyInterface();
 

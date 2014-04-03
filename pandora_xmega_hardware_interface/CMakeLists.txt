@@ -4,6 +4,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
   controller_manager
+  controller_interface
   serial
   std_msgs
   pluginlib
@@ -11,11 +12,14 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES
+  LIBRARIES
+    power_supply_controller
+    range_sensor_controller
   CATKIN_DEPENDS
     roscpp
     roslint
     controller_manager
+    controller_interface
     serial
     std_msgs
     pluginlib
@@ -27,7 +31,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-#~ set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_library(
   xmega_interface

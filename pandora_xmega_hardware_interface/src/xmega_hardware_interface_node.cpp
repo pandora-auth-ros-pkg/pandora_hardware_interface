@@ -61,8 +61,9 @@ int main(int argc, char **argv)
     now = ros::Time::now();
     period = now - last;
     last = now;
-
-    xmegaHardwareInterface.read();
+    
+    // comment for testing
+    //xmegaHardwareInterface.read();
     controllerManager.update(now, period);
   }
   spinner.stop();

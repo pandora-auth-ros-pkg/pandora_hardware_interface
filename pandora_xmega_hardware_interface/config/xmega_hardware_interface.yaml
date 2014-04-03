@@ -2,14 +2,14 @@ power_supplies:
   name: ['/PSU_battery','/motors_battery']
   max_voltage: [24.0,24.0]
 range_sensors:
-  name: ['default' '/sensor/left_sonar','/sensor/right_sonar']
+  name: ['default', '/sensor/left_sonar','/sensor/right_sonar']
   frame_id: ['', '/left_sonar', '/right_sonar']
   radiation_type: [0,0,0]
   field_of_view: [80.0,80.0,80.0]
   min_range: [0.2,0.2,0.2]
   max_range: [4.5,4.5,4.5]
 i2c_address:
-  1:
+  t1:
     sonar: /sensor/left_sonar
-  2: 
+  t2: 
     sonar: /sensor/right_sonar

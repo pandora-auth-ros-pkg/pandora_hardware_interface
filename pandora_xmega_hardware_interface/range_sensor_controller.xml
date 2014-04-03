@@ -1,4 +1,4 @@
-<library path="lib/librange_sensor_controller.so">
+<library path="lib/librange_sensor_controller">
   <class
     name="pandora_xmega_hardware_interface/RangeSensorController"
     type="pandora_xmega_hardware_interface::RangeSensorController"
