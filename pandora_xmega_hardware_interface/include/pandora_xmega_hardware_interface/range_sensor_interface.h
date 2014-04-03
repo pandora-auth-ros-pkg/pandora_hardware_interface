@@ -51,13 +51,13 @@ namespace pandora_xmega_hardware_interface
       {
       }
 
-      std::vector<std::string>* name;
-      std::vector<std::string>* frameId;
-      std::vector<unsigned int>* radiationType;
-      std::vector<double>* fieldOfView;
-      std::vector<double>* minRange;
-      std::vector<double>* maxRange;
-      std::vector<double[5]>* range;
+      std::string name;
+      std::string frameId;
+      int* radiationType;
+      double* fieldOfView;
+      double* minRange;
+      double* maxRange;
+      boost::array<double, 5>* range;
     };
 
     RangeSensorHandle(const Data& data = Data())
@@ -71,43 +71,43 @@ namespace pandora_xmega_hardware_interface
     {
     }
 
-    inline std::vector<std::string>* getName() const
+    inline std::string getName() const
     {
       return name_;
     }
-    inline std::vector<std::string>* getFrameId() const
+    inline std::string getFrameId() const
     {
       return frameId_;
     }
-    inline const std::vector<unsigned int>* getRadiationType() const
+    inline const int* getRadiationType() const
     {
       return radiationType_;
     }
-    inline const std::vector<double>* getFieldOfView() const
+    inline const double* getFieldOfView() const
     {
       return fieldOfView_;
     }
-    inline const std::vector<double>* getMinRange() const
+    inline const double* getMinRange() const
     {
       return minRange_;
     }
-    inline const std::vector<double>* getMaxRange() const
+    inline const double* getMaxRange() const
     {
       return maxRange_;
     }
-    inline const std::vector<double[5]>* getRange() const
+    inline const boost::array<double, 5>* getRange() const
     {
       return range_;
     }
 
   private:
-    std::vector<std::string>* name_;
-    std::vector<std::string>* frameId_;
-    std::vector<unsigned int>* radiationType_;
-    std::vector<double>* fieldOfView_;
-    std::vector<double>* minRange_;
-    std::vector<double>* maxRange_;
-    std::vector<double[5]>* range_;
+    std::string name_;
+    std::string frameId_;
+    int* radiationType_;
+    double* fieldOfView_;
+    double* minRange_;
+    double* maxRange_;
+    boost::array<double, 5>* range_;
   };
 
   class RangeSensorInterface :

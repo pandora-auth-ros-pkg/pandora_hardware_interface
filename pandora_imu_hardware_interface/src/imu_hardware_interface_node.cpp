@@ -35,35 +35,36 @@
 * Author:  Evangelos Apostolidis
 *********************************************************************/
 #include "pandora_imu_hardware_interface/imu_hardware_interface.h"
-  int main(int argc, char **argv)
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "imu_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
+
+  pandora_imu_hardware_interface::ImuHardwareInterface imuHardwareInterface(
+    nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &imuHardwareInterface,
+    nodeHandle);
+
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
+
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while ( ros::ok() )
   {
-    ros::init(argc, argv, "imu_hardware_interface_node");
-    ros::NodeHandle nodeHandle;
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
 
-    pandora_imu_hardware_interface::ImuHardwareInterface imuHardwareInterface(
-      nodeHandle);
-    controller_manager::ControllerManager controllerManager(
-      &imuHardwareInterface,
-      nodeHandle);
-
-    ros::Time
-      last,
-      now;
-    now = last = ros::Time::now();
-    ros::Duration period(1.0);
-
-    ros::AsyncSpinner spinner(2);
-    spinner.start();
-
-    while ( ros::ok() )
-    {
-      now = ros::Time::now();
-      period = now - last;
-      last = now;
-
-      imuHardwareInterface.read();
-      controllerManager.update(now, period);
-    }
-    spinner.stop();
-    return 0;
+    imuHardwareInterface.read();
+    controllerManager.update(now, period);
   }
+  spinner.stop();
+  return 0;
+}

@@ -32,32 +32,41 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Michael Niarchos
-* Author: Chris Zalidis
+* Author:  Evangelos Apostolidis
 *********************************************************************/
+#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
-#ifndef BATTERY_SENSOR_H 
-#define BATTERY_SENSOR_H
-
-#include <pandora_xmega_hardware_interface/sensor_base.h>
-
-namespace pandora_xmega {
-
-class BatterySensor : virtual public SensorBase
+int main(int argc, char **argv)
 {
- public:
-  BatterySensor();
-  ~BatterySensor();
-  
-  virtual void handleData();
+  ros::init(argc, argv, "xmega_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
 
- public:
-  
-  double psuVoltage;
-  double motorVoltage;
-};
+  pandora_xmega_hardware_interface::XmegaHardwareInterface xmegaHardwareInterface(
+    nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &xmegaHardwareInterface,
+    nodeHandle);
 
-} // namespace pandora_xmega
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
 
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
 
-#endif
+  while ( ros::ok() )
+  {
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
+    
+    // comment for testing
+    //xmegaHardwareInterface.read();
+    controllerManager.update(now, period);
+    ros::Duration(0.1).sleep();
+  }
+  spinner.stop();
+  return 0;
+}

@@ -5,7 +5,7 @@ int main(int argc, char** argv)
   pandora_xmega::XmegaSerialInterface xmega("/dev/ttyS0", 115200, 100);
   xmega.init();
   
-  float psu = 0, motor = 0;
+  double psu = 0, motor = 0;
 
   while(1) {
     

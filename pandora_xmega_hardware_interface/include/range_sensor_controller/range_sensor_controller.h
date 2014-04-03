@@ -34,54 +34,46 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
+#ifndef RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
+#define RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
 
-#include "ros/ros.h"
-#include "tf/tf.h"
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-#include <pandora_xmega_hardware_interface/power_supply_interface.h>
+#include <controller_interface/controller.h>
 #include <pandora_xmega_hardware_interface/range_sensor_interface.h>
-#include <pandora_xmega_hardware_interface/xmega_serial_interface.h>
+#include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/Range.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <boost/shared_ptr.hpp>
+
+typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
+  sensor_msgs::Range> > RangeRealtimePublisher;
 
 namespace pandora_xmega_hardware_interface
 {
-  typedef std::map<int, pandora_xmega::RangeData> RangeMap;
-  class XmegaHardwareInterface : public hardware_interface::RobotHW
+  class RangeSensorController :
+    public controller_interface::Controller<
+      pandora_xmega_hardware_interface::RangeSensorInterface>
   {
     private:
-      ros::NodeHandle nodeHandle_;
-      pandora_xmega::XmegaSerialInterface serialInterface;
+      const ros::NodeHandle* rootNodeHandle_;
+      std::vector<
+        pandora_xmega_hardware_interface::RangeSensorHandle> sensorHandles_;
+      std::vector<RangeRealtimePublisher> realtimePublishers_;
+      std::vector<ros::Time> lastTimePublished_;
+      pandora_xmega_hardware_interface::RangeSensorInterface*
+        rangeSensorInterface_;
+      double publishRate_;
 
-      pandora_xmega_hardware_interface::PowerSupplyInterface powerSupplyInterface_;
-      pandora_xmega_hardware_interface::RangeSensorInterface rangeSensorInterface_;
-      std::vector<pandora_xmega_hardware_interface::PowerSupplyHandle::Data>
-        powerSupplyData_;
-      std::vector<pandora_xmega_hardware_interface::RangeSensorHandle::Data>
-        rangeData_;
-
-      std::vector<std::string> powerSupplyNames_;
-      std::vector<double> voltage_;
-
-      std::vector<std::string> rangeSensorName_;
-      std::vector<std::string> frameId_;
-      std::vector<int> radiationType_;
-      std::vector<int> i2c_address_; //not stored in handle
-      std::vector<double> fieldOfView_;
-      std::vector<double> minRange_;
-      std::vector<double> maxRange_;
-      std::vector< boost::array<double, 5> > range_;
-      std::vector<int> bufferCounter_;
-
-      void registerPowerSupplyInterface();
-      void registerRangeSensorInterface();
     public:
-      explicit XmegaHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~XmegaHardwareInterface();
-      void read();
+      RangeSensorController();
+      ~RangeSensorController();
+      virtual bool init(
+        pandora_xmega_hardware_interface::RangeSensorInterface*
+          rangeSensorInterface,
+        const ros::NodeHandle& rootNodeHandle,
+        const ros::NodeHandle& controllerNodeHandle);
+      virtual void starting(const ros::Time& time);
+      virtual void update(const ros::Time& time, const ros::Duration& period);
+      virtual void stopping(const ros::Time& time);
   };
 }  // namespace pandora_xmega_hardware_interface
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
+#endif  // RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
