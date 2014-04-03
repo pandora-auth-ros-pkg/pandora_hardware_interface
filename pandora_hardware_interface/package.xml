@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>pandora_controllers</name>
+  <name>pandora_hardware_interface</name>
   <version>0.0.0</version>
-  <description>Containts pandora controller packages</description>
+  <description>Containts pandora controller packages used to interface eith hardware.</description>
 
   <maintainer email="apostoee@gmail.com">Evangelos Apostolidis</maintainer>
 
