@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES
   CATKIN_DEPENDS
     roscpp
@@ -18,10 +18,7 @@ catkin_package(
 #  DEPENDS
 )
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(${catkin_INCLUDE_DIRS})
 
 #~ set(CMAKE_BUILD_TYPE Debug)
 
