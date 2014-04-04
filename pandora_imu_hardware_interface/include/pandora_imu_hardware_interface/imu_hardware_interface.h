@@ -44,7 +44,9 @@
 #include <controller_manager/controller_manager.h>
 #include <pandora_imu_hardware_interface/imu_serial_interface.h>
 
-namespace pandora_imu_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace imu
 {
   class ImuHardwareInterface : public hardware_interface::RobotHW
   {
@@ -62,5 +64,6 @@ namespace pandora_imu_hardware_interface
       ~ImuHardwareInterface();
       void read();
   };
-}  // namespace pandora_imu_hardware_interface
+}  // namespace imu
+}  // namespace pandora_hardware_interface
 #endif  // PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H

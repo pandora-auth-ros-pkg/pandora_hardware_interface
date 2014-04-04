@@ -43,7 +43,9 @@
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 
-namespace pandora_motor_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace motor
 {
   class MotorHardwareInterface : public hardware_interface::RobotHW
   {
@@ -66,5 +68,6 @@ namespace pandora_motor_hardware_interface
       void read();
       void write();
   };
-}  // namespace pandora_motor_hardware_interface
+}  // namespace motor
+}  // namespace pandora_hardware_interface
 #endif  // PANDORA_MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H

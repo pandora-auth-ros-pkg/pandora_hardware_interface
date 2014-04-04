@@ -36,7 +36,9 @@
 *********************************************************************/
 #include "pandora_motor_hardware_interface/motor_hardware_interface.h"
 
-namespace pandora_motor_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace motor
 {
   MotorHardwareInterface::MotorHardwareInterface(
     ros::NodeHandle nodeHandle)
@@ -102,4 +104,5 @@ namespace pandora_motor_hardware_interface
 
     return jointNames;
   }
-}  // namespace pandora_motor_hardware_interface
+}  // namespace motor
+}  // namespace pandora_hardware_interface

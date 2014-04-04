@@ -41,7 +41,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "imu_hardware_interface_node");
   ros::NodeHandle nodeHandle;
 
-  pandora_imu_hardware_interface::ImuHardwareInterface imuHardwareInterface(
+  pandora_hardware_interface::imu::ImuHardwareInterface imuHardwareInterface(
     nodeHandle);
   controller_manager::ControllerManager controllerManager(
     &imuHardwareInterface,

@@ -48,7 +48,9 @@
 #include <ros/ros.h>
 #include <serial/serial.h>
 
-namespace pandora_imu_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace imu
 {
   class ImuSerialInterface : private boost::noncopyable
   {
@@ -102,6 +104,7 @@ namespace pandora_imu_hardware_interface
 
     boost::scoped_ptr<serial::Serial> serialPtr_;
   };
-}  // namespace pandora_imu_hardware_interface
+}  // namespace imu
+}  // namespace pandora_hardware_interface
 
 #endif  // PANDORA_IMU_HARDWARE_INTERFACE_IMU_SERIAL_INTERFACE_H

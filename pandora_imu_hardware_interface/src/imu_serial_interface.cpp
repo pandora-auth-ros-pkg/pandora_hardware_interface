@@ -37,7 +37,9 @@
 
 #include <pandora_imu_hardware_interface/imu_serial_interface.h>
 
-namespace pandora_imu_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace imu
 {
   ImuSerialInterface::ImuSerialInterface(
     const std::string& device,
@@ -147,4 +149,5 @@ namespace pandora_imu_hardware_interface
       roll_ = boost::lexical_cast<float> (data[3]);
     }
   }
-}  // namespace pandora_imu_hardware_interface
+}  // namespace imu
+}  // namespace pandora_hardware_interface

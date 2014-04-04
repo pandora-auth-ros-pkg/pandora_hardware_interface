@@ -36,7 +36,9 @@
 *********************************************************************/
 #include "pandora_imu_hardware_interface/imu_hardware_interface.h"
 
-namespace pandora_imu_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace imu
 {
   ImuHardwareInterface::ImuHardwareInterface(
     ros::NodeHandle nodeHandle)
@@ -80,5 +82,5 @@ namespace pandora_imu_hardware_interface
     imuOrientation[2] = orientation.getAxis()[2];
     imuOrientation[3] = orientation.getW();
   }
-
-}  // namespace pandora_imu_hardware_interface
+}  // namespace imu
+}  // namespace pandora_hardware_interface

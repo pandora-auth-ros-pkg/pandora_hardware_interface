@@ -40,7 +40,7 @@
     ros::init(argc, argv, "motor_hardware_interface_node");
     ros::NodeHandle nodeHandle;
 
-    pandora_motor_hardware_interface::MotorHardwareInterface
+    pandora_hardware_interface::motor::MotorHardwareInterface
       motorHardwareInterface(
         nodeHandle);
     controller_manager::ControllerManager controllerManager(
