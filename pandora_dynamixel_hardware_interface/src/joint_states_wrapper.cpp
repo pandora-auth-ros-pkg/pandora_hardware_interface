@@ -41,111 +41,116 @@
 #include <sensor_msgs/JointState.h>
 #include <dynamixel_msgs/JointState.h>
 
-class JointStatesWrapper
+namespace pandora_hardware_interface
 {
-  private:
-    ros::NodeHandle nodeHandle_;
-
-    sensor_msgs::JointState jointStatesMsg_;
-
-    ros::Subscriber laserRollSubscriber_;
-    ros::Subscriber laserPitchSubscriber_;
-    ros::Subscriber kinectPitchSubscriber_;
-    ros::Subscriber kinectYawSubscriber_;
-    ros::Publisher publisher_;
-
-    ros::Timer timer;
-
-    void laserRollCallback(const dynamixel_msgs::JointState& msg);
-    void laserPitchCallback(const dynamixel_msgs::JointState& msg);
-    void kinectPitchCallback(const dynamixel_msgs::JointState& msg);
-    void kinectYawCallback(const dynamixel_msgs::JointState& msg);
-    void jointStatesCallback(const ros::TimerEvent&);
-  public:
-  JointStatesWrapper();
-  ~JointStatesWrapper();
-};
-
-JointStatesWrapper::JointStatesWrapper()
+namespace dynamixel
 {
-  jointStatesMsg_.name.push_back("/laser_roll_joint");
-  jointStatesMsg_.position.push_back(0);
-  jointStatesMsg_.name.push_back("/laser_pitch_joint");
-  jointStatesMsg_.position.push_back(0);
-  jointStatesMsg_.name.push_back("/kinect_pitch_joint");
-  jointStatesMsg_.position.push_back(0);
-  jointStatesMsg_.name.push_back("/kinect_yaw_joint");
-  jointStatesMsg_.position.push_back(0);
+  class JointStatesWrapper
+  {
+    private:
+      ros::NodeHandle nodeHandle_;
 
-  laserRollSubscriber_ = nodeHandle_.subscribe(
-    "/laser_roll_controller/state",
-    1,
-    &JointStatesWrapper::laserRollCallback,
-    this);
+      sensor_msgs::JointState jointStatesMsg_;
 
-  laserPitchSubscriber_ = nodeHandle_.subscribe(
-    "/laser_pitch_controller/state",
-    1,
-    &JointStatesWrapper::laserPitchCallback,
-    this);
+      ros::Subscriber laserRollSubscriber_;
+      ros::Subscriber laserPitchSubscriber_;
+      ros::Subscriber kinectPitchSubscriber_;
+      ros::Subscriber kinectYawSubscriber_;
+      ros::Publisher publisher_;
 
-  kinectPitchSubscriber_ = nodeHandle_.subscribe(
-    "/kinect_pitch_controller/state",
-    1,
-    &JointStatesWrapper::kinectPitchCallback,
-    this);
+      ros::Timer timer;
 
-  kinectYawSubscriber_ = nodeHandle_.subscribe(
-    "/kinect_yaw_controller/state",
-    1,
-    &JointStatesWrapper::kinectYawCallback,
-    this);
+      void laserRollCallback(const dynamixel_msgs::JointState& msg);
+      void laserPitchCallback(const dynamixel_msgs::JointState& msg);
+      void kinectPitchCallback(const dynamixel_msgs::JointState& msg);
+      void kinectYawCallback(const dynamixel_msgs::JointState& msg);
+      void jointStatesCallback(const ros::TimerEvent&);
+    public:
+    JointStatesWrapper();
+    ~JointStatesWrapper();
+  };
 
-  publisher_ = nodeHandle_.advertise<sensor_msgs::JointState>(
-    "/dynamixel/joint_states",
-    1);
+  JointStatesWrapper::JointStatesWrapper()
+  {
+    jointStatesMsg_.name.push_back("/laser_roll_joint");
+    jointStatesMsg_.position.push_back(0);
+    jointStatesMsg_.name.push_back("/laser_pitch_joint");
+    jointStatesMsg_.position.push_back(0);
+    jointStatesMsg_.name.push_back("/kinect_pitch_joint");
+    jointStatesMsg_.position.push_back(0);
+    jointStatesMsg_.name.push_back("/kinect_yaw_joint");
+    jointStatesMsg_.position.push_back(0);
 
-  timer = nodeHandle_.createTimer(
-    ros::Duration(0.01),
-    &JointStatesWrapper::jointStatesCallback,
-    this);
-}
+    laserRollSubscriber_ = nodeHandle_.subscribe(
+      "/laser_roll_controller/state",
+      1,
+      &JointStatesWrapper::laserRollCallback,
+      this);
 
-JointStatesWrapper::~JointStatesWrapper()
-{
-}
+    laserPitchSubscriber_ = nodeHandle_.subscribe(
+      "/laser_pitch_controller/state",
+      1,
+      &JointStatesWrapper::laserPitchCallback,
+      this);
 
-void JointStatesWrapper::laserRollCallback(const dynamixel_msgs::JointState& msg)
-{
-  jointStatesMsg_.position[0] = msg.current_pos;
-}
+    kinectPitchSubscriber_ = nodeHandle_.subscribe(
+      "/kinect_pitch_controller/state",
+      1,
+      &JointStatesWrapper::kinectPitchCallback,
+      this);
 
-void JointStatesWrapper::laserPitchCallback(const dynamixel_msgs::JointState& msg)
-{
-  jointStatesMsg_.position[1] = msg.current_pos;
-}
+    kinectYawSubscriber_ = nodeHandle_.subscribe(
+      "/kinect_yaw_controller/state",
+      1,
+      &JointStatesWrapper::kinectYawCallback,
+      this);
 
-void JointStatesWrapper::kinectPitchCallback(const dynamixel_msgs::JointState& msg)
-{
-  jointStatesMsg_.position[2] = msg.current_pos;
-}
+    publisher_ = nodeHandle_.advertise<sensor_msgs::JointState>(
+      "/dynamixel/joint_states",
+      1);
 
-void JointStatesWrapper::kinectYawCallback(const dynamixel_msgs::JointState& msg)
-{
-  jointStatesMsg_.position[3] = msg.current_pos;
-}
+    timer = nodeHandle_.createTimer(
+      ros::Duration(0.01),
+      &JointStatesWrapper::jointStatesCallback,
+      this);
+  }
 
-void JointStatesWrapper::jointStatesCallback(const ros::TimerEvent&)
-{
-  jointStatesMsg_.header.stamp = ros::Time::now();
-  publisher_.publish(jointStatesMsg_);
-}
+  JointStatesWrapper::~JointStatesWrapper()
+  {
+  }
+
+  void JointStatesWrapper::laserRollCallback(const dynamixel_msgs::JointState& msg)
+  {
+    jointStatesMsg_.position[0] = msg.current_pos;
+  }
+
+  void JointStatesWrapper::laserPitchCallback(const dynamixel_msgs::JointState& msg)
+  {
+    jointStatesMsg_.position[1] = msg.current_pos;
+  }
+
+  void JointStatesWrapper::kinectPitchCallback(const dynamixel_msgs::JointState& msg)
+  {
+    jointStatesMsg_.position[2] = msg.current_pos;
+  }
+
+  void JointStatesWrapper::kinectYawCallback(const dynamixel_msgs::JointState& msg)
+  {
+    jointStatesMsg_.position[3] = msg.current_pos;
+  }
+
+  void JointStatesWrapper::jointStatesCallback(const ros::TimerEvent&)
+  {
+    jointStatesMsg_.header.stamp = ros::Time::now();
+    publisher_.publish(jointStatesMsg_);
+  }
+}  // namespace dynamixel
+}  // namespace pandora_hardware_interface
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "dynamixel_joints_state_wrapper");
-  JointStatesWrapper jointStatesWrapper;
+  pandora_hardware_interface::dynamixel::JointStatesWrapper jointStatesWrapper;
   ros::spin();
 }
-
 #endif  // PANDORA_DYNAMIXEL_HARDWARE_INTERFACE_JOINT_STATES_WRAPPER_H
