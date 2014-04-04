@@ -35,7 +35,7 @@
 * Author:  Evangelos Apostolidis
 *********************************************************************/
 #include "pandora_imu_hardware_interface/imu_hardware_interface.h"
-
+#include <boost/math/constants/constants.hpp>
 namespace pandora_hardware_interface
 {
 namespace imu
@@ -45,7 +45,7 @@ namespace imu
   :
     nodeHandle_(nodeHandle),
     imuSerialInterface(
-      "/dev/imu",
+      "/dev/ttyUSB1",
       38400,
       100)
 
@@ -74,9 +74,12 @@ namespace imu
     float yaw, pitch, roll;
     imuSerialInterface.read();
     imuSerialInterface.getData(&yaw, &pitch, &roll);
-
+    yaw = (yaw - 180 )* (2*boost::math::constants::pi<double>())/360;
+    pitch = -pitch * (2*boost::math::constants::pi<double>())/360;
+    roll = roll * (2*boost::math::constants::pi<double>())/360;
+    ROS_FATAL_STREAM(yaw << pitch << roll << std::endl);
     tf::Quaternion orientation;
-    orientation.setEuler(yaw, pitch, roll);
+    orientation.setRPY(roll, pitch, yaw);
     imuOrientation[0] = orientation.getAxis()[0];
     imuOrientation[1] = orientation.getAxis()[1];
     imuOrientation[2] = orientation.getAxis()[2];
