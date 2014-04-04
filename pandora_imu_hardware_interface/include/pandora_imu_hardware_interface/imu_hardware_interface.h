@@ -39,6 +39,7 @@
 
 #include "ros/ros.h"
 #include "tf/tf.h"
+#include <boost/math/constants/constants.hpp>
 #include <hardware_interface/imu_sensor_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>

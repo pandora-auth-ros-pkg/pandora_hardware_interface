@@ -53,6 +53,7 @@ namespace imu
     device_(device),
     speed_(speed),
     timeout_(timeout),
+    //TODO: add accel
     regex_("C([0-9]+\\.[0-9])P([-]*[0-9]+\\.[0-9])R([-]*[0-9]+\\.[0-9]).*")
   {
   }
@@ -113,12 +114,11 @@ namespace imu
 
     std::string packet = buffer.substr(start + 1, end - start - 1);
     std::string crc = buffer.substr(end + 1,  2);
-    ROS_WARN_STREAM(packet);
     std::stringstream stream(crc);
     int crcInt;
     stream >> std::hex >> crcInt;
 
-    //~ if (check(packet, crcInt))
+    if (check(packet, crcInt))
       parse(packet);
   }
 
