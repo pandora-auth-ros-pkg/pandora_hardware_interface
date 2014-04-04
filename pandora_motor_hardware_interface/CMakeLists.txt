@@ -4,6 +4,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
   controller_manager
+  serial
 )
 
 catkin_package(
@@ -13,6 +14,7 @@ catkin_package(
     roscpp
     roslint
     controller_manager
+    serial
 #  DEPENDS
 )
 
@@ -30,6 +32,12 @@ add_executable(
 target_link_libraries(
   motor_hardware_interface_node
   ${catkin_LIBRARIES})
+  
+add_library(motor_serial src/motor_serial_interface.cpp)
+target_link_libraries(motor_serial ${catkin_LIBRARIES}) 
+
+add_executable(motor_test src/test.cpp)
+target_link_libraries(motor_test motor_serial ${catkin_LIBRARIES}) 
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 set(ROSLINT_CPP_OPTS
