@@ -39,8 +39,10 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-namespace pandora_xmega {
-
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 enum state
 {
   IDLE_STATE = 70,
@@ -74,6 +76,7 @@ enum read_state
   SENSOR_DATA
 };
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 #endif

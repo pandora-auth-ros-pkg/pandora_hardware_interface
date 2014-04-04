@@ -39,8 +39,10 @@
 #ifndef SENSOR_BASE_H 
 #define SENSOR_BASE_H
 
-namespace pandora_xmega {
-
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 class SensorBase
 {
  public:
@@ -64,6 +66,7 @@ class SensorBase
 };
 
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 #endif 

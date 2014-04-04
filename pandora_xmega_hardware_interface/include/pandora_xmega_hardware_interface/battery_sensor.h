@@ -41,8 +41,10 @@
 
 #include <pandora_xmega_hardware_interface/sensor_base.h>
 
-namespace pandora_xmega {
-
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 class BatterySensor : virtual public SensorBase
 {
  public:
@@ -57,7 +59,8 @@ class BatterySensor : virtual public SensorBase
   double motorVoltage;
 };
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 
 #endif

@@ -41,8 +41,10 @@
 
 #include <pandora_xmega_hardware_interface/sensor_base.h>
 
-namespace pandora_xmega {
-
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 class DefaultSensor : public SensorBase
 {
  public:
@@ -52,7 +54,8 @@ class DefaultSensor : public SensorBase
   virtual void handleData() { }
 };
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 
 #endif

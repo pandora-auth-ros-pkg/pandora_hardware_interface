@@ -32,31 +32,48 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Michael Niarchos
-* Author: Chris Zalidis
+* Author:  Evangelos Apostolidis
 *********************************************************************/
+#ifndef PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
+#define PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
 
-#include <pandora_xmega_hardware_interface/battery_sensor.h>
+#include <controller_interface/controller.h>
+#include <pandora_xmega_hardware_interface/power_supply_interface.h>
+#include <pluginlib/class_list_macros.h>
+#include <std_msgs/Float64.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <boost/shared_ptr.hpp>
 
-namespace pandora_xmega {
+typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
+  std_msgs::Float64> > FloatRealtimePublisher;
 
-BatterySensor::BatterySensor()
+namespace pandora_hardware_interface
 {
-}
-
-void BatterySensor::handleData()
+namespace xmega
 {
-  psuVoltage = ((data[0] << 4) | ( data[1] >> 4));
-  psuVoltage *= (2.704 / 4095) * 10;
-  psuVoltage -= psuVoltage * 0.01;
+  class PowerSupplyController :
+    public controller_interface::Controller<
+      PowerSupplyInterface>
+  {
+    private:
+      std::vector<
+        PowerSupplyHandle> powerSupplyHandles_;
+      std::vector<FloatRealtimePublisher> realtimePublishers_;
+      std::vector<ros::Time> lastTimePublished_;
+      double publishRate_;
 
-  motorVoltage = (((data[1] & 0x0f) << 8) | data[2]) - 153;
-  motorVoltage *= (2.704 / 4095) * 10;
-  motorVoltage -= motorVoltage * 0.01;
-}
-
-BatterySensor::~BatterySensor()
-{
-}
-
-} // namespace pandora_xmega
+    public:
+      PowerSupplyController();
+      ~PowerSupplyController();
+      virtual bool init(
+        PowerSupplyInterface*
+          powerSupplyInterface,
+        ros::NodeHandle& rootNodeHandle,
+        ros::NodeHandle& controllerNodeHandle);
+      virtual void starting(const ros::Time& time);
+      virtual void update(const ros::Time& time, const ros::Duration& period);
+      virtual void stopping(const ros::Time& time);
+  };
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
+#endif  // PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H

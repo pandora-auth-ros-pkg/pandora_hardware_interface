@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  pandora_xmega::XmegaSerialInterface xmega("/dev/ttyS0", 115200, 100);
+  pandora_hardware_interface::xmega::XmegaSerialInterface xmega("/dev/ttyS0", 115200, 100);
   xmega.init();
   
   double psu = 0, motor = 0;
@@ -12,10 +12,10 @@ int main(int argc, char** argv)
     xmega.read();
     xmega.getBatteryData(&psu, &motor);
         
-    pandora_xmega::RangeMap range = xmega.getRangeData();
+    pandora_hardware_interface::xmega::RangeMap range = xmega.getRangeData();
 
     std::cout << "psu: " << psu << " " << "motor: " << motor << std::endl;
-    for (pandora_xmega::RangeMap::iterator it=range.begin(); it!=range.end(); ++it)
+    for (pandora_hardware_interface::xmega::RangeMap::iterator it=range.begin(); it!=range.end(); ++it)
       std::cout << "i2c_addr: " << it->first <<", value: "<< it->second.sonarRange <<std::endl;
 
     std::cout << std::endl;

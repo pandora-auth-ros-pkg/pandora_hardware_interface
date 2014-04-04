@@ -38,7 +38,10 @@
 
 #include "pandora_xmega_hardware_interface/xmega_serial_interface.h"
 
-namespace pandora_xmega {
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 
 
 XmegaSerialInterface::XmegaSerialInterface(const std::string& device, 
@@ -435,4 +438,5 @@ static unsigned char myatoi(char *array, int size)
   return result;
 }
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface

@@ -34,46 +34,39 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
-#define RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
+#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
-#include <controller_interface/controller.h>
-#include <pandora_xmega_hardware_interface/range_sensor_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <sensor_msgs/Range.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <boost/shared_ptr.hpp>
-
-typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  sensor_msgs::Range> > RangeRealtimePublisher;
-
-namespace pandora_xmega_hardware_interface
+int main(int argc, char **argv)
 {
-  class RangeSensorController :
-    public controller_interface::Controller<
-      pandora_xmega_hardware_interface::RangeSensorInterface>
-  {
-    private:
-      const ros::NodeHandle* rootNodeHandle_;
-      std::vector<
-        pandora_xmega_hardware_interface::RangeSensorHandle> sensorHandles_;
-      std::vector<RangeRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      pandora_xmega_hardware_interface::RangeSensorInterface*
-        rangeSensorInterface_;
-      double publishRate_;
+  ros::init(argc, argv, "xmega_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
 
-    public:
-      RangeSensorController();
-      ~RangeSensorController();
-      virtual bool init(
-        pandora_xmega_hardware_interface::RangeSensorInterface*
-          rangeSensorInterface,
-        ros::NodeHandle& rootNodeHandle,
-        ros::NodeHandle& controllerNodeHandle);
-      virtual void starting(const ros::Time& time);
-      virtual void update(const ros::Time& time, const ros::Duration& period);
-      virtual void stopping(const ros::Time& time);
-  };
-}  // namespace pandora_xmega_hardware_interface
-#endif  // RANGE_SENSOR_CONTROLLER_RANGE_SENSOR_CONTROLLER_H
+  pandora_hardware_interface::xmega::XmegaHardwareInterface
+    xmegaHardwareInterface(nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &xmegaHardwareInterface,
+    nodeHandle);
+
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
+
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while ( ros::ok() )
+  {
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
+    
+    // comment for testing
+    //xmegaHardwareInterface.read();
+    controllerManager.update(now, period);
+    ros::Duration(0.5).sleep();
+  }
+  spinner.stop();
+  return 0;
+}

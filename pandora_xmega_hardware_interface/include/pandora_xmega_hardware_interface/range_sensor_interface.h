@@ -40,7 +40,9 @@
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <string>
 
-namespace pandora_xmega_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace xmega
 {
   class RangeSensorHandle
   {
@@ -114,6 +116,7 @@ namespace pandora_xmega_hardware_interface
     public hardware_interface::HardwareResourceManager<RangeSensorHandle>
   {
   };
-}  // namespace pandora_xmega_hardware_interface
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 #endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_RANGE_SENSOR_INTERFACE_H

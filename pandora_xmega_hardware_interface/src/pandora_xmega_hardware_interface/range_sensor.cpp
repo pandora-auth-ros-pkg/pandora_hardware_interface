@@ -38,7 +38,10 @@
 
 #include <pandora_xmega_hardware_interface/range_sensor.h>
 
-namespace pandora_xmega {
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 
 RangeSensor::RangeSensor()
 {
@@ -58,4 +61,5 @@ RangeSensor::~RangeSensor()
 {
 }
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface

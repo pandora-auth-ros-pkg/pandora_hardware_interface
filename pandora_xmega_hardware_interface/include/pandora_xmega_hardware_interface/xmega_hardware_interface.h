@@ -46,20 +46,21 @@
 #include <pandora_xmega_hardware_interface/xmega_serial_interface.h>
 #include <sensor_msgs/Range.h>
 
-namespace pandora_xmega_hardware_interface
+namespace pandora_hardware_interface
 {
-  typedef std::map<int, pandora_xmega::RangeData> RangeMap;
+namespace xmega
+{
   class XmegaHardwareInterface : public hardware_interface::RobotHW
   {
     private:
       ros::NodeHandle nodeHandle_;
-      pandora_xmega::XmegaSerialInterface serialInterface;
+      XmegaSerialInterface serialInterface;
 
-      pandora_xmega_hardware_interface::PowerSupplyInterface powerSupplyInterface_;
-      pandora_xmega_hardware_interface::RangeSensorInterface rangeSensorInterface_;
-      std::vector<pandora_xmega_hardware_interface::PowerSupplyHandle::Data>
+      PowerSupplyInterface powerSupplyInterface_;
+      RangeSensorInterface rangeSensorInterface_;
+      std::vector<PowerSupplyHandle::Data>
         powerSupplyData_;
-      std::vector<pandora_xmega_hardware_interface::RangeSensorHandle::Data>
+      std::vector<RangeSensorHandle::Data>
         rangeData_;
 
       std::vector<std::string> powerSupplyNames_;
@@ -83,5 +84,6 @@ namespace pandora_xmega_hardware_interface
       ~XmegaHardwareInterface();
       void read();
   };
-}  // namespace pandora_xmega_hardware_interface
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 #endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H

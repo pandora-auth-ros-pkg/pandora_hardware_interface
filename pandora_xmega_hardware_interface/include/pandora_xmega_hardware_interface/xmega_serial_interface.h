@@ -51,8 +51,10 @@
 #include "pandora_xmega_hardware_interface/range_sensor.h"
 #include "pandora_xmega_hardware_interface/battery_sensor.h"
 
-namespace pandora_xmega {
-
+namespace pandora_hardware_interface
+{
+namespace xmega
+{
 class SerialIO
 {
  public:
@@ -129,6 +131,7 @@ class XmegaSerialInterface
 
 static unsigned char myatoi(char *array, int size);
 
-} // namespace pandora_xmega
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 #endif

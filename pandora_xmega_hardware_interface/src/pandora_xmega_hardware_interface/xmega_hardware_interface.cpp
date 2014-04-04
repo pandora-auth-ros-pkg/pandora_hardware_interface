@@ -36,7 +36,9 @@
 *********************************************************************/
 #include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
-namespace pandora_xmega_hardware_interface
+namespace pandora_hardware_interface
+{
+namespace xmega
 {
   XmegaHardwareInterface::XmegaHardwareInterface(
     ros::NodeHandle nodeHandle)
@@ -108,15 +110,11 @@ namespace pandora_xmega_hardware_interface
       str = "/sensors/ir";
       prefix.push_back(str);
 
-      std::stringstream ss;
-      ss << address;
-      std::string suffix = ss.str();
-
       for (int jj = 0; jj < 2; jj++)
       {
         if (!exists[jj])
         {
-          rangeSensorName_.push_back(prefix[jj] + suffix);
+          rangeSensorName_.push_back(prefix[jj] + boost::lexical_cast<std::string>(address));
           frameId_.push_back(frameId_[jj]);
           radiationType_.push_back(jj);
           fieldOfView_.push_back(fieldOfView_[jj]);
@@ -126,7 +124,7 @@ namespace pandora_xmega_hardware_interface
           bufferCounter_.push_back(bufferCounter_[jj]);
           i2c_address_.push_back(address);
 
-          pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
+          RangeSensorHandle::Data data;
           int kk = rangeData_.size();
           data.name = rangeSensorName_[kk];
           data.frameId = frameId_[kk];
@@ -137,7 +135,7 @@ namespace pandora_xmega_hardware_interface
           data.range = &range_[kk];
           rangeData_.push_back(data);
 
-          pandora_xmega_hardware_interface::RangeSensorHandle handle(
+          RangeSensorHandle handle(
               rangeData_[kk]);
           rangeSensorInterface_.registerHandle(handle);
         }
@@ -152,7 +150,7 @@ namespace pandora_xmega_hardware_interface
     ROS_ASSERT(
       powerSupplyList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-    std::vector<pandora_xmega_hardware_interface::PowerSupplyHandle>
+    std::vector<PowerSupplyHandle>
       powerSupplyHandle;
     std::string key;
     for (int ii = 0; ii < powerSupplyList.size(); ii++)
@@ -172,11 +170,11 @@ namespace pandora_xmega_hardware_interface
       voltage_.push_back(
         static_cast<double>(powerSupplyList[ii][key]));
 
-      pandora_xmega_hardware_interface::PowerSupplyHandle::Data data;
+      PowerSupplyHandle::Data data;
       data.name = powerSupplyNames_[ii];
       data.voltage = &voltage_[ii];
       powerSupplyData_.push_back(data);
-      pandora_xmega_hardware_interface::PowerSupplyHandle handle(
+      PowerSupplyHandle handle(
         powerSupplyData_[ii]);
       powerSupplyInterface_.registerHandle(handle);
     }
@@ -245,7 +243,7 @@ namespace pandora_xmega_hardware_interface
       i2c_address_.push_back(
         static_cast<int>(rangeSensorList[ii][key]));
 
-      pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
+      RangeSensorHandle::Data data;
       data.name = rangeSensorName_[ii];
       data.frameId = frameId_[ii];
       data.radiationType = &radiationType_[ii];
@@ -256,12 +254,12 @@ namespace pandora_xmega_hardware_interface
       rangeData_.push_back(data);
       if (ii > 1)
       {
-        pandora_xmega_hardware_interface::RangeSensorHandle handle(
+        RangeSensorHandle handle(
           rangeData_[ii]);
         rangeSensorInterface_.registerHandle(handle);
       }
     }
     registerInterface(&rangeSensorInterface_);
   }
-
-}  // namespace pandora_xmega_hardware_interface
+}  // namespace xmega
+}  // namespace pandora_hardware_interface

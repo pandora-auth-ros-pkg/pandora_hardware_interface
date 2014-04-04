@@ -34,43 +34,49 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef POWER_SUPPLY_CONTROLLER_POWER_SUPPLY_CONTROLLER_H
-#define POWER_SUPPLY_CONTROLLER_POWER_SUPPLY_CONTROLLER_H
+#ifndef PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+#define PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
 
 #include <controller_interface/controller.h>
-#include <pandora_xmega_hardware_interface/power_supply_interface.h>
+#include <pandora_xmega_hardware_interface/range_sensor_interface.h>
 #include <pluginlib/class_list_macros.h>
-#include <std_msgs/Float64.h>
+#include <sensor_msgs/Range.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 
 typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  std_msgs::Float64> > FloatRealtimePublisher;
+  sensor_msgs::Range> > RangeRealtimePublisher;
 
-namespace pandora_xmega_hardware_interface
+namespace pandora_hardware_interface
 {
-  class PowerSupplyController :
+namespace xmega
+{
+  class RangeSensorController :
     public controller_interface::Controller<
-      pandora_xmega_hardware_interface::PowerSupplyInterface>
+      RangeSensorInterface>
   {
     private:
+      const ros::NodeHandle* rootNodeHandle_;
       std::vector<
-        pandora_xmega_hardware_interface::PowerSupplyHandle> powerSupplyHandles_;
-      std::vector<FloatRealtimePublisher> realtimePublishers_;
+        RangeSensorHandle> sensorHandles_;
+      std::vector<RangeRealtimePublisher> realtimePublishers_;
       std::vector<ros::Time> lastTimePublished_;
+      RangeSensorInterface*
+        rangeSensorInterface_;
       double publishRate_;
 
     public:
-      PowerSupplyController();
-      ~PowerSupplyController();
+      RangeSensorController();
+      ~RangeSensorController();
       virtual bool init(
-        pandora_xmega_hardware_interface::PowerSupplyInterface*
-          powerSupplyInterface,
+        RangeSensorInterface*
+          rangeSensorInterface,
         ros::NodeHandle& rootNodeHandle,
         ros::NodeHandle& controllerNodeHandle);
       virtual void starting(const ros::Time& time);
       virtual void update(const ros::Time& time, const ros::Duration& period);
       virtual void stopping(const ros::Time& time);
   };
-}  // namespace pandora_xmega_hardware_interface
-#endif  // POWER_SUPPLY_CONTROLLER_POWER_SUPPLY_CONTROLLER_H
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
+#endif  // PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H

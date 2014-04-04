@@ -35,17 +35,17 @@ set(CMAKE_BUILD_TYPE Debug)
 
 add_library(
   xmega_interface
-  src/battery_sensor.cpp
-  src/range_sensor.cpp
-  src/xmega_serial_interface.cpp)
+  src/pandora_xmega_hardware_interface/battery_sensor.cpp
+  src/pandora_xmega_hardware_interface/range_sensor.cpp
+  src/pandora_xmega_hardware_interface/xmega_serial_interface.cpp)
 target_link_libraries(
   xmega_interface
   ${catkin_LIBRARIES})
 
 add_executable(
   xmega_hardware_interface_node
-  src/xmega_hardware_interface.cpp
-  src/xmega_hardware_interface_node.cpp)
+  src/pandora_xmega_hardware_interface/xmega_hardware_interface.cpp
+  src/pandora_xmega_hardware_interface/xmega_hardware_interface_node.cpp)
 target_link_libraries(
   xmega_hardware_interface_node
   xmega_interface
@@ -53,7 +53,7 @@ target_link_libraries(
 
 add_executable(
   xmega_test
-  src/test.cpp)
+  src/pandora_xmega_hardware_interface/test.cpp)
 target_link_libraries(
   xmega_test
   xmega_interface
@@ -61,21 +61,21 @@ target_link_libraries(
 
 add_library(
   power_supply_controller
-  src/power_supply_controller.cpp)
+  src/pandora_xmega_controllers/power_supply_controller.cpp)
 target_link_libraries(
   power_supply_controller
   ${catkin_LIBRARIES})
 
 add_library(
   range_sensor_controller
-  src/range_sensor_controller.cpp)
+  src/pandora_xmega_controllers/range_sensor_controller.cpp)
 target_link_libraries(
   range_sensor_controller
   ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_xmega_hardware_interface
 set(ROSLINT_CPP_OPTS
-  "--filter=-build/include_what_you_use")
+  "--filter=-build/include_what_you_use, -runtime/references")
 
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
@@ -87,15 +87,15 @@ FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   include/pandora_xmega_hardware_interface/range_sensor_interface.h
   #~ include/pandora_xmega_hardware_interface/sensor_base.h
   include/pandora_xmega_hardware_interface/xmega_hardware_interface.h
-  include/power_supply_controller/power_supply_controller.h
-  include/range_sensor_controller/range_sensor_controller.h
+  include/pandora_xmega_controllers/power_supply_controller.h
+  include/pandora_xmega_controllers/range_sensor_controller.h
   #~ include/pandora_xmega_hardware_interface/xmega_serial_interface.h
   #~ src/battery_sensor.cpp
   #~ src/range_sensor.cpp
   #~ src/test.cpp
-  src/xmega_hardware_interface.cpp
-  src/power_supply_controller.cpp
-  src/range_sensor_controller.cpp
+  src/pandora_xmega_hardware_interface/xmega_hardware_interface.cpp
+  src/pandora_xmega_controllers/power_supply_controller.cpp
+  src/pandora_xmega_controllers/range_sensor_controller.cpp
   #~ src/xmega_serial_interface.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

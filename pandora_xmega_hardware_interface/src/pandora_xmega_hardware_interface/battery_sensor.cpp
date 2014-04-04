@@ -32,41 +32,35 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Michael Niarchos
+* Author: Chris Zalidis
 *********************************************************************/
-#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
-int main(int argc, char **argv)
+#include <pandora_xmega_hardware_interface/battery_sensor.h>
+
+namespace pandora_hardware_interface
 {
-  ros::init(argc, argv, "xmega_hardware_interface_node");
-  ros::NodeHandle nodeHandle;
+namespace xmega
+{
 
-  pandora_xmega_hardware_interface::XmegaHardwareInterface xmegaHardwareInterface(
-    nodeHandle);
-  controller_manager::ControllerManager controllerManager(
-    &xmegaHardwareInterface,
-    nodeHandle);
-
-  ros::Time
-    last,
-    now;
-  now = last = ros::Time::now();
-  ros::Duration period(1.0);
-
-  ros::AsyncSpinner spinner(2);
-  spinner.start();
-
-  while ( ros::ok() )
-  {
-    now = ros::Time::now();
-    period = now - last;
-    last = now;
-    
-    // comment for testing
-    //xmegaHardwareInterface.read();
-    controllerManager.update(now, period);
-    ros::Duration(0.5).sleep();
-  }
-  spinner.stop();
-  return 0;
+BatterySensor::BatterySensor()
+{
 }
+
+void BatterySensor::handleData()
+{
+  psuVoltage = ((data[0] << 4) | ( data[1] >> 4));
+  psuVoltage *= (2.704 / 4095) * 10;
+  psuVoltage -= psuVoltage * 0.01;
+
+  motorVoltage = (((data[1] & 0x0f) << 8) | data[2]) - 153;
+  motorVoltage *= (2.704 / 4095) * 10;
+  motorVoltage -= motorVoltage * 0.01;
+}
+
+BatterySensor::~BatterySensor()
+{
+}
+
+}  // namespace xmega
+}  // namespace pandora_hardware_interface

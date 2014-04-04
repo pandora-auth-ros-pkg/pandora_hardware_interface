@@ -1,7 +1,7 @@
 <library path="lib/libpower_supply_controller">
   <class
-    name="pandora_xmega_hardware_interface/PowerSupplyController"
-    type="pandora_xmega_hardware_interface::PowerSupplyController"
+    name="pandora_xmega/PowerSupplyController"
+    type="pandora_hardware_interface::xmega::PowerSupplyController"
     base_class_type="controller_interface::ControllerBase">
   <description>
     This controller publishes the readings of all available power supplies as

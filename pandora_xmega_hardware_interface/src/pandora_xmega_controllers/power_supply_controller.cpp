@@ -34,21 +34,21 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "range_sensor_controller/range_sensor_controller.h"
+#include "pandora_xmega_controllers/power_supply_controller.h"
 
-namespace pandora_xmega_hardware_interface
+namespace pandora_hardware_interface
 {
-  bool RangeSensorController::init(
-    pandora_xmega_hardware_interface::RangeSensorInterface*
-      rangeSensorInterface,
+namespace xmega
+{
+  bool PowerSupplyController::init(
+    PowerSupplyInterface*
+      powerSupplyInterface,
     ros::NodeHandle& rootNodeHandle,
     ros::NodeHandle& controllerNodeHandle)
   {
-    rootNodeHandle_ = &rootNodeHandle;
-    rangeSensorInterface_ = rangeSensorInterface;
     // Get sensor names from interface
-    const std::vector<std::string>& rangeSensorNames =
-      rangeSensorInterface_->getNames();
+    const std::vector<std::string>& powerSupplyNames =
+      powerSupplyInterface->getNames();
 
     // Read publish rate from yaml
     if (!controllerNodeHandle.getParam("publish_rate", publishRate_))
@@ -58,25 +58,25 @@ namespace pandora_xmega_hardware_interface
         "Parameter 'publish_rate' not set in yaml, using default 50Hz");
     }
 
-    for (int ii = 0; ii < rangeSensorNames.size(); ii++)
+    for (int ii = 0; ii < powerSupplyNames.size(); ii++)
     {
       // Get sensor handles from interface
-      sensorHandles_.push_back(
-        rangeSensorInterface_->getHandle(rangeSensorNames[ii]));
+      powerSupplyHandles_.push_back(
+        powerSupplyInterface->getHandle(powerSupplyNames[ii]));
 
       // Create publisher for each controller
-      RangeRealtimePublisher publisher(
-        new realtime_tools::RealtimePublisher<sensor_msgs::Range>(
-          *rootNodeHandle_, rangeSensorNames[ii], 4));
+      FloatRealtimePublisher publisher(
+        new realtime_tools::RealtimePublisher<std_msgs::Float64>(
+          rootNodeHandle, powerSupplyNames[ii], 4));
       realtimePublishers_.push_back(publisher);
     }
 
     // resize last times published
-    lastTimePublished_.resize(rangeSensorNames.size());
+    lastTimePublished_.resize(powerSupplyNames.size());
     return true;
   }
 
-  void RangeSensorController::starting(const ros::Time& time)
+  void PowerSupplyController::starting(const ros::Time& time)
   {
     // Initialize last time published
     for (int ii = 0; ii < lastTimePublished_.size(); ii++)
@@ -85,31 +85,9 @@ namespace pandora_xmega_hardware_interface
     }
   }
 
-  void RangeSensorController::update(
+  void PowerSupplyController::update(
     const ros::Time& time, const ros::Duration& period)
   {
-    // Check for new sensors
-    if ( sensorHandles_.size() < rangeSensorInterface_->getNames().size() )
-    {
-      const std::vector<std::string>& rangeSensorNames =
-        rangeSensorInterface_->getNames();
-      for (int ii = sensorHandles_.size(); ii < rangeSensorNames.size(); ii++)
-      {
-        // Get new sensor handles from interface
-        sensorHandles_.push_back(
-          rangeSensorInterface_->getHandle(rangeSensorNames[ii]));
-
-        // Create publisher for new controllers
-        RangeRealtimePublisher publisher(
-          new realtime_tools::RealtimePublisher<sensor_msgs::Range>(
-            *rootNodeHandle_, rangeSensorNames[ii], 4));
-        realtimePublishers_.push_back(publisher);
-
-        // resize last times published
-        lastTimePublished_.push_back(time);
-      }
-    }
-
     // Publish messages
     for (int ii = 0; ii < realtimePublishers_.size(); ii++)
     {
@@ -120,42 +98,32 @@ namespace pandora_xmega_hardware_interface
           lastTimePublished_[ii] =
             lastTimePublished_[ii] + ros::Duration(1.0/publishRate_);
 
-          realtimePublishers_[ii]->msg_.header.stamp = time;
-          realtimePublishers_[ii]->msg_.header.frame_id =
-            sensorHandles_[ii].getFrameId();
-
-          // Fill range msg
-          realtimePublishers_[ii]->msg_.radiation_type = *sensorHandles_[ii].getRadiationType();
-          realtimePublishers_[ii]->msg_.field_of_view = *sensorHandles_[ii].getFieldOfView();
-          realtimePublishers_[ii]->msg_.min_range = *sensorHandles_[ii].getMinRange();
-          realtimePublishers_[ii]->msg_.max_range = *sensorHandles_[ii].getMaxRange();
-          double averageRange = 0;
-          for (int jj = 0; jj < 5; jj++)
+          // Fill voltage
+          if (powerSupplyHandles_[ii].getVoltage())
           {
-            averageRange =
-              averageRange + sensorHandles_[ii].getRange()->at(jj)/5;
+            realtimePublishers_[ii]->msg_.data =
+              *powerSupplyHandles_[ii].getVoltage();
           }
-          realtimePublishers_[ii] ->msg_.range = averageRange;
-
           realtimePublishers_[ii]->unlockAndPublish();
         }
       }
     }
   }
 
-  void RangeSensorController::stopping(const ros::Time& time)
+  void PowerSupplyController::stopping(const ros::Time& time)
   {
   }
 
-  RangeSensorController::RangeSensorController()
+  PowerSupplyController::PowerSupplyController()
   {
   }
 
-  RangeSensorController::~RangeSensorController()
+  PowerSupplyController::~PowerSupplyController()
   {
   }
-}  // namespace pandora_xmega_hardware_interface
+}  // namespace xmega
+}  // namespace pandora_hardware_interface
 
 PLUGINLIB_EXPORT_CLASS(
-  pandora_xmega_hardware_interface::RangeSensorController,
+  pandora_hardware_interface::xmega::PowerSupplyController,
   controller_interface::ControllerBase)
