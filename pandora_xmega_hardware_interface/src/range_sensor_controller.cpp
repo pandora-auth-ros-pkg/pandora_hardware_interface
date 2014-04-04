@@ -41,8 +41,8 @@ namespace pandora_xmega_hardware_interface
   bool RangeSensorController::init(
     pandora_xmega_hardware_interface::RangeSensorInterface*
       rangeSensorInterface,
-    const ros::NodeHandle& rootNodeHandle,
-    const ros::NodeHandle& controllerNodeHandle)
+    ros::NodeHandle& rootNodeHandle,
+    ros::NodeHandle& controllerNodeHandle)
   {
     rootNodeHandle_ = &rootNodeHandle;
     rangeSensorInterface_ = rangeSensorInterface;

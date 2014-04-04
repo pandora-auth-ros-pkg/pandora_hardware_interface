@@ -66,8 +66,8 @@ namespace pandora_xmega_hardware_interface
       virtual bool init(
         pandora_xmega_hardware_interface::PowerSupplyInterface*
           powerSupplyInterface,
-        const ros::NodeHandle& rootNodeHandle,
-        const ros::NodeHandle& controllerNodeHandle);
+        ros::NodeHandle& rootNodeHandle,
+        ros::NodeHandle& controllerNodeHandle);
       virtual void starting(const ros::Time& time);
       virtual void update(const ros::Time& time, const ros::Duration& period);
       virtual void stopping(const ros::Time& time);

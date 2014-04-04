@@ -47,9 +47,9 @@ namespace pandora_xmega_hardware_interface
       115200,
       100)
   {
-    // commented for testing 
-    //serialInterface.init();
-    
+    // commented for testing
+    // serialInterface.init();
+
     // connect and register power supply interface
     registerPowerSupplyInterface();
 
@@ -68,99 +68,79 @@ namespace pandora_xmega_hardware_interface
 
     RangeMap sensorMap;
     sensorMap = serialInterface.getRangeData();
-    std::string i2c = "i2c_addr/";
-    std::string sonar = "/sonar";
-    std::string ir = "/ir";
-    std::string sensors = "/sensors/";
+    bool exists[2] = {false, false};
     for (RangeMap::iterator it = sensorMap.begin(); it != sensorMap.end(); ++it)
     {
+      int address = it->first;
+      for (int jj = 2; jj < rangeData_.size(); jj++)
+      {
+        if ( address == i2c_address_[jj])
+        {
+          if (radiationType_[jj] == sensor_msgs::Range::ULTRASOUND)
+          {
+            range_[jj][bufferCounter_[jj]] =
+              static_cast<double>(it->second.sonarRange);
+            bufferCounter_[jj] = fmod(bufferCounter_[jj]++, 5);
+            exists[0] = true;
+            if (exists[1] == true)
+            {
+              break;
+            }
+          }
+          else if (radiationType_[jj] == sensor_msgs::Range::INFRARED)
+          {
+            range_[jj][bufferCounter_[jj]] =
+              static_cast<double>(it->second.irRange);
+            bufferCounter_[jj] = fmod(bufferCounter_[jj]++, 5);
+            exists[1] = true;
+            if (exists[0] == true)
+            {
+              break;
+            }
+          }
+        }
+      }
+
+      std::vector<std::string> prefix;
+      std::string str;
+      str = "/sensors/sonar";
+      prefix.push_back(str);
+      str = "/sensors/ir";
+      prefix.push_back(str);
+
       std::stringstream ss;
-      ss << it->first;
-      std::string address = ss.str();
+      ss << address;
+      std::string suffix = ss.str();
 
-      std::string name;
-      if (nodeHandle_.getParam(i2c + address + sonar, name))
+      for (int jj = 0; jj < 2; jj++)
       {
-        for (int ii = 2; ii < rangeData_.size(); ii++)
+        if (!exists[jj])
         {
-          if (rangeData_[ii].name == name)
-          {
-            range_[ii][bufferCounter_[ii]] =
-              static_cast<double>(it->second.sonarRange);
-            bufferCounter_[ii] = fmod(bufferCounter_[ii]++, 5);
-            break;
-          }
+          rangeSensorName_.push_back(prefix[jj] + suffix);
+          frameId_.push_back(frameId_[jj]);
+          radiationType_.push_back(jj);
+          fieldOfView_.push_back(fieldOfView_[jj]);
+          minRange_.push_back(minRange_[jj]);
+          maxRange_.push_back(maxRange_[jj]);
+          range_.push_back(range_[jj]);
+          bufferCounter_.push_back(bufferCounter_[jj]);
+          i2c_address_.push_back(address);
+
+          pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
+          int kk = rangeData_.size();
+          data.name = rangeSensorName_[kk];
+          data.frameId = frameId_[kk];
+          data.radiationType = &radiationType_[kk];
+          data.fieldOfView = &fieldOfView_[kk];
+          data.minRange = &minRange_[kk];
+          data.maxRange = &maxRange_[kk];
+          data.range = &range_[kk];
+          rangeData_.push_back(data);
+
+          pandora_xmega_hardware_interface::RangeSensorHandle handle(
+              rangeData_[kk]);
+          rangeSensorInterface_.registerHandle(handle);
         }
-      }
-      else
-      {
-        nodeHandle_.setParam(i2c + address + sonar, sensors + address + sonar);
-
-        rangeSensorName_.push_back(sensors + address + sonar);
-        frameId_.push_back(frameId_[0]);
-        radiationType_.push_back(radiationType_[sensor_msgs::Range::ULTRASOUND]);
-        fieldOfView_.push_back(fieldOfView_[0]);
-        minRange_.push_back(minRange_[0]);
-        maxRange_.push_back(maxRange_[0]);
-        range_.push_back(range_[0]);
-        bufferCounter_.push_back(bufferCounter_[0]);
-
-        pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
-        int ii = rangeData_.size();
-        data.name = rangeSensorName_[ii];
-        data.frameId = frameId_[ii];
-        data.radiationType = &radiationType_[ii];
-        data.fieldOfView = &fieldOfView_[ii];
-        data.minRange = &minRange_[ii];
-        data.maxRange = &maxRange_[ii];
-        data.range = &range_[ii];
-        rangeData_.push_back(data);
-
-        pandora_xmega_hardware_interface::RangeSensorHandle handle(
-            rangeData_[ii]);
-        rangeSensorInterface_.registerHandle(handle);
-      }
-
-      if (nodeHandle_.getParam(i2c + address + ir, name))
-      {
-        for (int ii = 2; ii < rangeData_.size(); ii++)
-        {
-          if (rangeData_[ii].name == name)
-          {
-            range_[ii][bufferCounter_[ii]] =
-              static_cast<double>(it->second.sonarRange);
-            bufferCounter_[ii] = fmod(bufferCounter_[ii]++, 5);
-            break;
-          }
-        }
-      }
-      else
-      {
-        nodeHandle_.setParam(i2c + address + ir, sensors + address + ir);
-
-        rangeSensorName_.push_back(sensors + address + ir);
-        frameId_.push_back(frameId_[1]);
-        radiationType_.push_back(radiationType_[sensor_msgs::Range::INFRARED]);
-        fieldOfView_.push_back(fieldOfView_[1]);
-        minRange_.push_back(minRange_[1]);
-        maxRange_.push_back(maxRange_[1]);
-        range_.push_back(range_[1]);
-        bufferCounter_.push_back(bufferCounter_[1]);
-
-        pandora_xmega_hardware_interface::RangeSensorHandle::Data data;
-        int ii = rangeData_.size();
-        data.name = rangeSensorName_[ii];
-        data.frameId = frameId_[ii];
-        data.radiationType = &radiationType_[ii];
-        data.fieldOfView = &fieldOfView_[ii];
-        data.minRange = &minRange_[ii];
-        data.maxRange = &maxRange_[ii];
-        data.range = &range_[ii];
-        rangeData_.push_back(data);
-
-        pandora_xmega_hardware_interface::RangeSensorHandle handle(
-            rangeData_[ii]);
-        rangeSensorInterface_.registerHandle(handle);
       }
     }
   }

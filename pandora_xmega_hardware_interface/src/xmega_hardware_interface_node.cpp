@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     // comment for testing
     //xmegaHardwareInterface.read();
     controllerManager.update(now, period);
-    ros::Duration(0.1).sleep();
+    ros::Duration(0.5).sleep();
   }
   spinner.stop();
   return 0;

@@ -41,8 +41,8 @@ namespace pandora_xmega_hardware_interface
   bool PowerSupplyController::init(
     pandora_xmega_hardware_interface::PowerSupplyInterface*
       powerSupplyInterface,
-    const ros::NodeHandle& rootNodeHandle,
-    const ros::NodeHandle& controllerNodeHandle)
+    ros::NodeHandle& rootNodeHandle,
+    ros::NodeHandle& controllerNodeHandle)
   {
     // Get sensor names from interface
     const std::vector<std::string>& powerSupplyNames =
