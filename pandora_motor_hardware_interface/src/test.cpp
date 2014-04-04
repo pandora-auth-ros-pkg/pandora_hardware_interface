@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-  pandora_hardware_interface::motor::MotorSerialInterface motors("/dev/ttyUSB0", 115200, 100);
+  pandora_hardware_interface::motor::MotorSerialInterface motors("/dev/motors", 9600, 100);
   
   if (argc != 3) {
     std::cerr << "Error: I need 2 speeds!!" << std::endl;

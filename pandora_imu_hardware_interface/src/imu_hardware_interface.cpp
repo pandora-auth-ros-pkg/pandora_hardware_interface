@@ -45,7 +45,7 @@ namespace imu
   :
     nodeHandle_(nodeHandle),
     imuSerialInterface(
-      "/dev/ttyUSB0",
+      "/dev/imu",
       38400,
       100)
 
