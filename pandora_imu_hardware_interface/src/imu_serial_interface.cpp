@@ -53,7 +53,7 @@ namespace imu
     device_(device),
     speed_(speed),
     timeout_(timeout),
-    //TODO: add accel
+    // TODO(czalidis): add accel
     regex_("C([0-9]+\\.[0-9])P([-]*[0-9]+\\.[0-9])R([-]*[0-9]+\\.[0-9]).*")
   {
   }
