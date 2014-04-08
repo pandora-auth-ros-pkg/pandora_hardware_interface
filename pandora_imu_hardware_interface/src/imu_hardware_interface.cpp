@@ -75,12 +75,17 @@ namespace imu
     imuSerialInterface.read();
     imuSerialInterface.getData(&yaw, &pitch, &roll);
 
-    tf::Quaternion orientation;
-    orientation.setEuler(yaw, pitch, roll);
-    imuOrientation[0] = orientation.getAxis()[0];
-    imuOrientation[1] = orientation.getAxis()[1];
-    imuOrientation[2] = orientation.getAxis()[2];
-    imuOrientation[3] = orientation.getW();
+    yaw = (yaw - 180 ) * (2*boost::math::constants::pi<double>())/360;
+    pitch = -pitch * (2*boost::math::constants::pi<double>())/360;
+    roll = roll * (2*boost::math::constants::pi<double>())/360;
+    geometry_msgs::Quaternion orientation;
+
+    orientation = tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
+    imuOrientation[0] = orientation.x;
+    imuOrientation[1] = orientation.y;
+    imuOrientation[2] = orientation.z;
+    imuOrientation[3] = orientation.w;
+
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface
