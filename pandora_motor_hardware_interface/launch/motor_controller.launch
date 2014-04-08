@@ -13,8 +13,5 @@
     ns="/motor"
     args="
       joint_state_controller
-      movement_left_front_joint_velocity_controller
-      movement_right_front_joint_velocity_controller
-      movement_left_rear_joint_velocity_controller
-      movement_right_rear_joint_velocity_controller" />
+      skid_steer_drive_controller" />
 </launch>

@@ -9,18 +9,13 @@ joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
 
-movement_left_front_joint_velocity_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: *movement_left_front_joint
-
-movement_right_front_joint_velocity_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: *movement_right_front_joint
-  
-movement_left_rear_joint_velocity_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: *movement_left_rear_joint
-  
-movement_right_rear_joint_velocity_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: *movement_right_rear_joint
+skid_steer_drive_controller:
+  type: pandora_motor/SkidSteerDriveController
+  wheel_separation: 0.4
+  wheel_radius: 0.11
+  max_angular_velocity: 2
+  joints:
+    - *movement_left_front_joint
+    - *movement_right_front_joint
+    - *movement_left_rear_joint
+    - *movement_right_rear_joint

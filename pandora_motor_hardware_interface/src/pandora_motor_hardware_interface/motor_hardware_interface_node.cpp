@@ -65,6 +65,7 @@
       motorHardwareInterface.read();
       controllerManager.update(now, period);
       motorHardwareInterface.write();
+      ros::Duration(0.1).sleep();
     }
     spinner.stop();
     return 0;
