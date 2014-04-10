@@ -80,7 +80,7 @@
 #include <boost/utility.hpp>
 
 #include <serial/serial.h>
-#include "abstract_epos_gateway.h"
+#include "epos_gateway/abstract_epos_gateway.h"
 
 namespace pandora_hardware_interface {
 namespace motor {

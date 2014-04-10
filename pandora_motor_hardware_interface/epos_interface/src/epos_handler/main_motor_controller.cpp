@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  *
  *   MA 02110-1301, USA.                                                   *
  ***************************************************************************/
-#include "main_motor_controller.h"
+#include "epos_handler/main_motor_controller.h"
 
 
 std::string MainMotorController::convertStatusToString(epos::CommandStatus st) {

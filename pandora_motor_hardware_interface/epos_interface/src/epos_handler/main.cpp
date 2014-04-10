@@ -25,14 +25,14 @@
 #include "ros/ros.h"
 
 
-#include <epos_serial_gateway.h>
-#include <kinematic.h>
+#include <epos_gateway/epos_serial_gateway.h>
+#include <epos_handler/kinematic.h>
 #include <fstream>
 
 
 #include "diagnostic_updater/diagnostic_updater.h"
 
-#include "main_motor_controller.h"
+#include "epos_handler/main_motor_controller.h"
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "epos");

@@ -25,11 +25,11 @@
 #include <geometry_msgs/Twist.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <epos_serial_gateway.h>
+#include <epos_gateway/epos_serial_gateway.h>
 #include <fstream>
-#include "epos_handler.h"
-#include "fake_epos_handler.h"
-#include "kinematic.h"
+#include "epos_handler/epos_handler.h"
+#include "epos_handler/fake_epos_handler.h"
+#include "epos_handler/kinematic.h"
 
 
 #include "diagnostic_updater/diagnostic_updater.h"

@@ -11,7 +11,7 @@
  * Under Const.
  */
 
-#include "kinematic.h"
+#include "epos_handler/kinematic.h"
 #include "math.h"
 
 Kinematic::Velocity::Velocity() {}

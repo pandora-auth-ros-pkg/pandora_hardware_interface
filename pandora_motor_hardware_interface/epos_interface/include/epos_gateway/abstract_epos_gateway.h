@@ -144,7 +144,8 @@ enum CommandStatus {
   RESYNC,
   ///Responce from device violates protocol. Check for changes in
   ///updated firmware
-  PROTOCOL
+  PROTOCOL,
+  DEFAULT
 };
 
 }  // namespace epos

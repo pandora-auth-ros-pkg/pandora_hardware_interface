@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include <iostream>
-#include <epos_serial_gateway.h>
+#include "epos_gateway/epos_serial_gateway.h"
 
 namespace pandora_hardware_interface {
 namespace motor {
@@ -334,9 +334,23 @@ epos::CommandStatus EposSerialGateway::sendFrame(unsigned char opCode, epos::Wor
 
 }
 
-epos::CommandStatus EposSerialGateway::readObject(unsigned char nodeID, uint16_t index, unsigned char subIndex, epos::DWord *responce) {}
+epos::CommandStatus EposSerialGateway::readObject(
+    unsigned char nodeID,
+    uint16_t index,
+    unsigned char subIndex,
+    epos::DWord *responce)
+{
+  return epos::DEFAULT;
+}
 
-epos::CommandStatus EposSerialGateway::readObject(unsigned char nodeID, uint16_t index, unsigned char subIndex, char *responce) {}
+epos::CommandStatus EposSerialGateway::readObject(
+    unsigned char nodeID,
+    uint16_t index,
+    unsigned char subIndex,
+    char *responce)
+{
+  return epos::DEFAULT;
+}
 
 epos::CommandStatus EposSerialGateway::readObject(unsigned char nodeID, uint16_t index, unsigned char subIndex, epos::Word *responce) {
   epos::Word data[2];

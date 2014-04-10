@@ -3,7 +3,7 @@
 
 #include "ros/ros.h"
 #include "kinematic.h"
-#include <epos_serial_gateway.h>
+#include <epos_gateway/epos_serial_gateway.h>
 #include <stdint.h>
 
 namespace pandora_hardware_interface {

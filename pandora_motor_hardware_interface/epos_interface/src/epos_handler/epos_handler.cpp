@@ -1,4 +1,4 @@
-#include <epos_handler.h>
+#include "epos_handler/epos_handler.h"
 
 namespace pandora_hardware_interface {
 namespace motor {
@@ -45,6 +45,8 @@ Error EposHandler::getError() {
 
   gateway.readObject(2, 0x2081, 0, &out[0]);
   error.right = (int32_t)out[1];
+
+  return error;
 }
 
 epos::CommandStatus EposHandler::writeRPM(const Kinematic::RPM& rpm) {
