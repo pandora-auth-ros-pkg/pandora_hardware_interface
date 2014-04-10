@@ -17,6 +17,10 @@ Error::Error(const uint32_t left, const uint32_t right) {
   this->right = right;
 }
 
+AbstractEposHandler::AbstractEposHandler() : gatewayImpl_(NULL)
+{
+}
+
 uint32_t AbstractEposHandler::encodeToControlWord(const Kinematic::RPM &rpm) {
   float leftSpeed, rightSpeed;
   leftSpeed = rpm.left;

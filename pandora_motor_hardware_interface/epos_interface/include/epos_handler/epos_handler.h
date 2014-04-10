@@ -7,9 +7,7 @@ namespace pandora_hardware_interface {
 namespace motor {
 
 class EposHandler: public AbstractEposHandler {
-  EposSerialGateway gateway;
-
-public:
+ public:
   EposHandler(const std::string& dev, const int& bauds, const int& time);
   virtual ~EposHandler();
   virtual Kinematic::RPM getRPM();

@@ -2,7 +2,8 @@
 #define ABSTRACTEPOSHANDLER_H
 
 #include "ros/ros.h"
-#include "kinematic.h"
+#include <boost/scoped_ptr.hpp>
+#include "epos_handler/kinematic.h"
 #include <epos_gateway/epos_serial_gateway.h>
 #include <stdint.h>
 
@@ -30,13 +31,12 @@ namespace pandora_hardware_interface {
   class AbstractEposHandler
   {
    protected:
-    ros::Time lastSetSpeedCall;
-    bool falseSpeedCall;
-    ros::Duration timeBetweenCalls;
-  
+    boost::scoped_ptr<AbstractEposGateway> gatewayImpl_;
+
    public:
-    uint32_t encodeToControlWord(const Kinematic::RPM& rpm);
+    AbstractEposHandler();
     virtual ~AbstractEposHandler();
+    uint32_t encodeToControlWord(const Kinematic::RPM& rpm);
     virtual Kinematic::RPM getRPM() = 0;
     virtual Current getCurrent() = 0;
     virtual Error getError() = 0;

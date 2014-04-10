@@ -3,7 +3,7 @@
 namespace pandora_hardware_interface {
 namespace motor {
 
-FakeEposHandler::FakeEposHandler(): AbstractEposHandler()
+FakeEposHandler::FakeEposHandler()
 {
 }
 

@@ -6,7 +6,7 @@
 namespace pandora_hardware_interface {
 namespace motor {
 
-class FakeEposHandler: public AbstractEposHandler {
+class FakeEposHandler : public AbstractEposHandler {
 
  public:
   FakeEposHandler();
