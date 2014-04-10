@@ -8,7 +8,7 @@ target_link_libraries(kinematic ${catkin_LIBRARIES})
 
 add_executable(epos
   src/epos_handler/abstract_epos_handler.cpp
-  src/epos_handler/epos_handler.cpp
+  src/epos_handler/serial_epos_handler.cpp
   src/epos_handler/fake_epos_handler.cpp
   src/epos_handler/main_motor_controller.cpp
   src/epos_handler/main.cpp

@@ -27,7 +27,7 @@
 #include <boost/thread/thread.hpp>
 #include <epos_gateway/epos_serial_gateway.h>
 #include <fstream>
-#include "epos_handler/epos_handler.h"
+#include "epos_handler/serial_epos_handler.h"
 #include "epos_handler/fake_epos_handler.h"
 #include "epos_handler/kinematic.h"
 

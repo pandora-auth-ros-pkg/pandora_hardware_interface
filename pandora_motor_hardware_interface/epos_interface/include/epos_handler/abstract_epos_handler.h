@@ -30,17 +30,19 @@ namespace pandora_hardware_interface {
   
   class AbstractEposHandler
   {
-   protected:
-    boost::scoped_ptr<AbstractEposGateway> gatewayImpl_;
-
    public:
     AbstractEposHandler();
     virtual ~AbstractEposHandler();
-    uint32_t encodeToControlWord(const Kinematic::RPM& rpm);
     virtual Kinematic::RPM getRPM() = 0;
     virtual Current getCurrent() = 0;
     virtual Error getError() = 0;
     virtual epos::CommandStatus writeRPM(const Kinematic::RPM &rpm) = 0;
+  
+   protected:
+    uint32_t encodeToControlWord(const Kinematic::RPM& rpm);
+
+   protected:
+    boost::scoped_ptr<AbstractEposGateway> gatewayImpl_;
   };
 
   }  // namespace motor

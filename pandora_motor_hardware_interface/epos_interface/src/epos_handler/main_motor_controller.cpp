@@ -39,7 +39,7 @@ MainMotorController::MainMotorController  (std::string dev,
     ros::NodeHandle &handle,
     float period)
 {
-  motors = new EposHandler(dev, speed, timeout);
+  motors = new SerialEposHandler(dev, speed, timeout);
   lastSetSpeedCall = ros::Time::now();
   falseSpeedCall = false;
   timer = m_handle.createTimer(

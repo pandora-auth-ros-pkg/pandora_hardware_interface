@@ -1,16 +1,16 @@
-#include "epos_handler/epos_handler.h"
+#include "epos_handler/serial_epos_handler.h"
 
 namespace pandora_hardware_interface {
 namespace motor {
 
-EposHandler::EposHandler(const std::string& dev, const int& bauds, const int& time)
+SerialEposHandler::SerialEposHandler(const std::string& dev, const int& bauds, const int& time)
 {
   gatewayImpl_.reset( new EposSerialGateway(dev, bauds, time) );
 }
 
-EposHandler::~EposHandler() {}
+SerialEposHandler::~SerialEposHandler() {}
 
-Kinematic::RPM EposHandler::getRPM() {
+Kinematic::RPM SerialEposHandler::getRPM() {
   epos::Word out[2];
   int32_t rpmLeft, rpmRight;
   gatewayImpl_->readObject(2, 0x2028, 0, &out[0]);
@@ -26,7 +26,7 @@ Kinematic::RPM EposHandler::getRPM() {
   return vel;
 }
 
-Current EposHandler::getCurrent() {
+Current SerialEposHandler::getCurrent() {
   epos::Word out[2];
   Current cur;
   gatewayImpl_->readObject(2, 0x2027, 0, &out[0]);
@@ -37,7 +37,7 @@ Current EposHandler::getCurrent() {
   return cur;
 }
 
-Error EposHandler::getError() {
+Error SerialEposHandler::getError() {
   epos::Word out[2];
   Error error;
   gatewayImpl_->readObject(2, 0x1003, 1, &out[0]);
@@ -49,7 +49,7 @@ Error EposHandler::getError() {
   return error;
 }
 
-epos::CommandStatus EposHandler::writeRPM(const Kinematic::RPM& rpm) {
+epos::CommandStatus SerialEposHandler::writeRPM(const Kinematic::RPM& rpm) {
   ROS_INFO("setting speed %f, %f", rpm.left, rpm.right);
   //Right motor rpm speed needs to be reversed because of its placement in the vehicle
   Kinematic::RPM temp = rpm;
