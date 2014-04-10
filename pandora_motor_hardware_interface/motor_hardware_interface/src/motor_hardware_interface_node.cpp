@@ -34,59 +34,39 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
-#define PANDORA_MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
-
-#include <controller_interface/controller.h>
-#include <hardware_interface/joint_command_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <realtime_tools/realtime_buffer.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <geometry_msgs/Twist.h>
-
-#define COMMAND_DELAY_THRESHOLD 3
-
-namespace pandora_hardware_interface
-{
-namespace motor
-{
-
-  class SkidSteerDriveController
-  :
-    public controller_interface::Controller<
-      hardware_interface::VelocityJointInterface>
+#include "motor_hardware_interface/motor_hardware_interface.h"
+  int main(int argc, char **argv)
   {
-  private:
-    const ros::NodeHandle* rootNodeHandle_;
-    hardware_interface::VelocityJointInterface* velocityJointInterface_;
-    realtime_tools::RealtimeBuffer< std::vector<double> > commandBuffer_;
-    std::vector<double> command_;
-    ros::Subscriber commandSubscriber_;
-    std::vector<hardware_interface::JointHandle> jointHandles_;
+    ros::init(argc, argv, "motor_hardware_interface_node");
+    ros::NodeHandle nodeHandle;
 
-    double wheelSeparation_;
-    double wheelRadius_;
-    double maxAngularVelocity_;
+    pandora_hardware_interface::motor::MotorHardwareInterface
+      motorHardwareInterface(
+        nodeHandle);
+    controller_manager::ControllerManager controllerManager(
+      &motorHardwareInterface,
+      nodeHandle);
 
-    void twistCallback(const geometry_msgs::Twist& twist);
-    void setMotorCommands(
-      const double leftVelocity, const double rightVelocity);
+    ros::Time
+      last,
+      now;
+    now = last = ros::Time::now();
+    ros::Duration period(1.0);
 
-  public:
-    SkidSteerDriveController();
-    ~SkidSteerDriveController();
+    ros::AsyncSpinner spinner(2);
+    spinner.start();
 
-    bool init(
-      hardware_interface::VelocityJointInterface* velocityJointInterface,
-      ros::NodeHandle& rootNodeHandle,
-      ros::NodeHandle& controllerNodeHandle);
+    while ( ros::ok() )
+    {
+      now = ros::Time::now();
+      period = now - last;
+      last = now;
 
-    void update(const ros::Time& time, const ros::Duration& period);
-
-    void starting(const ros::Time& time);
-
-    void stopping(const ros::Time& time);
-  };
-}  // namespace motor
-}  // namespace pandora_hardware_interface
-#endif  // PANDORA_MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
+      motorHardwareInterface.read();
+      controllerManager.update(now, period);
+      motorHardwareInterface.write();
+      ros::Duration(0.1).sleep();
+    }
+    spinner.stop();
+    return 0;
+  }

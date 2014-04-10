@@ -10,9 +10,14 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
 )
 
+set(THIS_PACKAGE_INCLUDE_DIRS
+    motor_controllers/include
+    motor_hardware_interface/include
+    orangutan_interface/include
+)
+
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES
+  INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
   CATKIN_DEPENDS
     roscpp
     roslint
@@ -21,49 +26,28 @@ catkin_package(
     serial
     geometry_msgs
     pluginlib
+#  LIBRARIES
 #  DEPENDS
-)
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
 )
 
 #~ set(CMAKE_BUILD_TYPE Debug)
 
-add_executable(
-  motor_hardware_interface_node
-  src/pandora_motor_hardware_interface/motor_hardware_interface.cpp
-  src/pandora_motor_hardware_interface/motor_hardware_interface_node.cpp)
-target_link_libraries(
-  motor_hardware_interface_node
-  ${catkin_LIBRARIES})
-  
-add_library(motor_serial src/pandora_motor_hardware_interface/motor_serial_interface.cpp)
-target_link_libraries(motor_serial ${catkin_LIBRARIES}) 
+include_directories(
+  ${THIS_PACKAGE_INCLUDE_DIRS} 
+  ${catkin_INCLUDE_DIRS}
+)
 
-add_executable(motor_test src/pandora_motor_hardware_interface/test.cpp)
-target_link_libraries(motor_test motor_serial ${catkin_LIBRARIES})
-
-add_library(
-  skid_steer_drive_controller
-  src/pandora_motor_controllers/skid_steer_drive_controller.cpp)
-target_link_libraries(
-  skid_steer_drive_controller
-  ${catkin_LIBRARIES})
+add_subdirectory(orangutan_interface)
+add_subdirectory(motor_controllers)
+add_subdirectory(motor_hardware_interface)
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 set(ROSLINT_CPP_OPTS
   "--filter=-build/include_what_you_use")
-
+  
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
-
-  include/pandora_motor_hardware_interface/motor_hardware_interface.h
-  src/pandora_motor_hardware_interface/motor_hardware_interface.cpp
-  src/pandora_motor_hardware_interface/motor_hardware_interface_node.cpp
-  #~ include/pandora_motor_controllers/skid_steer_drive_controller.h
-  #~ src/pandora_motor_controllers/skid_steer_drive_controller.cpp
-
+  motor_hardware_interface/*.h 
+  motor_hardware_interface/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

@@ -34,75 +34,59 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_motor_hardware_interface/motor_hardware_interface.h"
+#ifndef MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
+#define MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
+
+#include <controller_interface/controller.h>
+#include <hardware_interface/joint_command_interface.h>
+#include <pluginlib/class_list_macros.h>
+#include <realtime_tools/realtime_buffer.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <geometry_msgs/Twist.h>
+
+#define COMMAND_DELAY_THRESHOLD 3
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
-  MotorHardwareInterface::MotorHardwareInterface(
-    ros::NodeHandle nodeHandle)
-    : nodeHandle_(nodeHandle)
+
+  class SkidSteerDriveController
+  :
+    public controller_interface::Controller<
+      hardware_interface::VelocityJointInterface>
   {
-    std::vector<std::string> jointNames = getJointNameFromParamServer();
-    // connect and register the joint state interface
-    for (int ii = 0; ii < jointNames.size(); ii++)
-    {
-      hardware_interface::JointStateHandle jointStateHandle(
-        jointNames[ii],
-        &position_[ii],
-        &velocity_[ii],
-        &effort_[ii]);
-      jointStateInterface_.registerHandle(jointStateHandle);
-    }
-    registerInterface(&jointStateInterface_);
+  private:
+    const ros::NodeHandle* rootNodeHandle_;
+    hardware_interface::VelocityJointInterface* velocityJointInterface_;
+    realtime_tools::RealtimeBuffer< std::vector<double> > commandBuffer_;
+    std::vector<double> command_;
+    ros::Subscriber commandSubscriber_;
+    std::vector<hardware_interface::JointHandle> jointHandles_;
 
-    // connect and register the joint velocity interface
-    for (int ii = 0; ii < jointNames.size(); ii++)
-    {
-      hardware_interface::JointHandle jointVelocityHandle(
-        jointStateInterface_.getHandle(jointNames[ii]),
-        &command_[ii]);
-      velocityJointInterface_.registerHandle(jointVelocityHandle);
-    }
-    registerInterface(&velocityJointInterface_);
-  }
+    double wheelSeparation_;
+    double wheelRadius_;
+    double maxAngularVelocity_;
 
-  MotorHardwareInterface::~MotorHardwareInterface()
-  {
-  }
+    void twistCallback(const geometry_msgs::Twist& twist);
+    void setMotorCommands(
+      const double leftVelocity, const double rightVelocity);
 
-  void MotorHardwareInterface::read()
-  {
-  }
+  public:
+    SkidSteerDriveController();
+    ~SkidSteerDriveController();
 
-  void MotorHardwareInterface::write()
-  {
-  }
+    bool init(
+      hardware_interface::VelocityJointInterface* velocityJointInterface,
+      ros::NodeHandle& rootNodeHandle,
+      ros::NodeHandle& controllerNodeHandle);
 
-  std::vector<std::string>
-    MotorHardwareInterface::getJointNameFromParamServer()
-  {
-    std::vector<std::string> jointNames;
-    std::string name;
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/left_front_joint",
-      name);
-    jointNames.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/right_front_joint",
-      name);
-    jointNames.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/left_rear_joint",
-      name);
-    jointNames.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/right_rear_joint",
-      name);
-    jointNames.push_back(name);
+    void update(const ros::Time& time, const ros::Duration& period);
 
-    return jointNames;
-  }
+    void starting(const ros::Time& time);
+
+    void stopping(const ros::Time& time);
+  };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
+#endif  // MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H

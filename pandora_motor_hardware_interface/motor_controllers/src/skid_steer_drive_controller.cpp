@@ -34,7 +34,7 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_motor_controllers/skid_steer_drive_controller.h"
+#include "motor_controllers/skid_steer_drive_controller.h"
 
 namespace pandora_hardware_interface
 {
