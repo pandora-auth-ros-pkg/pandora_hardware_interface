@@ -14,6 +14,8 @@ set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include
     motor_hardware_interface/include
     orangutan_interface/include
+    epos_gateway/include
+    epos_handler/include
 )
 
 catkin_package(
@@ -40,6 +42,9 @@ include_directories(
 add_subdirectory(orangutan_interface)
 add_subdirectory(motor_controllers)
 add_subdirectory(motor_hardware_interface)
+add_subdirectory(epos_gateway)
+add_subdirectory(epos_handler)
+
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 set(ROSLINT_CPP_OPTS
