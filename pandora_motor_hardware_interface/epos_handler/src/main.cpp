@@ -25,25 +25,25 @@
 #include "ros/ros.h"
 
 
-#include <EposRs232Gateway.h>
-#include <Kinematic.h>
+#include <epos_serial_gateway.h>
+#include <kinematic.h>
 #include <fstream>
 
 
 #include "diagnostic_updater/diagnostic_updater.h"
 
-#include "MainMotorController.h"
+#include "main_motor_controller.h"
 
-int main(int argc,char **argv){
-    ros::init(argc,argv,"epos");
-    ros::NodeHandle n;
-    double period;
-    if (!n.getParam("/mainMotorControl/statusPostPeriod", period)){
-        ROS_ERROR("statusPostPeriod not set. Setting to 0.5");
-        period=0.5;
-    }
-    MainMotorController controller("/dev/ttyS0",115200,500,n,period);
-    ros::spin();
-    return 0;
+int main(int argc, char **argv) {
+  ros::init(argc, argv, "epos");
+  ros::NodeHandle n;
+  double period;
+  if (!n.getParam("/mainMotorControl/statusPostPeriod", period)) {
+    ROS_ERROR("statusPostPeriod not set. Setting to 0.5");
+    period = 0.5;
+  }
+  MainMotorController controller("/dev/ttyS0", 115200, 500, n, period);
+  ros::spin();
+  return 0;
 }
 
