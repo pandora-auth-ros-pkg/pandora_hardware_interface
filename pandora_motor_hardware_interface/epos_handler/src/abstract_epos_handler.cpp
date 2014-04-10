@@ -1,5 +1,7 @@
 #include "abstract_epos_handler.h"
 
+namespace pandora_hardware_interface {
+namespace motor {
 
 Current::Current() {}
 Current::Current(const uint32_t left, const uint32_t right) {
@@ -36,3 +38,5 @@ AbstractEposHandler::~AbstractEposHandler()
 {
 }
 
+}  // namespace motor
+}  // namespace pandora_hardware_interface

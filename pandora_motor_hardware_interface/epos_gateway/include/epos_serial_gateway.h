@@ -71,8 +71,8 @@
  *
  */
 
-#ifndef EposGateway_H
-#define EposGateway_H
+#ifndef EPOS_GATEWAY_EPOS_SERIAL_GATEWAY_H
+#define EPOS_GATEWAY_EPOS_SERIAL_GATEWAY_H
 
 #include <string>
 #include <pthread.h>
@@ -81,6 +81,9 @@
 
 #include <serial/serial.h>
 #include "abstract_epos_gateway.h"
+
+namespace pandora_hardware_interface {
+namespace motor {
 
 /**
  * \brief RS232 EPOS gateway
@@ -129,7 +132,10 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
    * from the serial port
    *
    */
-  EposSerialGateway(const std::string& device,unsigned int baudRate=38400,unsigned int timeout=500);
+  EposSerialGateway(
+      const std::string& device,
+      unsigned int baudRate = 38400,
+      unsigned int timeout = 500);
 
   /** Send a CAN frame using the EPOS gateway
    *
@@ -142,7 +148,11 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
    * \param[in] response the data received from the device as a response to the
    * command
    */
-  epos::CommandStatus sendFrame(unsigned char opCode,epos::Word* data,unsigned short length,epos::Word* response);
+  epos::CommandStatus sendFrame(
+      unsigned char opCode,
+      epos::Word* data,
+      unsigned short length,
+      epos::Word* response);
 
   /** Read object dictionary entry (4 Data Bytes and less)
   *
@@ -158,9 +168,21 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
   * \param[out] responce the data read
   * \return the status of the operation
   */
-  epos::CommandStatus readObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,epos::DWord* responce);
-  epos::CommandStatus readObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,epos::Word* responce);
-  epos::CommandStatus readObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,char* responce);
+  epos::CommandStatus readObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      epos::DWord* responce);
+  epos::CommandStatus readObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      epos::Word* responce);
+  epos::CommandStatus readObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      char* responce);
 
   /** Write Object Dictionary Entry (4 Data Bytes and less)
   *
@@ -176,27 +198,41 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
   * \param[in] data the data that should be written
   * \return the status of the operation
   */
-  epos::CommandStatus writeObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,epos::DWord data);
-  epos::CommandStatus writeObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,epos::Word data);
-  epos::CommandStatus writeObject(unsigned char nodeID,uint16_t index,unsigned char subIndex,char data);
+  epos::CommandStatus writeObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      epos::DWord data);
+  epos::CommandStatus writeObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      epos::Word data);
+  epos::CommandStatus writeObject(
+      unsigned char nodeID,
+      uint16_t index,
+      unsigned char subIndex,
+      char data);
 
- private:
+private:
 
-  ///Rs232 object used to access underlaying hardware
-  boost::scoped_ptr<serial::Serial> serialPtr_;
-  /** POSIX mutex to lock when a transmition is ongoing. Since the RS232 EPOS
-   * protocol requires a handshake, transmitions are not unary operations. */
-  pthread_mutex_t gatewayMutex;
-  /** function that implements the CRC16 CCITT hashing algorithm required by
-   * EPOS RS232 protocol */
-  epos::Word crc16CCITT(epos::Word* data,unsigned int length);
-  /// variable to store object initialization status
-  bool initialized;
-  /// receive an ACK response from the EPOS controller
-  epos::CommandStatus getACK(void);
-  /// send an ACK response to the EPOS controller
-  epos::CommandStatus ACK(void);
+    ///Rs232 object used to access underlaying hardware
+    boost::scoped_ptr<serial::Serial> serialPtr_;
+    /** POSIX mutex to lock when a transmition is ongoing. Since the RS232 EPOS
+     * protocol requires a handshake, transmitions are not unary operations. */
+    pthread_mutex_t gatewayMutex;
+    /** function that implements the CRC16 CCITT hashing algorithm required by
+     * EPOS RS232 protocol */
+    epos::Word crc16CCITT(epos::Word* data, unsigned int length);
+    /// variable to store object initialization status
+    bool initialized;
+    /// receive an ACK response from the EPOS controller
+    epos::CommandStatus getACK(void);
+    /// send an ACK response to the EPOS controller
+    epos::CommandStatus ACK(void);
 };
 
+}  // namespace motor
+}  // namespace pandora_hardware_interface
 
-#endif
+#endif // EPOS_GATEWAY_EPOS_SERIAL_GATEWAY_H

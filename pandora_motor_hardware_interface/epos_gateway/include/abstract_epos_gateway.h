@@ -18,8 +18,8 @@
  *   MA 02110-1301, USA.                                                   *
  ***************************************************************************/
 
-#ifndef ABSTRACTEPOSGATEWAY_H
-#define ABSTRACTEPOSGATEWAY_H
+#ifndef EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
+#define EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
 
 #include <stdint.h>
 
@@ -90,8 +90,10 @@
  *
  */
 
+namespace pandora_hardware_interface {
+namespace motor {
+  
 namespace epos {
-
 /// EPOS word (16bit)
 typedef uint16_t Word;
 /// Double (long) EPOS word (32bit)
@@ -145,9 +147,7 @@ enum CommandStatus {
   PROTOCOL
 };
 
-
-}
-
+}  // namespace epos
 /**
  * \brief Abstract gateway for EPOS devices
  *
@@ -243,4 +243,7 @@ public:
     char data)=0;
 };
 
-#endif
+}  // mamespace motor
+}  // namespace pandora_hardware_interface
+
+#endif // EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H

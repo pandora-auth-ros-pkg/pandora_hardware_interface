@@ -1,5 +1,8 @@
 #include "fake_epos_handler.h"
 
+namespace pandora_hardware_interface {
+namespace motor {
+
 FakeEposHandler::FakeEposHandler(): AbstractEposHandler()
 {
 }
@@ -25,3 +28,6 @@ Error FakeEposHandler::getError() {
 epos::CommandStatus FakeEposHandler::writeRPM(const Kinematic::RPM& rpm) {
   return epos::SUCCESS;
 }
+
+}  // namespace motor
+}  // namespace pandora_hardware_interface

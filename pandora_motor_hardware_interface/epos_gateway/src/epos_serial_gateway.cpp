@@ -21,6 +21,9 @@
 #include <iostream>
 #include <epos_serial_gateway.h>
 
+namespace pandora_hardware_interface {
+namespace motor {
+
 EposSerialGateway::EposSerialGateway(const std::string& device, unsigned int baudRate, unsigned int timeout) {
   //gateway is not initialized until we actually connect to the RS232 port
   initialized = false;
@@ -407,3 +410,6 @@ epos::Word EposSerialGateway::crc16CCITT(epos::Word* data, unsigned int length) 
   memcpy(&ret, &CRC, 2);
   return ret;
 }
+
+}  // namespace motor
+}  // namespace pandora_hardware_interface

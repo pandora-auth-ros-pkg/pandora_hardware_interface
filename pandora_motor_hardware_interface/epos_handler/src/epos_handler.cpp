@@ -1,5 +1,7 @@
 #include <epos_handler.h>
 
+namespace pandora_hardware_interface {
+namespace motor {
 
 EposHandler::EposHandler(const std::string& dev, const int& bauds, const int& time)
   : gateway(dev, bauds, time)
@@ -58,5 +60,8 @@ epos::CommandStatus EposHandler::writeRPM(const Kinematic::RPM& rpm) {
   }
   return error;
 }
+
+}  // namespace motor
+}  // namespace pandora_hardware_interface
 
 

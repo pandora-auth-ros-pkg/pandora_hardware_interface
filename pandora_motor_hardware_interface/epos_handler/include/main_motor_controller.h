@@ -32,12 +32,9 @@
 #include "kinematic.h"
 
 
-//~ #include <SubscriberTester.h>
-//~ #include <PublisherTester.h>
-
 #include "diagnostic_updater/diagnostic_updater.h"
 
-
+using namespace pandora_hardware_interface::motor;
 
 
 class MainMotorController
