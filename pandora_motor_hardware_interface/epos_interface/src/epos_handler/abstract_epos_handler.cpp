@@ -21,15 +21,12 @@ AbstractEposHandler::AbstractEposHandler() : gatewayImpl_(NULL)
 {
 }
 
-uint32_t AbstractEposHandler::encodeToControlWord(const Kinematic::RPM &rpm) {
-  float leftSpeed, rightSpeed;
-  leftSpeed = rpm.left;
-  rightSpeed = rpm.right;
-  int signLeft = leftSpeed < 0 ? 1 : 0;
-  int signRight = rightSpeed < 0 ? 1 : 0;
+uint32_t AbstractEposHandler::encodeToControlWord(const int& left, const int& right) {
+  int signLeft = left < 0 ? 1 : 0;
+  int signRight = right < 0 ? 1 : 0;
 
-  int leftSpeedAbsolute = std::abs(leftSpeed);
-  int rightSpeedAbsolute = std::abs(rightSpeed);
+  int leftSpeedAbsolute = std::abs(left);
+  int rightSpeedAbsolute = std::abs(right);
 
 
   uint32_t controlWord = 0;

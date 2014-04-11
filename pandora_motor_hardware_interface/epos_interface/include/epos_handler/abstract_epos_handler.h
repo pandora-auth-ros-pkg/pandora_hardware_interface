@@ -33,13 +33,13 @@ namespace pandora_hardware_interface {
    public:
     AbstractEposHandler();
     virtual ~AbstractEposHandler();
-    virtual Kinematic::RPM getRPM() = 0;
+    virtual void getRPM(int* left, int* right) = 0;
     virtual Current getCurrent() = 0;
     virtual Error getError() = 0;
-    virtual epos::CommandStatus writeRPM(const Kinematic::RPM &rpm) = 0;
+    virtual epos::CommandStatus writeRPM(const int& left, const int& right) = 0;
   
    protected:
-    uint32_t encodeToControlWord(const Kinematic::RPM& rpm);
+    uint32_t encodeToControlWord(const int& left, const int& right);
 
    protected:
     boost::scoped_ptr<AbstractEposGateway> gatewayImpl_;

@@ -62,7 +62,8 @@ MainMotorController::~MainMotorController() {
 void MainMotorController::postStatus(const ros::TimerEvent& event) {
   guard.lock();
   if (!calledTooOften()) {
-    Kinematic::RPM actualRPM = motors->getRPM();
+    int left, right;
+    motors->getRPM(&left, &right);
 //~         main_motor_control_communications::motor_rpm_msg msg;
 //~         msg.rpm_left_demand=controlInput.left;
 //~         msg.rpm_right_demand=controlInput.right;
@@ -93,7 +94,7 @@ epos::CommandStatus MainMotorController::setSpeed(float linear, float angular) {
   //Get required robot rpms
 
   controlInput = calculateRPM(velocity);
-  motorStatus = motors->writeRPM(controlInput);
+  motorStatus = motors->writeRPM(controlInput.left, controlInput.right);
   if(motorStatus != epos::SUCCESS) ROS_ERROR("error setting speed ");
   retVal = motorStatus;
   guard.unlock();

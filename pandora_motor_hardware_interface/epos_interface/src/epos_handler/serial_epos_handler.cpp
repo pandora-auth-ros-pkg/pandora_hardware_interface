@@ -10,7 +10,7 @@ SerialEposHandler::SerialEposHandler(const std::string& dev, const int& bauds, c
 
 SerialEposHandler::~SerialEposHandler() {}
 
-Kinematic::RPM SerialEposHandler::getRPM() {
+void SerialEposHandler::getRPM(int* left, int* right) {
   epos::Word out[2];
   int32_t rpmLeft, rpmRight;
   gatewayImpl_->readObject(2, 0x2028, 0, &out[0]);
@@ -22,8 +22,8 @@ Kinematic::RPM SerialEposHandler::getRPM() {
     ROS_DEBUG("WTF");
   }
   rpmRight = -rpmRight;
-  Kinematic::RPM vel(rpmLeft, rpmRight);
-  return vel;
+  *left = rpmLeft;
+  *right = rpmRight;
 }
 
 Current SerialEposHandler::getCurrent() {
@@ -49,12 +49,10 @@ Error SerialEposHandler::getError() {
   return error;
 }
 
-epos::CommandStatus SerialEposHandler::writeRPM(const Kinematic::RPM& rpm) {
-  ROS_INFO("setting speed %f, %f", rpm.left, rpm.right);
+epos::CommandStatus SerialEposHandler::writeRPM(const int& left, const int& right) {
+  ROS_INFO("setting speed %d, %d", left, right);
   //Right motor rpm speed needs to be reversed because of its placement in the vehicle
-  Kinematic::RPM temp = rpm;
-  temp.right = -temp.right;
-  uint32_t controlWord = encodeToControlWord(temp);
+  uint32_t controlWord = encodeToControlWord(left, -right);
   epos::CommandStatus error = gatewayImpl_->writeObject(2, 0x200C, 1, controlWord);
 
   if(error != epos::SUCCESS) {

@@ -10,10 +10,10 @@ class SerialEposHandler: public AbstractEposHandler {
  public:
   SerialEposHandler(const std::string& dev, const int& bauds, const int& time);
   virtual ~SerialEposHandler();
-  virtual Kinematic::RPM getRPM();
+  virtual void getRPM(int* left, int* right);
   virtual Current getCurrent();
   virtual Error getError();
-  virtual epos::CommandStatus writeRPM(const Kinematic::RPM &rpm);
+  virtual epos::CommandStatus writeRPM(const int& left, const int& right);
 };
 
 }  // namespace motor
