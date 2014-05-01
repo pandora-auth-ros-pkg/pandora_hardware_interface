@@ -32,25 +32,41 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Orestis Zachariadis
+* Author:  Evangelos Apostolidis
 *********************************************************************/
+#include "pandora_arm_hardware_interface/arm_hardware_interface.h"
 
-#ifndef ARM_HARDWARE_INTERFACE_H_
-#define ARM_HARDWARE_INTERFACE_H_
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "arm_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sstream>
-#include <iostream>
-#include <termios.h>
+  pandora_hardware_interface::xmega::XmegaHardwareInterface
+    xmegaHardwareInterface(nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &xmegaHardwareInterface,
+    nodeHandle);
 
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
 
-void reconnectUSB(int fd);
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
 
+  while ( ros::ok() )
+  {
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
 
-
-#endif /* ARM_HARDWARE_INTERFACE_H_ */
+    // comment for testing
+    //xmegaHardwareInterface.read();
+    controllerManager.update(now, period);
+    ros::Duration(0.5).sleep();
+  }
+  spinner.stop();
+  return 0;
+}
