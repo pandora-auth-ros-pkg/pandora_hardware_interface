@@ -83,14 +83,16 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
+    if (nr < 0) {
       cout << "Read Error" << endl;
-    cout << "GEYE_CENTER = ";
-    for (int i = 0; i < GEYE_NBYTES; ++i)
-    {
-      cout << (int)GEYEbufIN[i] << " ";
+    } else {
+      cout << "GEYE_CENTER = ";
+      for (int i = 0; i < GEYE_NBYTES; ++i)
+      {
+        cout << (int)GEYEbufIN[i] << " ";
+      }
+      cout << endl;
     }
-    cout << endl;
 
     bufOUT = COMMAND_GEYE_LEFT;
     nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
@@ -100,14 +102,16 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
+    if (nr < 0) {
       cout << "Read Error" << endl;
+    } else {
     cout << "GEYE_LEFT = ";
-    for (int i = 0; i < GEYE_NBYTES; ++i)
-    {
-      cout << (int)GEYEbufIN[i] << " ";
+      for (int i = 0; i < GEYE_NBYTES; ++i)
+      {
+        cout << (int)GEYEbufIN[i] << " ";
+      }
+      cout << endl;
     }
-    cout << endl;
 
     bufOUT = COMMAND_GEYE_RIGHT;
     nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
@@ -117,14 +121,16 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
+    if (nr < 0) {
       cout << "Read Error" << endl;
+    } else {
     cout << "GEYE_RIGHT = ";
-    for (int i = 0; i < GEYE_NBYTES; ++i)
-    {
-      cout << (int)GEYEbufIN[i] << " ";
+      for (int i = 0; i < GEYE_NBYTES; ++i)
+      {
+        cout << (int)GEYEbufIN[i] << " ";
+      }
+      cout << endl;
     }
-    cout << endl;
 
     bufOUT = COMMAND_CO2;
     nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
@@ -134,9 +140,11 @@ int main(void)
       continue;
     }
     nr = read(fd, CO2bufIN, CO2_NBYTES); //blocking
-    if (nr < 0)
+    if (nr < 0) {
       cout << "Read Error" << endl;
-    cout << "CO2 = " << CO2bufIN_float << endl;
+    } else {
+      cout << "CO2 = " << CO2bufIN_float << endl;
+    }
 
     ros::Duration(0.02).sleep();
   }
