@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 set(THIS_PACKAGE_INCLUDE_DIRS
     jrk_interface/include
+    linear_motor_hardware_interface/include
 )
 
 catkin_package(
@@ -32,3 +33,4 @@ include_directories(
 )
 
 add_subdirectory(jrk_interface)
+add_subdirectory(linear_motor_hardware_interface)
