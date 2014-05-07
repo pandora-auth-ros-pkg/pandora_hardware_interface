@@ -35,6 +35,8 @@
  * Author: Orestis Zachariadis
  *********************************************************************/
 
+#include "pandora_arm_hardware_interface/arm_usb_interface.h"
+
 using namespace std;
 
 int main(void)
@@ -154,7 +156,7 @@ int main(void)
   return EXIT_SUCCESS;
 }
 
-void reconnectUSB(int fd)
+int reconnectUSB(int fd)
 {
   ROS_ERROR("[Head]: Write Error\n");
   close(fd);
@@ -165,8 +167,8 @@ void reconnectUSB(int fd)
   fd = open("/dev/head", O_RDWR | O_NOCTTY);
   if (fd == -1)
   {
-    ROS_ERROR("[Head]: cannot reopen usb port\n");
-    ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
+    ROS_FATAL("[Head]: cannot reopen usb port\n");
+    ROS_FATAL("[Head]: open() failed with error [%s]\n", strerror(errno));
     return -1;
   }
   else

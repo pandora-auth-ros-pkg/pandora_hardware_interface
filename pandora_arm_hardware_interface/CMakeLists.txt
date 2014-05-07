@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pandora_arm_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
   message_generation
   message_runtime
   roscpp
@@ -28,11 +29,12 @@ generate_messages(
 )
 
 catkin_package(
-  INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
+  INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS} include
   LIBRARIES
     co2_sensor_controller
     thermal_sensor_controller
   CATKIN_DEPENDS
+    roscpp
     message_generation
     roscpp
     roslint
@@ -47,10 +49,18 @@ catkin_package(
 include_directories(
   ${THIS_PACKAGE_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  include
 )
 
 add_subdirectory(arm_controllers)
 add_subdirectory(arm_hardware_interface)
+
+add_library(
+  arm_interface
+  src/pandora_arm_hardware_interface/arm_usb_interface.cpp)
+target_link_libraries(
+  arm_interface
+  ${catkin_LIBRARIES})
 
 # To check lint : catkin_make roslint_pandora_arm_hardware_interface
 set(ROSLINT_CPP_OPTS

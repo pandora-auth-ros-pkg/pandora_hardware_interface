@@ -48,20 +48,20 @@
 #include <iostream>
 #include <termios.h>
 
-
-#define COMMAND_GEYE_CENTER 1	///Command to send if you want center grideye's data
-#define COMMAND_GEYE_LEFT 2		///Command to send if you want left grideye's data
-#define COMMAND_GEYE_RIGHT 3	///Command to send if you want right grideye's data
-#define COMMAND_CO2 4	///Command to send if you want CO2 data
-
-#define CO2_NBYTES = 4;	///Number of bytes of incoming CO2 data
-#define GEYE_NBYTES = 64;	///Number of bytes of incoming GridEYE data
-#define COMMAND_NBYTES = 1;	///Number of bytes of outgoing command
+#include <ros/ros.h>
 
 
+#define COMMAND_GEYE_CENTER 1	///<Command to send if you want center grideye's data
+#define COMMAND_GEYE_LEFT 2		///<Command to send if you want left grideye's data
+#define COMMAND_GEYE_RIGHT 3	///<Command to send if you want right grideye's data
+#define COMMAND_CO2 4	///<Command to send if you want CO2 data
+
+#define CO2_NBYTES 4	///<Number of bytes of incoming CO2 data
+#define GEYE_NBYTES 64	///<Number of bytes of incoming GridEYE data
+#define COMMAND_NBYTES 1	///<Number of bytes of outgoing command
 
 
-void reconnectUSB(int fd);
+int reconnectUSB(int fd);
 
 
 #endif /* ARM_HARDWARE_INTERFACE_H_ */
