@@ -1,6 +1,6 @@
-#include <JrkSerial.h>
+#include <jrk_interface/JrkSerial.h>
 #include <ros/ros.h>
-#include <JrkDefinitions.h>
+#include <jrk_interface/JrkDefinitions.h>
 
 JrkSerial::JrkSerial()
 {

@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <JrkSerial.h>
+#include <jrk_interface/JrkSerial.h>
 
 int main(int argc, char** argv)
 {
