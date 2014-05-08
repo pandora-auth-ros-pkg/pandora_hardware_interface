@@ -73,20 +73,20 @@ namespace linear
 
   void LinearMotorHardwareInterface::read()
   {
-    int feedback= linear_motor_.readScaledFeedback();
-    position_ = static_cast<float>(feedback/4080*0.23);
+    int feedback = linear_motor_.readScaledFeedback();
+    position_ = static_cast<float>(feedback)/4080*0.23;
   }
 
   void LinearMotorHardwareInterface::write()
   {
     int target = static_cast<int>(command_/0.23*4080);
-    if (target >= 0 || target <= 4080)
+    if (target >= 0 && target <= 4080)
     {
       linear_motor_.setTarget(target);
     }
     else
     {
-      ROS_ERROR_STREAM("Linear command out of bounds");
+      ROS_DEBUG_STREAM("Linear command out of bounds");
     }
   }
 }  // namespace linear
