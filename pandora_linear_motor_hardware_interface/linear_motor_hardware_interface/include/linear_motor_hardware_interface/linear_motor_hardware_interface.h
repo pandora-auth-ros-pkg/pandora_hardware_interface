@@ -42,6 +42,7 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
+#include <jrk_interface/JrkSerial.h>
 
 namespace pandora_hardware_interface
 {
@@ -51,6 +52,7 @@ namespace linear
   {
     private:
       ros::NodeHandle nodeHandle_;
+      JrkSerial linear_motor_;
 
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::PositionJointInterface positionJointInterface_;

@@ -4,4 +4,5 @@ add_executable(
   src/linear_motor_hardware_interface_node.cpp)
 target_link_libraries(
   linear_motor_hardware_interface_node
+  jrk_serial
   ${catkin_LIBRARIES})
