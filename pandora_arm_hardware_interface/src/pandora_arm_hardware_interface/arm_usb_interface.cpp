@@ -37,38 +37,40 @@
 
 #include "pandora_arm_hardware_interface/arm_usb_interface.h"
 
+namespace pandora_hardware_interface
+{
+namespace arm
+{
+
 using namespace std;
 
-int main(void)
+ArmUSBInterface::ArmUSBInterface()
 {
-  int fd;
 
-//	fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);	//to make read non-blocking
+//  fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);       //to make read non-blocking
   fd = open("/dev/head", O_RDWR | O_NOCTTY);
-  if (fd == -1)
+  while (fd == -1)
   {
     ROS_ERROR("[Head]: cannot open usb port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
-    return -1;
+    fd = reconnectUSB(fd);
   }
-  else
-  {
-    ROS_INFO("[Head]: usb port successfully opened\n");
-  }
-  ros::Duration(0.03).sleep(); //needs some time to initialize, even though it opens succesfully. tcflush() didn't work
-  //without waiting at least 8 ms
 
-  union
-  {
-    unsigned char CO2bufIN[CO2_NBYTES];
-    float CO2bufIN_float;
-  };
+  ROS_INFO("[Head]: usb port successfully opened\n");
 
-  unsigned char GEYEbufIN[GEYE_NBYTES];
+  /*Needs some time to initialize, even though it opens succesfully. tcflush() didn't work
+   without waiting at least 8 ms*/
+  ros::Duration(0.03).sleep();
+}
 
-  int bufOUT;
+ArmUSBInterface::~ArmUSBInterface()
+{
+  close(fd);
+  ROS_INFO("[Head]: usb port closed because of program termination\n");
+}
 
-  int nr;
+void ArmUSBInterface::readSensors(void)
+{
 
 //	fcntl(fd, F_SETFL, FNDELAY);	//make read() non-blocking
 //	fcntl(fd, F_SETFL, 0);	//make read() blocking
@@ -85,9 +87,12 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0) {
+    if (nr < 0)
+    {
       cout << "Read Error" << endl;
-    } else {
+    }
+    else
+    {
       cout << "GEYE_CENTER = ";
       for (int i = 0; i < GEYE_NBYTES; ++i)
       {
@@ -104,10 +109,13 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0) {
+    if (nr < 0)
+    {
       cout << "Read Error" << endl;
-    } else {
-    cout << "GEYE_LEFT = ";
+    }
+    else
+    {
+      cout << "GEYE_LEFT = ";
       for (int i = 0; i < GEYE_NBYTES; ++i)
       {
         cout << (int)GEYEbufIN[i] << " ";
@@ -123,10 +131,13 @@ int main(void)
       continue;
     }
     nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0) {
+    if (nr < 0)
+    {
       cout << "Read Error" << endl;
-    } else {
-    cout << "GEYE_RIGHT = ";
+    }
+    else
+    {
+      cout << "GEYE_RIGHT = ";
       for (int i = 0; i < GEYE_NBYTES; ++i)
       {
         cout << (int)GEYEbufIN[i] << " ";
@@ -142,33 +153,32 @@ int main(void)
       continue;
     }
     nr = read(fd, CO2bufIN, CO2_NBYTES); //blocking
-    if (nr < 0) {
+    if (nr < 0)
+    {
       cout << "Read Error" << endl;
-    } else {
+    }
+    else
+    {
       cout << "CO2 = " << CO2bufIN_float << endl;
     }
 
     ros::Duration(0.02).sleep();
   }
 
-  close(fd);
-  ROS_INFO("[Head]: usb port closed because of program termination\n");
-  return EXIT_SUCCESS;
 }
 
-int reconnectUSB(int fd)
+int ArmUSBInterface::reconnectUSB(int fd)
 {
+  //reconnectUSB() should be called until communication is restored.
   ROS_ERROR("[Head]: Write Error\n");
   close(fd);
   ROS_INFO("[Head]: usb port closed\n");
-  //If usb disconnects and reconnects again 1.5s should be fine, if uC resets 4.5s required.
-  //reconnectUSB() is called until communication is restored.
   ros::Duration(1.5).sleep();
   fd = open("/dev/head", O_RDWR | O_NOCTTY);
   if (fd == -1)
   {
-    ROS_FATAL("[Head]: cannot reopen usb port\n");
-    ROS_FATAL("[Head]: open() failed with error [%s]\n", strerror(errno));
+    ROS_ERROR("[Head]: cannot reopen usb port\n");
+    ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
     return -1;
   }
   else
@@ -178,3 +188,5 @@ int reconnectUSB(int fd)
   ros::Duration(0.03).sleep();
 }
 
+} // namespace arm
+} // namespace pandora_hardware_interface
