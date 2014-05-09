@@ -44,16 +44,18 @@ namespace arm
 
 using namespace std;
 
+//  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
+//  fcntl(fd, F_SETFL, 0);  //make read() blocking
+
 ArmUSBInterface::ArmUSBInterface()
 {
-
 //  fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);       //to make read non-blocking
-  fd = open("/dev/head", O_RDWR | O_NOCTTY);
-  while (fd == -1)
+  while ( (fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1 )
   {
     ROS_ERROR("[Head]: cannot open usb port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
-    fd = reconnectUSB(fd);
+
+    ros::Duration(0.5).sleep();
   }
 
   ROS_INFO("[Head]: usb port successfully opened\n");
@@ -69,7 +71,80 @@ ArmUSBInterface::~ArmUSBInterface()
   ROS_INFO("[Head]: usb port closed because of program termination\n");
 }
 
-void ArmUSBInterface::readSensors(void)
+int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * values)
+{
+  switch (grideyeSelect)
+  {
+    case 'C':
+      bufOUT = COMMAND_GEYE_CENTER;
+      break;
+    case 'L':
+      bufOUT = COMMAND_GEYE_LEFT;
+      break;
+    case 'R':
+      bufOUT = COMMAND_GEYE_RIGHT;
+      break;
+    default:
+      bufOUT = COMMAND_GEYE_CENTER;
+      break;
+  }
+
+  tcflush(fd, TCIFLUSH); //empties incoming buffer
+
+  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
+  if (nr != 1)
+  {
+    ROS_ERROR("[Head]: Write Error\n");
+    reconnectUSB();
+    return -1;
+  }
+
+  nr = read(fd, values, GEYE_NBYTES); //blocking
+  if (nr < 0)
+  {
+    ROS_ERROR("[Head]: Read Error\n");
+    return -1;
+  }
+  else
+  {
+    ROS_DEBUG("[Head]: %c GridEYE = ", grideyeSelect);
+    for (int i = 0; i < GEYE_NBYTES; ++i)
+    {
+      ROS_DEBUG_STREAM( (int)values[i] << " " );
+    }
+    ROS_DEBUG("\n");
+
+    return 1;
+  }
+}
+
+float ArmUSBInterface::co2ValueGet()
+{
+  tcflush(fd, TCIFLUSH); //empties incoming buffer
+
+  bufOUT = COMMAND_CO2;
+  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
+  if (nr != 1)
+  {
+    ROS_ERROR("[Head]: Write Error\n");
+    reconnectUSB();
+    return -1;
+  }
+
+  nr = read(fd, CO2bufIN, CO2_NBYTES); //blocking
+  if (nr < 0)
+  {
+    ROS_ERROR("[Head]: Read Error\n");
+    return -1;
+  }
+  else
+  {
+    ROS_DEBUG("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
+    return CO2bufIN_float;
+  }
+}
+
+/*void ArmUSBInterface::readSensors(void)
 {
 
 //	fcntl(fd, F_SETFL, FNDELAY);	//make read() non-blocking
@@ -165,26 +240,27 @@ void ArmUSBInterface::readSensors(void)
     ros::Duration(0.02).sleep();
   }
 
-}
+}*/
 
-int ArmUSBInterface::reconnectUSB(int fd)
+void ArmUSBInterface::reconnectUSB()
 {
   //reconnectUSB() should be called until communication is restored.
-  ROS_ERROR("[Head]: Write Error\n");
   close(fd);
   ROS_INFO("[Head]: usb port closed\n");
   ros::Duration(1.5).sleep();
-  fd = open("/dev/head", O_RDWR | O_NOCTTY);
-  if (fd == -1)
+
+  while ( (fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1 )
   {
-    ROS_ERROR("[Head]: cannot reopen usb port\n");
+    ROS_ERROR("[Head]: failed to reopen usb port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
-    return -1;
+
+    ros::Duration(0.5).sleep();
   }
-  else
-  {
-    ROS_INFO("[Head]: usb port successfully reopened\n");
-  }
+
+  ROS_INFO("[Head]: usb port successfully reopened\n");
+
+  /*Needs some time to initialize, even though it opens succesfully. tcflush() didn't work
+   without waiting at least 8 ms*/
   ros::Duration(0.03).sleep();
 }
 

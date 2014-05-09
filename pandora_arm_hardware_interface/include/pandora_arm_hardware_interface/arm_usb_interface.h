@@ -72,11 +72,27 @@ public:
 
   ~ArmUSBInterface();
 
+  /**
+   * @attention If the uController detects a malfunction in a sensor it returns
+   * zeros in place of its readings.
+   * @param[in] grideyeSelect 'C' for Center GridEYE, 'L' for left, 'R' for right
+   * @param[in,out] values pointer to an uint8[64] array
+   * @returns 1 for a successful read, -1 for error
+   */
+  int grideyeValuesGet(const char& grideyeSelect, uint8_t * values);
+
+  /**
+   * @attention If the uController detects a malfunction in a sensor it returns
+   * zeros in place of its readings.
+   * @returns Gas reading in percent volume if read was successful, -1 for error
+   */
+  float co2ValueGet();
+
 private:
 
   void readSensors();
 
-  int reconnectUSB(int fd);
+  void reconnectUSB();
 
 private:
 
@@ -84,13 +100,13 @@ private:
 
   union
   {
-    unsigned char CO2bufIN[CO2_NBYTES];
+    uint8_t  CO2bufIN[CO2_NBYTES];
     float CO2bufIN_float;
   };
 
-  unsigned char GEYEbufIN[GEYE_NBYTES];
+  uint8_t  GEYEbufIN[GEYE_NBYTES];
 
-  int bufOUT;
+  uint8_t  bufOUT;
 
   int nr;
 
