@@ -42,8 +42,6 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
-using namespace std;
-
 //  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
 //  fcntl(fd, F_SETFL, 0);  //make read() blocking
 
@@ -107,12 +105,14 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * value
   }
   else
   {
-    ROS_DEBUG("[Head]: %c GridEYE = ", grideyeSelect);
+    std::stringstream ss;
+
+    ss << "[Head]: " << grideyeSelect << " GridEYE = ";
     for (int i = 0; i < GEYE_NBYTES; ++i)
     {
-      ROS_DEBUG_STREAM( (int)values[i] << " " );
+     ss << (int)values[i] << " ";
     }
-    ROS_DEBUG("\n");
+    ROS_INFO("%s", ss.str().c_str());
 
     return 1;
   }
