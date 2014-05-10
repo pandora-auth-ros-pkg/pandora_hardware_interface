@@ -47,8 +47,9 @@ namespace arm
 
 ArmUSBInterface::ArmUSBInterface()
 {
-//  fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);       //to make read non-blocking
-  while ( (fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1 )
+//To make read non-blocking use the following
+//  fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
+  while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
   {
     ROS_ERROR("[Head]: cannot open usb port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
@@ -58,11 +59,10 @@ ArmUSBInterface::ArmUSBInterface()
 
   ROS_INFO("[Head]: usb port successfully opened\n");
 
-  /*Needs some time to initialize, even though it opens succesfully. tcflush() didn't work
-   without waiting at least 8 ms*/
+  /*Needs some time to initialize, even though it opens succesfully.
+   tcflush() didn't work without waiting at least 8 ms*/
   ros::Duration(0.03).sleep();
 }
-
 
 ArmUSBInterface::~ArmUSBInterface()
 {
@@ -70,11 +70,11 @@ ArmUSBInterface::~ArmUSBInterface()
   ROS_INFO("[Head]: usb port closed because of program termination\n");
 }
 
-
-int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * values)
+int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
+                                      uint8_t * values)
 {
   int nr;
-  uint8_t  bufOUT;
+  uint8_t bufOUT;
 
   switch (grideyeSelect)
   {
@@ -107,21 +107,21 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * value
   {
     ROS_ERROR("[Head]: Read Error\n");
     reconnectUSB();
-    return -1;
+    return -2;
   }
   else if (nr < GEYE_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    return -1;
+    return -3;
   }
   else
   {
-    std::stringstream ss;       //TODO slow ?
+    std::stringstream ss; //TODO slow ?
 
     ss << "[Head]: " << grideyeSelect << " GridEYE = ";
     for (int i = 0; i < GEYE_NBYTES; ++i)
     {
-     ss << (int)values[i] << " ";
+      ss << (int)values[i] << " ";
     }
     ROS_DEBUG("%s", ss.str().c_str());
 
@@ -129,17 +129,16 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * value
   }
 }
 
-
 float ArmUSBInterface::co2ValueGet()
 {
   union
   {
-    uint8_t  CO2bufIN[CO2_NBYTES];
+    uint8_t CO2bufIN[CO2_NBYTES];
     float CO2bufIN_float;
   };
 
   int nr;
-  uint8_t  bufOUT;
+  uint8_t bufOUT;
 
   tcflush(fd, TCIFLUSH); //empties incoming buffer
 
@@ -157,12 +156,12 @@ float ArmUSBInterface::co2ValueGet()
   {
     ROS_ERROR("[Head]: Read Error\n");
     reconnectUSB();
-    return -1;
+    return -2;
   }
   else if (nr < CO2_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    return -1;
+    return -3;
   }
   else
   {
@@ -171,7 +170,6 @@ float ArmUSBInterface::co2ValueGet()
   }
 }
 
-
 void ArmUSBInterface::reconnectUSB()
 {
   //reconnectUSB() should be called until communication is restored.
@@ -179,7 +177,7 @@ void ArmUSBInterface::reconnectUSB()
   ROS_INFO("[Head]: usb port closed\n");
   ros::Duration(1.5).sleep();
 
-  while ( (fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1 )
+  while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
   {
     ROS_ERROR("[Head]: failed to reopen usb port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
@@ -189,8 +187,8 @@ void ArmUSBInterface::reconnectUSB()
 
   ROS_INFO("[Head]: usb port successfully reopened\n");
 
-  /*Needs some time to initialize, even though it opens succesfully. tcflush() didn't work
-   without waiting at least 8 ms*/
+  /*Needs some time to initialize, even though it opens succesfully.
+   tcflush() didn't work without waiting at least 8 ms*/
   ros::Duration(0.03).sleep();
 }
 

@@ -55,13 +55,17 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
-#define COMMAND_GEYE_CENTER 1	///<Command to send if you want center grideye's data
-#define COMMAND_GEYE_LEFT 2		///<Command to send if you want left grideye's data
-#define COMMAND_GEYE_RIGHT 3	///<Command to send if you want right grideye's data
-#define COMMAND_CO2 4	///<Command to send if you want CO2 data
+/**Command to send if you want center grideye's data*/
+#define COMMAND_GEYE_CENTER 1
+/**Command to send if you want left grideye's data*/
+#define COMMAND_GEYE_LEFT 2
+/**Command to send if you want right grideye's data*/
+#define COMMAND_GEYE_RIGHT 3
+/**Command to send if you want CO2 data*/
+#define COMMAND_CO2 4
 
-#define CO2_NBYTES 4	///<Number of bytes of incoming CO2 data
-#define GEYE_NBYTES 64	///<Number of bytes of incoming GridEYE data
+#define CO2_NBYTES 4	        ///<Number of bytes of incoming CO2 data
+#define GEYE_NBYTES 64	        ///<Number of bytes of incoming GridEYE data
 #define COMMAND_NBYTES 1	///<Number of bytes of outgoing command
 
 class ArmUSBInterface : private boost::noncopyable
@@ -75,16 +79,20 @@ public:
   /**
    * @attention If the uController detects a malfunction in a sensor it returns
    * zeros in place of its readings.
-   * @param[in] grideyeSelect 'C' for Center GridEYE, 'L' for left, 'R' for right
+   * @param[in] grideyeSelect 'C' for Center GridEYE, 'L' for left,
+   *  'R' for right
    * @param[in,out] values pointer to an uint8[64] array
-   * @returns 1 for a successful read, -1 for error
+   * @returns 1 for a successful read, -1 for write error, -2 for read error,
+   *  -3 for incorrect number of bytes read
    */
   int grideyeValuesGet(const char& grideyeSelect, uint8_t * values);
 
   /**
    * @attention If the uController detects a malfunction in a sensor it returns
    * zeros in place of its readings.
-   * @returns Gas reading in percent volume if read was successful, -1 for error
+   * @returns Gas reading in percent volume if read was successful,
+   *  -1 for write error, -2 for read error,
+   *  -3 for incorrect number of bytes read
    */
   float co2ValueGet();
 
@@ -94,7 +102,7 @@ private:
 
 private:
 
-  int fd;  ///<File Descriptor
+  int fd; ///<File Descriptor
 
 };
 
