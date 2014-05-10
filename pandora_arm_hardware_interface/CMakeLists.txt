@@ -52,6 +52,7 @@ include_directories(
   include
 )
 
+
 add_subdirectory(arm_controllers)
 add_subdirectory(arm_hardware_interface)
 
@@ -59,6 +60,14 @@ add_library(
   arm_interface
   src/pandora_arm_hardware_interface/arm_usb_interface.cpp)
 target_link_libraries(
+  arm_interface
+  ${catkin_LIBRARIES})
+
+add_executable(  
+  arm_demo
+  src/pandora_arm_hardware_interface/arm_usb_interface_demo.cpp)
+target_link_libraries(
+  arm_demo
   arm_interface
   ${catkin_LIBRARIES})
 
@@ -74,11 +83,3 @@ FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   arm_hardware_interface/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})
-  
-add_executable(  
-  arm_demo
-  src/pandora_arm_hardware_interface/arm_usb_interface_demo.cpp)
-target_link_libraries(
-  arm_demo
-  arm_interface
-  ${catkin_LIBRARIES})

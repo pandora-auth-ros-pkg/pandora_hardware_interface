@@ -90,25 +90,11 @@ public:
 
 private:
 
-  void readSensors();
-
   void reconnectUSB();
 
 private:
 
-  int fd;
-
-  union
-  {
-    uint8_t  CO2bufIN[CO2_NBYTES];
-    float CO2bufIN_float;
-  };
-
-  uint8_t  GEYEbufIN[GEYE_NBYTES];
-
-  uint8_t  bufOUT;
-
-  int nr;
+  int fd;  ///<File Descriptor
 
 };
 

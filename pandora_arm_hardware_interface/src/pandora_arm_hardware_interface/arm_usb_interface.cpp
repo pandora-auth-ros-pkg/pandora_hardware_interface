@@ -63,14 +63,19 @@ ArmUSBInterface::ArmUSBInterface()
   ros::Duration(0.03).sleep();
 }
 
+
 ArmUSBInterface::~ArmUSBInterface()
 {
   close(fd);
   ROS_INFO("[Head]: usb port closed because of program termination\n");
 }
 
+
 int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * values)
 {
+  int nr;
+  uint8_t  bufOUT;
+
   switch (grideyeSelect)
   {
     case 'C':
@@ -101,25 +106,41 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect, uint8_t * value
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
+    reconnectUSB();
+    return -1;
+  }
+  else if (nr < GEYE_NBYTES)
+  {
+    ROS_ERROR("[Head]: Wrong number of bytes read\n");
     return -1;
   }
   else
   {
-    std::stringstream ss;
+    std::stringstream ss;       //TODO slow ?
 
     ss << "[Head]: " << grideyeSelect << " GridEYE = ";
     for (int i = 0; i < GEYE_NBYTES; ++i)
     {
      ss << (int)values[i] << " ";
     }
-    ROS_INFO("%s", ss.str().c_str());
+    ROS_DEBUG("%s", ss.str().c_str());
 
     return 1;
   }
 }
 
+
 float ArmUSBInterface::co2ValueGet()
 {
+  union
+  {
+    uint8_t  CO2bufIN[CO2_NBYTES];
+    float CO2bufIN_float;
+  };
+
+  int nr;
+  uint8_t  bufOUT;
+
   tcflush(fd, TCIFLUSH); //empties incoming buffer
 
   bufOUT = COMMAND_CO2;
@@ -135,6 +156,12 @@ float ArmUSBInterface::co2ValueGet()
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
+    reconnectUSB();
+    return -1;
+  }
+  else if (nr < CO2_NBYTES)
+  {
+    ROS_ERROR("[Head]: Wrong number of bytes read\n");
     return -1;
   }
   else
@@ -144,103 +171,6 @@ float ArmUSBInterface::co2ValueGet()
   }
 }
 
-/*void ArmUSBInterface::readSensors(void)
-{
-
-//	fcntl(fd, F_SETFL, FNDELAY);	//make read() non-blocking
-//	fcntl(fd, F_SETFL, 0);	//make read() blocking
-
-  for (;;)
-  {
-    tcflush(fd, TCIFLUSH); //empties incoming buffer
-
-    bufOUT = COMMAND_GEYE_CENTER;
-    nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      reconnectUSB(fd);
-      continue;
-    }
-    nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
-    {
-      cout << "Read Error" << endl;
-    }
-    else
-    {
-      cout << "GEYE_CENTER = ";
-      for (int i = 0; i < GEYE_NBYTES; ++i)
-      {
-        cout << (int)GEYEbufIN[i] << " ";
-      }
-      cout << endl;
-    }
-
-    bufOUT = COMMAND_GEYE_LEFT;
-    nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      reconnectUSB(fd);
-      continue;
-    }
-    nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
-    {
-      cout << "Read Error" << endl;
-    }
-    else
-    {
-      cout << "GEYE_LEFT = ";
-      for (int i = 0; i < GEYE_NBYTES; ++i)
-      {
-        cout << (int)GEYEbufIN[i] << " ";
-      }
-      cout << endl;
-    }
-
-    bufOUT = COMMAND_GEYE_RIGHT;
-    nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      reconnectUSB(fd);
-      continue;
-    }
-    nr = read(fd, GEYEbufIN, GEYE_NBYTES); //blocking
-    if (nr < 0)
-    {
-      cout << "Read Error" << endl;
-    }
-    else
-    {
-      cout << "GEYE_RIGHT = ";
-      for (int i = 0; i < GEYE_NBYTES; ++i)
-      {
-        cout << (int)GEYEbufIN[i] << " ";
-      }
-      cout << endl;
-    }
-
-    bufOUT = COMMAND_CO2;
-    nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      reconnectUSB(fd);
-      continue;
-    }
-    nr = read(fd, CO2bufIN, CO2_NBYTES); //blocking
-    if (nr < 0)
-    {
-      cout << "Read Error" << endl;
-    }
-    else
-    {
-      cout << "CO2 = " << CO2bufIN_float << endl;
-    }
-
-    ros::Duration(0.02).sleep();
-  }
-
-}*/
 
 void ArmUSBInterface::reconnectUSB()
 {

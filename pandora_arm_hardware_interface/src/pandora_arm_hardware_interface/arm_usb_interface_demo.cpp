@@ -6,22 +6,20 @@ int main(int argc, char** argv)
 
   pandora_hardware_interface::arm::ArmUSBInterface arm;
 
-  uint8_t temperatureCenter[64];
-  uint8_t temperatureLeft[64];
-  uint8_t temperatureRight[64];
-//  uint8_t temperature[64];
+  uint8_t temperature[64];
 
-  while(1) {
+  while (1)
+  {
 
-    arm.grideyeValuesGet('C', temperatureCenter);
+    arm.grideyeValuesGet('C', temperature);
 
-    arm.grideyeValuesGet('L', temperatureLeft);
+    arm.grideyeValuesGet('L', temperature);
 
-    arm.grideyeValuesGet('R', temperatureRight);
+    arm.grideyeValuesGet('R', temperature);
 
     arm.co2ValueGet();
 
-    ros::Duration(0.02).sleep();
+    ros::Duration(0.1).sleep();
   }
 
   return 0;
