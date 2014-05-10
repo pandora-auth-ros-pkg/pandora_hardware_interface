@@ -109,7 +109,7 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
     reconnectUSB();
     return -2;
   }
-  else if (nr < GEYE_NBYTES)
+  else if (nr != GEYE_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
     return -3;
@@ -158,7 +158,7 @@ float ArmUSBInterface::co2ValueGet()
     reconnectUSB();
     return -2;
   }
-  else if (nr < CO2_NBYTES)
+  else if (nr != CO2_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
     return -3;
