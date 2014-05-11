@@ -34,7 +34,7 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_arm_hardware_interface/arm_hardware_interface.h"
+#include "pandora_arm_hardware_interface/arm_usb_interface.h"
 
 int main(int argc, char **argv)
 {
