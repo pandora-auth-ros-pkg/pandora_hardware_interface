@@ -34,49 +34,82 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
-#define PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+#ifndef ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H
+#define ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H
 
-#include <controller_interface/controller.h>
-#include <pandora_xmega_hardware_interface/range_sensor_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <sensor_msgs/Range.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <boost/shared_ptr.hpp>
-
-typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  sensor_msgs::Range> > RangeRealtimePublisher;
+#include <hardware_interface/internal/hardware_resource_manager.h>
+#include <string>
 
 namespace pandora_hardware_interface
 {
-namespace xmega
+namespace arm
 {
-  class RangeSensorController :
-    public controller_interface::Controller<
-      RangeSensorInterface>
+  class ThermalSensorHandle
   {
-    private:
-      const ros::NodeHandle* rootNodeHandle_;
-      std::vector<
-        RangeSensorHandle> sensorHandles_;
-      std::vector<RangeRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      RangeSensorInterface*
-        rangeSensorInterface_;
-      double publishRate_;
+  public:
+    struct Data
+    {
+      Data()
+      {
+      }
 
-    public:
-      RangeSensorController();
-      ~RangeSensorController();
-      virtual bool init(
-        RangeSensorInterface*
-          rangeSensorInterface,
-        ros::NodeHandle& rootNodeHandle,
-        ros::NodeHandle& controllerNodeHandle);
-      virtual void starting(const ros::Time& time);
-      virtual void update(const ros::Time& time, const ros::Duration& period);
-      virtual void stopping(const ros::Time& time);
+      std::string name;
+      std::string frameId;
+      int* height;
+      int* width;
+      int* step;
+      std::vector<int>* data;
+    };
+
+    ThermalSensorHandle(const Data& data = Data())
+      : name_(data.name),
+        frameId_(data.frameId),
+        height_(data.height),
+        width_(data.width),
+        step_(data.step),
+        data_(data.data)
+    {
+    }
+
+    inline std::string getName() const
+    {
+      return name_;
+    }
+    inline std::string getFrameId() const
+    {
+      return frameId_;
+    }
+    inline const int* getHeight() const
+    {
+      return height_;
+    }
+    inline const int* getWidth() const
+    {
+      return width_;
+    }
+    inline const int* getStep() const
+    {
+      return step_;
+    }
+    inline const std::vector<int>* getData() const
+    {
+      return data_;
+    }
+
+  private:
+    std::string name_;
+    std::string frameId_;
+    int* height_;
+    int* width_;
+    int* step_;
+    std::vector<int>* data_;
   };
-}  // namespace xmega
+
+  class ThermalSensorInterface :
+    public hardware_interface::HardwareResourceManager<ThermalSensorHandle>
+  {
+  };
+}  // namespace arm
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+
+#endif  // ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H

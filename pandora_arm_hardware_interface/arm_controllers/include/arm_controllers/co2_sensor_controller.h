@@ -34,8 +34,8 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
-#define PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
+#ifndef ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
+#define ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
 
 #include <controller_interface/controller.h>
 #include <arm_hardware_interface/co2_sensor_interface.h>
@@ -74,4 +74,4 @@ namespace arm
   };
 }  // namespace arm
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
+#endif  // ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
