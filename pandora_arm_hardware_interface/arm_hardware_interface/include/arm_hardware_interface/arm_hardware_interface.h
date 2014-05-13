@@ -34,82 +34,52 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H
-#define ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H
+#ifndef ARM_HARDWARE_INTERFACE_ARM_HARDWARE_INTERFACE_H
+#define ARM_HARDWARE_INTERFACE_ARM_HARDWARE_INTERFACE_H
 
-#include <hardware_interface/internal/hardware_resource_manager.h>
-#include <string>
+#include "ros/ros.h"
+#include "tf/tf.h"
+#include <hardware_interface/robot_hw.h>
+#include <controller_manager/controller_manager.h>
+#include <arm_hardware_interface/co2_sensor_interface.h>
+#include <arm_hardware_interface/thermal_sensor_interface.h>
 
 namespace pandora_hardware_interface
 {
 namespace arm
 {
-  class ThermalSensorHandle
+  class ArmHardwareInterface : public hardware_interface::RobotHW
   {
-  public:
-    struct Data
-    {
-      Data()
-      {
-      }
+    private:
+      ros::NodeHandle nodeHandle_;
 
-      std::string name;
-      std::string frameId;
-      int* height;
-      int* width;
-      int* step;
-      uint8_t* data;
-    };
+      Co2SensorInterface co2SensorInterface_;
+      ThermalSensorInterface thermalSensorInterface_;
+      std::vector<Co2SensorHandle::Data>
+        co2SensorData_;
+      std::vector<ThermalSensorHandle::Data>
+        thermalSensorData_;
 
-    ThermalSensorHandle(const Data& data = Data())
-      : name_(data.name),
-        frameId_(data.frameId),
-        height_(data.height),
-        width_(data.width),
-        step_(data.step),
-        data_(data.data)
-    {
-    }
+      std::vector<std::string> co2SensorName_;
+      std::vector<std::string> co2SensorFrameId_;
+      int* ppm_;
 
-    inline std::string getName() const
-    {
-      return name_;
-    }
-    inline std::string getFrameId() const
-    {
-      return frameId_;
-    }
-    inline const int* getHeight() const
-    {
-      return height_;
-    }
-    inline const int* getWidth() const
-    {
-      return width_;
-    }
-    inline const int* getStep() const
-    {
-      return step_;
-    }
-    inline uint8_t* getData() const
-    {
-      return data_;
-    }
+      std::vector<std::string> thermalSensorName_;
+      std::vector<std::string> thermalFrameId_;
+      int* height_;
+      int* width_;
+      int* step_;
+      uint8_t** thermalData_;
+      int* address_;  // not stored in handle
 
-  private:
-    std::string name_;
-    std::string frameId_;
-    int* height_;
-    int* width_;
-    int* step_;
-    uint8_t* data_;
-  };
-
-  class ThermalSensorInterface :
-    public hardware_interface::HardwareResourceManager<ThermalSensorHandle>
-  {
+      void registerCo2SensorInterface();
+      void registerThermalSensorInterface();
+    public:
+      explicit ArmHardwareInterface(
+        ros::NodeHandle nodeHandle);
+      ~ArmHardwareInterface();
+      void read();
   };
 }  // namespace arm
 }  // namespace pandora_hardware_interface
-
-#endif  // ARM_HARDWARE_INTERFACE_THERMAL_SENSOR_INTERFACE_H
+#endif  // ARM_HARDWARE_INTERFACE_ARM_HARDWARE_INTERFACE_H

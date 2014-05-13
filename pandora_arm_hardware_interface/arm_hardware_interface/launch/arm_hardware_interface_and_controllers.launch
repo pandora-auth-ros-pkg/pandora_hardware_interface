@@ -1,0 +1,13 @@
+<launch>
+  <!-- Launch controller manager with pandora hardware interface-->
+  <include
+    file="$(find pandora_arm_hardware_interface)/arm_hardware_interface/launch/arm_hardware_interface.launch" />
+
+  <!-- spawn co2 sensor controllers -->
+  <include
+    file="$(find pandora_arm_hardware_interface)/arm_controllers/launch/co2_sensor_controller.launch" />
+
+  <!-- spawn thermal sensor controllers -->
+  <include
+    file="$(find pandora_arm_hardware_interface)/arm_controllers/launch/thermal_sensor_controller.launch" />
+</launch>
