@@ -34,44 +34,38 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
-#define ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
+#include "arm_hardware_interface/arm_hardware_interface.h"
 
-#include <controller_interface/controller.h>
-#include <arm_hardware_interface/co2_sensor_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <pandora_arm_hardware_interface/Co2Msg.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <boost/shared_ptr.hpp>
-
-typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  pandora_arm_hardware_interface::Co2Msg> > Co2RealtimePublisher;
-
-namespace pandora_hardware_interface
+int main(int argc, char **argv)
 {
-namespace arm
-{
-  class Co2SensorController :
-    public controller_interface::Controller<Co2SensorInterface>
+  ros::init(argc, argv, "arm_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
+
+  pandora_hardware_interface::arm::ArmHardwareInterface
+    armHardwareInterface(nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &armHardwareInterface,
+    nodeHandle);
+
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
+
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while ( ros::ok() )
   {
-    private:
-      std::vector<Co2SensorHandle> sensorHandles_;
-      std::vector<Co2RealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      double publishRate_;
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
 
-    public:
-      Co2SensorController();
-      ~Co2SensorController();
-      virtual bool init(
-        Co2SensorInterface*
-          co2SensorInterface,
-        ros::NodeHandle& rootNodeHandle,
-        ros::NodeHandle& controllerNodeHandle);
-      virtual void starting(const ros::Time& time);
-      virtual void update(const ros::Time& time, const ros::Duration& period);
-      virtual void stopping(const ros::Time& time);
-  };
-}  // namespace arm
-}  // namespace pandora_hardware_interface
-#endif  // ARM_CONTROLLERS_CO2_SENSOR_CONTROLLER_H
+    armHardwareInterface.read();
+    controllerManager.update(now, period);
+    ros::Duration(0.).sleep();
+  }
+  spinner.stop();
+  return 0;
+}
