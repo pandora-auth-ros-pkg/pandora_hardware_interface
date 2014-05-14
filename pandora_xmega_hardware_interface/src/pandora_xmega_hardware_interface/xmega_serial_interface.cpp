@@ -195,13 +195,14 @@ int XmegaSerialInterface::processData()
       readState = SENSOR_I2C_ADDRESS;
       if(type == BATTERY)			// battery, not i2c sensor
         readState = SENSOR_DATA;
+      if(type == ENCODER)			// encoder, not i2c sensor
+        readState = SENSOR_DATA;
       break;
     case SENSOR_I2C_ADDRESS:
       ROS_DEBUG("Sensor I2C address: %c%c\n", pdataBuffer_[bufferPointer], pdataBuffer_[bufferPointer + 1]);
       temp[0] = pdataBuffer_[bufferPointer];
       temp[1] = pdataBuffer_[bufferPointer + 1];
       getSensor(type)->i2c_address = myatoi(temp, 2);
-      //std::cout << "ic2: " << getSensor(type)->i2c_address << " type: " << type << std::endl; 
       bufferPointer += 3;	// ' ' after sensor i2c address
       readState = SENSOR_STATUS;
       break;
@@ -257,6 +258,8 @@ SensorBase* XmegaSerialInterface::getSensor(int sensorType)
     return &batterySensor_;
   case SRF05_TINY:
     return &rangeSensors_;
+  case ENCODER:
+    return &encoderSensor_;
   default:
     return &defaultSensor_;
   }

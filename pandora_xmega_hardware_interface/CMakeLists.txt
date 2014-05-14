@@ -36,6 +36,7 @@ include_directories(
 add_library(
   xmega_interface
   src/pandora_xmega_hardware_interface/battery_sensor.cpp
+  src/pandora_xmega_hardware_interface/encoder_sensor.cpp
   src/pandora_xmega_hardware_interface/range_sensor.cpp
   src/pandora_xmega_hardware_interface/xmega_serial_interface.cpp)
 target_link_libraries(

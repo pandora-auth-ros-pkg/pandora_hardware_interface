@@ -51,6 +51,7 @@
 #include "pandora_xmega_hardware_interface/default_sensor.h"
 #include "pandora_xmega_hardware_interface/range_sensor.h"
 #include "pandora_xmega_hardware_interface/battery_sensor.h"
+#include "pandora_xmega_hardware_interface/encoder_sensor.h"
 
 
 namespace pandora_hardware_interface
@@ -107,6 +108,11 @@ class XmegaSerialInterface : private boost::noncopyable
   {
     return rangeSensors_.sensors;
   }
+
+  inline int getEncoderDegrees() const
+  {
+    return encoderSensor_.degrees;
+  }
   
  private:
  
@@ -127,6 +133,7 @@ class XmegaSerialInterface : private boost::noncopyable
   
   DefaultSensor defaultSensor_;
   BatterySensor batterySensor_;
+  EncoderSensor encoderSensor_;
   RangeSensor rangeSensors_;
     
   SerialIO serialIO_;

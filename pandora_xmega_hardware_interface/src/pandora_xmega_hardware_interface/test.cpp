@@ -10,13 +10,15 @@ int main(int argc, char** argv)
   while(1) {
     
     xmega.read();
+    
     xmega.getBatteryData(&psu, &motor);
-        
     pandora_hardware_interface::xmega::RangeMap range = xmega.getRangeData();
+    int encoder_degrees = xmega.getEncoderDegrees();
 
     std::cout << "psu: " << psu << " " << "motor: " << motor << std::endl;
+    std::cout << "encoder: "<< encoder_degrees << std::endl;
     for (pandora_hardware_interface::xmega::RangeMap::iterator it=range.begin(); it!=range.end(); ++it)
-      std::cout << "i2c_addr: " << it->first <<", value: "<< it->second.sonarRange <<std::endl;
+      std::cout << "i2c_addr: " << it->first <<", value: "<< it->second.sonarRange << std::endl;
 
     std::cout << std::endl;
   }
