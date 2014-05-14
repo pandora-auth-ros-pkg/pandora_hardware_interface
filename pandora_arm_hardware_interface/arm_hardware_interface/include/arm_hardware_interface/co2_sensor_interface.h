@@ -55,13 +55,13 @@ namespace arm
 
       std::string name;
       std::string frameId;
-      int* ppm;
+      float* co2Percentage;
     };
 
     Co2SensorHandle(const Data& data = Data())
       : name_(data.name),
         frameId_(data.frameId),
-        ppm_(data.ppm)
+        co2Percentage_(data.co2Percentage)
     {
     }
 
@@ -73,15 +73,15 @@ namespace arm
     {
       return frameId_;
     }
-    inline const int* getPpm() const
+    inline const float* getCo2Percentage() const
     {
-      return ppm_;
+      return co2Percentage_;
     }
 
   private:
     std::string name_;
     std::string frameId_;
-    int* ppm_;
+    float* co2Percentage_;
   };
 
   class Co2SensorInterface :

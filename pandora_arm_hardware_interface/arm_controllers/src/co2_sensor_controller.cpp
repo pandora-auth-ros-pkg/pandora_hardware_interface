@@ -104,7 +104,8 @@ namespace arm
           realtimePublishers_[ii]->msg_.header.frame_id =
             sensorHandles_[ii].getFrameId();
 
-          realtimePublishers_[ii]->msg_.ppm = *sensorHandles_[ii].getPpm();
+          realtimePublishers_[ii]->msg_.co2_percentage =
+            *sensorHandles_[ii].getCo2Percentage();
           realtimePublishers_[ii]->unlockAndPublish();
         }
       }

@@ -43,6 +43,7 @@
 #include <controller_manager/controller_manager.h>
 #include <arm_hardware_interface/co2_sensor_interface.h>
 #include <arm_hardware_interface/thermal_sensor_interface.h>
+#include <arm_usb_interface/arm_usb_interface.h>
 
 namespace pandora_hardware_interface
 {
@@ -52,6 +53,7 @@ namespace arm
   {
     private:
       ros::NodeHandle nodeHandle_;
+      ArmUSBInterface arm_;
 
       Co2SensorInterface co2SensorInterface_;
       ThermalSensorInterface thermalSensorInterface_;
@@ -62,7 +64,7 @@ namespace arm
 
       std::vector<std::string> co2SensorName_;
       std::vector<std::string> co2SensorFrameId_;
-      int* ppm_;
+      float* co2Percentage_;
 
       std::vector<std::string> thermalSensorName_;
       std::vector<std::string> thermalFrameId_;
@@ -70,7 +72,7 @@ namespace arm
       int* width_;
       int* step_;
       uint8_t** thermalData_;
-      int* address_;  // not stored in handle
+      std::vector<std::string> address_;  // not stored in handle
 
       void registerCo2SensorInterface();
       void registerThermalSensorInterface();

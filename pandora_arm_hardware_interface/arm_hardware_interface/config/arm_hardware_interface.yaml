@@ -7,16 +7,16 @@ thermal_sensors:
     height: 8
     width: 8
     step: 8
-    address: 1
+    address: 'L'
   - name: '/sensors/center_thermal'
     frame_id: 'center_thermal'
     height: 8
     width: 8
     step: 8
-    address: 2
+    address: 'C'
   - name: '/sensors/right_thermal'
     frame_id: 'right_thermal'
     height: 8
     width: 8
     step: 8
-    address: 3
+    address: 'R'

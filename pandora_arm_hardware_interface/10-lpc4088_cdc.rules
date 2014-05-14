@@ -1,6 +1,0 @@
-# Mbed LPC4088 udev rules. To find appropriate match keys use the following command: 
-#"udevadm info -q all -n /dev/ttyACM1 --attribute-walk"
-#Replug the uC for the rules to take effect.
-
-KERNEL=="ttyACM*",SUBSYSTEM=="tty",ATTRS{serial}=="0123456789",\
-ATTRS{manufacturer}=="mbed.org",ATTRS{product}=="CDC DEVICE",NAME="head",MODE="0666"

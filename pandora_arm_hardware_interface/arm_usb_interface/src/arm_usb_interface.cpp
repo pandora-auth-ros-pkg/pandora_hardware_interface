@@ -35,7 +35,7 @@
  * Author: Orestis Zachariadis
  *********************************************************************/
 
-#include "pandora_arm_hardware_interface/arm_usb_interface.h"
+#include "arm_usb_interface/arm_usb_interface.h"
 
 namespace pandora_hardware_interface
 {
@@ -116,12 +116,12 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
   }
   else
   {
-    std::stringstream ss; //TODO slow ?
+    std::stringstream ss; //TODO(orestis): slow ?
 
     ss << "[Head]: " << grideyeSelect << " GridEYE = ";
     for (int i = 0; i < GEYE_NBYTES; ++i)
     {
-      ss << (int)values[i] << " ";
+      ss << static_cast<int>(values[i]) << " ";
     }
     ROS_DEBUG("%s", ss.str().c_str());
 

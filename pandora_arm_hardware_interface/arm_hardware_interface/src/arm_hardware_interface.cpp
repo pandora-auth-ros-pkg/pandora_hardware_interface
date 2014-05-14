@@ -58,6 +58,15 @@ namespace arm
 
   void ArmHardwareInterface::read()
   {
+    for (int ii = 0; ii < co2SensorName_.size(); ii++)
+    {
+      co2Percentage_[ii] = arm_.co2ValueGet();
+    }
+
+    for (int ii = 0; ii < thermalSensorName_.size(); ii++)
+    {
+      arm_.grideyeValuesGet(*address_[ii].c_str(), thermalData_[ii]);
+    }
   }
 
   void ArmHardwareInterface::registerCo2SensorInterface()
@@ -67,7 +76,7 @@ namespace arm
     ROS_ASSERT(
       co2SensorList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-    ppm_ = new int[co2SensorList.size()];
+    co2Percentage_ = new float[co2SensorList.size()];
     std::string key;
     for (int ii = 0; ii < co2SensorList.size(); ii++)
     {
@@ -86,12 +95,12 @@ namespace arm
       co2SensorFrameId_.push_back(
         static_cast<std::string>(co2SensorList[ii][key]));
 
-      ppm_[ii] = 0;
+      co2Percentage_[ii] = 0;
 
       Co2SensorHandle::Data data;
       data.name = co2SensorName_[ii];
       data.frameId = co2SensorFrameId_[ii];
-      data.ppm = &ppm_[ii];
+      data.co2Percentage = &co2Percentage_[ii];
       co2SensorData_.push_back(data);
       Co2SensorHandle handle(
         co2SensorData_[ii]);
@@ -111,7 +120,6 @@ namespace arm
     width_ = new int[thermalSensorList.size()];
     step_ = new int[thermalSensorList.size()];
     thermalData_ = new uint8_t*[thermalSensorList.size()];
-    address_ = new int[thermalSensorList.size()];
 
     std::string key;
     for (int ii = 0; ii < thermalSensorList.size(); ii++)
@@ -154,8 +162,9 @@ namespace arm
 
       key = "address";
       ROS_ASSERT(
-        thermalSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeInt);
-      address_[ii] = thermalSensorList[ii][key];
+        thermalSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
+      address_.push_back(
+        static_cast<std::string>(thermalSensorList[ii][key]));
 
       ThermalSensorHandle::Data data;
       data.name = thermalSensorName_[ii];

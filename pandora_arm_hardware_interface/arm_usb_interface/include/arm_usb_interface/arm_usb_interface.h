@@ -35,8 +35,8 @@
  * Author: Orestis Zachariadis
  *********************************************************************/
 
-#ifndef ARM_HARDWARE_INTERFACE_H_
-#define ARM_HARDWARE_INTERFACE_H_
+#ifndef ARM_USB_INTERFACE_ARM_USB_INTERFACE_H
+#define ARM_USB_INTERFACE_ARM_USB_INTERFACE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,14 +64,13 @@ namespace arm
 /**Command to send if you want CO2 data*/
 #define COMMAND_CO2 4
 
-#define CO2_NBYTES 4	        ///<Number of bytes of incoming CO2 data
-#define GEYE_NBYTES 64	        ///<Number of bytes of incoming GridEYE data
-#define COMMAND_NBYTES 1	///<Number of bytes of outgoing command
+#define CO2_NBYTES 4         ///<Number of bytes of incoming CO2 data
+#define GEYE_NBYTES 64       ///<Number of bytes of incoming GridEYE data
+#define COMMAND_NBYTES 1     ///<Number of bytes of outgoing command
 
 class ArmUSBInterface : private boost::noncopyable
 {
 public:
-
   ArmUSBInterface();
 
   ~ArmUSBInterface();
@@ -97,16 +96,11 @@ public:
   float co2ValueGet();
 
 private:
-
   void reconnectUSB();
-
-private:
-
   int fd; ///<File Descriptor
-
 };
 
 } // namespace arm
 } // namespace pandora_hardware_interface
 
-#endif /* ARM_HARDWARE_INTERFACE_H_ */
+#endif  // ARM_USB_INTERFACE_ARM_USB_INTERFACE_H
