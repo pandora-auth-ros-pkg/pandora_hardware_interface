@@ -109,7 +109,7 @@ class XmegaSerialInterface : private boost::noncopyable
     return rangeSensors_.sensors;
   }
 
-  inline int getEncoderDegrees() const
+  inline float getEncoderDegrees() const
   {
     return encoderSensor_.degrees;
   }

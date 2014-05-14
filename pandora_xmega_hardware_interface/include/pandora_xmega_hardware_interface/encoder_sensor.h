@@ -54,7 +54,7 @@ class EncoderSensor : virtual public SensorBase
 
  public:
   
-  int degrees;
+  float degrees;
 };
 
 }  // namespace xmega

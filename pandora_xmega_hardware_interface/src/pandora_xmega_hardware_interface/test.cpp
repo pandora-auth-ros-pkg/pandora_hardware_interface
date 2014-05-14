@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     
     xmega.getBatteryData(&psu, &motor);
     pandora_hardware_interface::xmega::RangeMap range = xmega.getRangeData();
-    int encoder_degrees = xmega.getEncoderDegrees();
+    float encoder_degrees = xmega.getEncoderDegrees();
 
     std::cout << "psu: " << psu << " " << "motor: " << motor << std::endl;
     std::cout << "encoder: "<< encoder_degrees << std::endl;

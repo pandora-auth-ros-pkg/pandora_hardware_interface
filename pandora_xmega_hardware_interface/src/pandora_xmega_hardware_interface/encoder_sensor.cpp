@@ -48,7 +48,7 @@ EncoderSensor::EncoderSensor()
 
 void EncoderSensor::handleData()
 {
-  degrees = ((data[0] << 4) | ( data[1] >> 4));
+  degrees = ((float)((data[0] << 8) |  data[1]) / 1024) * 360.0;
 }
 
 EncoderSensor::~EncoderSensor()
