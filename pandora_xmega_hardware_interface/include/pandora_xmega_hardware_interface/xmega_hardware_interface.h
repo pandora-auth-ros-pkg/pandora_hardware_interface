@@ -37,12 +37,14 @@
 #ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
 #define PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
 
+#include <boost/math/constants/constants.hpp>
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_xmega_hardware_interface/power_supply_interface.h>
 #include <pandora_xmega_hardware_interface/range_sensor_interface.h>
+#include <hardware_interface/joint_state_interface.h>
 #include <pandora_xmega_hardware_interface/xmega_serial_interface.h>
 #include <sensor_msgs/Range.h>
 
@@ -58,26 +60,33 @@ namespace xmega
 
       PowerSupplyInterface powerSupplyInterface_;
       RangeSensorInterface rangeSensorInterface_;
+      hardware_interface::JointStateInterface jointStateInterface_;
       std::vector<PowerSupplyHandle::Data>
         powerSupplyData_;
       std::vector<RangeSensorHandle::Data>
         rangeData_;
 
       std::vector<std::string> powerSupplyNames_;
-      std::vector<double> voltage_;
+      double* voltage_;
 
       std::vector<std::string> rangeSensorName_;
       std::vector<std::string> frameId_;
-      std::vector<int> radiationType_;
-      std::vector<int> i2c_address_;  // not stored in handle
-      std::vector<double> fieldOfView_;
-      std::vector<double> minRange_;
-      std::vector<double> maxRange_;
-      std::vector< boost::array<double, 5> > range_;
-      std::vector<int> bufferCounter_;
+      int* radiationType_;
+      double* fieldOfView_;
+      double* minRange_;
+      double* maxRange_;
+      double** range_;
+      int* bufferCounter_;
+      int* i2c_address_;  // not stored in handle
+
+      std::vector<std::string> jointNames_;
+      double position_[2];
+      double velocity_[2];
+      double effort_[2];
 
       void registerPowerSupplyInterface();
       void registerRangeSensorInterface();
+      void registerJointStateInterface();
     public:
       explicit XmegaHardwareInterface(
         ros::NodeHandle nodeHandle);

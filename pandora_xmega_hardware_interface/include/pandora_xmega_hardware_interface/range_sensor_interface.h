@@ -59,7 +59,7 @@ namespace xmega
       double* fieldOfView;
       double* minRange;
       double* maxRange;
-      boost::array<double, 5>* range;
+      double* range;
     };
 
     RangeSensorHandle(const Data& data = Data())
@@ -97,7 +97,7 @@ namespace xmega
     {
       return maxRange_;
     }
-    inline const boost::array<double, 5>* getRange() const
+    inline const double* getRange() const
     {
       return range_;
     }
@@ -109,7 +109,7 @@ namespace xmega
     double* fieldOfView_;
     double* minRange_;
     double* maxRange_;
-    boost::array<double, 5>* range_;
+    double* range_;
   };
 
   class RangeSensorInterface :

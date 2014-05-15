@@ -44,19 +44,18 @@ namespace xmega
     ros::NodeHandle nodeHandle)
   :
     nodeHandle_(nodeHandle),
-    serialInterface(
-      "/dev/ttyUSB0",
-      115200,
-      100)
+    serialInterface("/dev/ttyUSB0", 115200, 100)
   {
-    // commented for testing
     serialInterface.init();
 
     // connect and register power supply interface
     registerPowerSupplyInterface();
 
-    // connect and register power supply interface
+    // connect and register range sensor interface
     registerRangeSensorInterface();
+
+    // connect and register joint state interface
+    registerJointStateInterface();
   }
 
   XmegaHardwareInterface::~XmegaHardwareInterface()
@@ -74,15 +73,15 @@ namespace xmega
     for (RangeMap::iterator it = sensorMap.begin(); it != sensorMap.end(); ++it)
     {
       int address = it->first;
-      for (int jj = 2; jj < rangeData_.size(); jj++)
+      for (int jj = 0; jj < rangeData_.size(); jj++)
       {
         if ( address == i2c_address_[jj])
         {
           if (radiationType_[jj] == sensor_msgs::Range::ULTRASOUND)
           {
             range_[jj][bufferCounter_[jj]] =
-              static_cast<double>(it->second.sonarRange);
-            bufferCounter_[jj] = fmod(bufferCounter_[jj]++, 5);
+              static_cast<double>(it->second.sonarRange) / 100;
+            bufferCounter_[jj] = fmod(bufferCounter_[jj] + 1, 5);
             exists[0] = true;
             if (exists[1] == true)
             {
@@ -92,8 +91,8 @@ namespace xmega
           else if (radiationType_[jj] == sensor_msgs::Range::INFRARED)
           {
             range_[jj][bufferCounter_[jj]] =
-              static_cast<double>(it->second.irRange);
-            bufferCounter_[jj] = fmod(bufferCounter_[jj]++, 5);
+              static_cast<double>(it->second.irRange) / 100;
+            bufferCounter_[jj] = fmod(bufferCounter_[jj] + 1, 5);
             exists[1] = true;
             if (exists[0] == true)
             {
@@ -102,45 +101,16 @@ namespace xmega
           }
         }
       }
-
-      std::vector<std::string> prefix;
-      std::string str;
-      str = "/sensors/sonar";
-      prefix.push_back(str);
-      str = "/sensors/ir";
-      prefix.push_back(str);
-
-      for (int jj = 0; jj < 2; jj++)
-      {
-        if (!exists[jj])
-        {
-          rangeSensorName_.push_back(prefix[jj] + boost::lexical_cast<std::string>(address));
-          frameId_.push_back(frameId_[jj]);
-          radiationType_.push_back(jj);
-          fieldOfView_.push_back(fieldOfView_[jj]);
-          minRange_.push_back(minRange_[jj]);
-          maxRange_.push_back(maxRange_[jj]);
-          range_.push_back(range_[jj]);
-          bufferCounter_.push_back(bufferCounter_[jj]);
-          i2c_address_.push_back(address);
-
-          RangeSensorHandle::Data data;
-          int kk = rangeData_.size();
-          data.name = rangeSensorName_[kk];
-          data.frameId = frameId_[kk];
-          data.radiationType = &radiationType_[kk];
-          data.fieldOfView = &fieldOfView_[kk];
-          data.minRange = &minRange_[kk];
-          data.maxRange = &maxRange_[kk];
-          data.range = &range_[kk];
-          rangeData_.push_back(data);
-
-          RangeSensorHandle handle(
-              rangeData_[kk]);
-          rangeSensorInterface_.registerHandle(handle);
-        }
-      }
     }
+    double pi = boost::math::constants::pi<double>();
+    double radians = serialInterface.getEncoderDegrees() / 180 * pi;
+    // make radians value between [-pi, pi]
+    if (radians > pi)
+    {
+      radians = radians - 2 * pi;
+    }
+    position_[0] = radians;
+    position_[1] = -radians;
   }
 
   void XmegaHardwareInterface::registerPowerSupplyInterface()
@@ -149,6 +119,8 @@ namespace xmega
     nodeHandle_.getParam("power_supplies", powerSupplyList);
     ROS_ASSERT(
       powerSupplyList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+    voltage_ = new double[powerSupplyList.size()];
 
     std::vector<PowerSupplyHandle>
       powerSupplyHandle;
@@ -167,8 +139,7 @@ namespace xmega
       key = "max_voltage";
       ROS_ASSERT(
         powerSupplyList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-      voltage_.push_back(
-        static_cast<double>(powerSupplyList[ii][key]));
+      voltage_[ii] = static_cast<double>(powerSupplyList[ii][key]);
 
       PowerSupplyHandle::Data data;
       data.name = powerSupplyNames_[ii];
@@ -187,6 +158,15 @@ namespace xmega
     nodeHandle_.getParam("range_sensors", rangeSensorList);
     ROS_ASSERT(
       rangeSensorList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+    radiationType_ = new int[rangeSensorList.size()];
+    fieldOfView_ = new double[rangeSensorList.size()];
+    minRange_ = new double[rangeSensorList.size()];
+    maxRange_ = new double[rangeSensorList.size()];
+    range_ = new double*[rangeSensorList.size()];
+    bufferCounter_ = new int[rangeSensorList.size()];
+    i2c_address_ = new int[rangeSensorList.size()];
+
 
     std::string key;
     for (int ii = 0; ii < rangeSensorList.size(); ii++)
@@ -209,39 +189,35 @@ namespace xmega
       key = "radiation_type";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeInt);
-      radiationType_.push_back(
-        static_cast<int>(rangeSensorList[ii][key]));
+      radiationType_[ii] = static_cast<int>(rangeSensorList[ii][key]);
 
       key = "field_of_view";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-      fieldOfView_.push_back(
-        static_cast<double>(rangeSensorList[ii][key]));
+      fieldOfView_[ii] = static_cast<double>(rangeSensorList[ii][key]);
 
       key = "min_range";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-      minRange_.push_back(
-        static_cast<double>(rangeSensorList[ii][key]));
+      minRange_[ii] = static_cast<double>(rangeSensorList[ii][key]);
 
       key = "max_range";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-      maxRange_.push_back(
-        static_cast<double>(rangeSensorList[ii][key]));
+      maxRange_[ii] = static_cast<double>(rangeSensorList[ii][key]);
 
-      boost::array<double, 5> initialRange;
-      initialRange[0] = initialRange[1] =
-        initialRange[2] = initialRange[3] =
-        initialRange[4] = static_cast<double>(rangeSensorList[ii][key]);
-      range_.push_back(initialRange);
-      bufferCounter_.push_back(0);
+      range_[ii] = new double[5];
+      for (int jj = 0; jj < 5; jj++)
+      {
+        range_[ii][jj] = static_cast<double>(rangeSensorList[ii][key]);
+      }
+
+      bufferCounter_[ii] = 0;
 
       key = "i2c_address";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeInt);
-      i2c_address_.push_back(
-        static_cast<int>(rangeSensorList[ii][key]));
+      i2c_address_[ii] = static_cast<int>(rangeSensorList[ii][key]);
 
       RangeSensorHandle::Data data;
       data.name = rangeSensorName_[ii];
@@ -250,16 +226,41 @@ namespace xmega
       data.fieldOfView = &fieldOfView_[ii];
       data.minRange = &minRange_[ii];
       data.maxRange = &maxRange_[ii];
-      data.range = &range_[ii];
+      data.range = range_[ii];
       rangeData_.push_back(data);
-      if (ii > 1)
-      {
-        RangeSensorHandle handle(
-          rangeData_[ii]);
-        rangeSensorInterface_.registerHandle(handle);
-      }
+      RangeSensorHandle handle(
+        rangeData_[ii]);
+      rangeSensorInterface_.registerHandle(handle);
     }
     registerInterface(&rangeSensorInterface_);
+  }
+  void XmegaHardwareInterface::registerJointStateInterface()
+  {
+    // read joint names from param server
+    std::string name;
+    nodeHandle_.getParam(
+      "differential_joints/left_joint",
+      name);
+    jointNames_.push_back(name);
+    nodeHandle_.getParam(
+      "differential_joints/right_joint",
+      name);
+    jointNames_.push_back(name);
+
+    // connect and register the joint state interface
+    for (int ii = 0; ii < jointNames_.size(); ii++)
+    {
+      position_[ii] = 0;
+      velocity_[ii] = 0;
+      effort_[ii] = 0;
+      hardware_interface::JointStateHandle jointStateHandle(
+        jointNames_[ii],
+        &position_[ii],
+        &velocity_[ii],
+        &effort_[ii]);
+      jointStateInterface_.registerHandle(jointStateHandle);
+    }
+    registerInterface(&jointStateInterface_);
   }
 }  // namespace xmega
 }  // namespace pandora_hardware_interface

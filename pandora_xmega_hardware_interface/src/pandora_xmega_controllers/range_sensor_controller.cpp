@@ -69,7 +69,7 @@ namespace xmega
       // Create publisher for each controller
       RangeRealtimePublisher publisher(
         new realtime_tools::RealtimePublisher<sensor_msgs::Range>(
-          *rootNodeHandle_, rangeSensorNames[ii], 4));
+          *rootNodeHandle_, "/sensors/range", 4));
       realtimePublishers_.push_back(publisher);
     }
 
@@ -90,28 +90,6 @@ namespace xmega
   void RangeSensorController::update(
     const ros::Time& time, const ros::Duration& period)
   {
-    // Check for new sensors
-    if ( sensorHandles_.size() < rangeSensorInterface_->getNames().size() )
-    {
-      const std::vector<std::string>& rangeSensorNames =
-        rangeSensorInterface_->getNames();
-      for (int ii = sensorHandles_.size(); ii < rangeSensorNames.size(); ii++)
-      {
-        // Get new sensor handles from interface
-        sensorHandles_.push_back(
-          rangeSensorInterface_->getHandle(rangeSensorNames[ii]));
-
-        // Create publisher for new controllers
-        RangeRealtimePublisher publisher(
-          new realtime_tools::RealtimePublisher<sensor_msgs::Range>(
-            *rootNodeHandle_, rangeSensorNames[ii], 4));
-        realtimePublishers_.push_back(publisher);
-
-        // resize last times published
-        lastTimePublished_.push_back(time);
-      }
-    }
-
     // Publish messages
     for (int ii = 0; ii < realtimePublishers_.size(); ii++)
     {
@@ -135,7 +113,7 @@ namespace xmega
           for (int jj = 0; jj < 5; jj++)
           {
             averageRange =
-              averageRange + sensorHandles_[ii].getRange()->at(jj)/5;
+              averageRange + sensorHandles_[ii].getRange()[jj]/5;
           }
           realtimePublishers_[ii] ->msg_.range = averageRange;
 
