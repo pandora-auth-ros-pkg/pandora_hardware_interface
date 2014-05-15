@@ -4,6 +4,10 @@ add_library(
 target_link_libraries(
   co2_sensor_controller
   ${catkin_LIBRARIES})
+
+add_dependencies(
+  co2_sensor_controller
+  ${PROJECT_NAME}_gencpp)
   
 add_library(
   thermal_sensor_controller
