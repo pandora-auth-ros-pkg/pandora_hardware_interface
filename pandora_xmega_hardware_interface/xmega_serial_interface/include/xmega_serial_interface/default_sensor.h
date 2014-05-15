@@ -32,28 +32,30 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
+* Author: Michael Niarchos
 * Author: Chris Zalidis
 *********************************************************************/
 
-#include <pandora_xmega_hardware_interface/encoder_sensor.h>
+#ifndef DEFAULT_SENSOR_H 
+#define DEFAULT_SENSOR_H
+
+#include <xmega_serial_interface/sensor_base.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-
-EncoderSensor::EncoderSensor()
+class DefaultSensor : public SensorBase
 {
-}
-
-void EncoderSensor::handleData()
-{
-  degrees = ((double)((data[0] << 8) |  data[1]) / 1024) * 360.0;
-}
-
-EncoderSensor::~EncoderSensor()
-{
-}
+ public:
+  DefaultSensor() { }
+  ~DefaultSensor() { }
+  
+  virtual void handleData() { }
+};
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
+
+
+#endif

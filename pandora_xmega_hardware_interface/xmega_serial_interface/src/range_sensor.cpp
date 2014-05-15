@@ -32,40 +32,34 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Michael Niarchos
+* Author: Chris Zalidis
 *********************************************************************/
-#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
 
-int main(int argc, char **argv)
+#include <xmega_serial_interface/range_sensor.h>
+
+namespace pandora_hardware_interface
 {
-  ros::init(argc, argv, "xmega_hardware_interface_node");
-  ros::NodeHandle nodeHandle;
+namespace xmega
+{
 
-  pandora_hardware_interface::xmega::XmegaHardwareInterface
-    xmegaHardwareInterface(nodeHandle);
-  controller_manager::ControllerManager controllerManager(
-    &xmegaHardwareInterface,
-    nodeHandle);
-
-  ros::Time
-    last,
-    now;
-  now = last = ros::Time::now();
-  ros::Duration period(1.0);
-
-  ros::AsyncSpinner spinner(2);
-  spinner.start();
-
-  while ( ros::ok() )
-  {
-    now = ros::Time::now();
-    period = now - last;
-    last = now;
-    
-    xmegaHardwareInterface.read();
-    controllerManager.update(now, period);
-    ros::Duration(0.1).sleep();
-  }
-  spinner.stop();
-  return 0;
+RangeSensor::RangeSensor()
+{
 }
+
+void RangeSensor::handleData()
+{
+  RangeData ranges;
+  
+  ranges.sonarRange = ((data[2] << 8) | data[3]);
+  ranges.irRange = data[1];
+  
+  sensors[i2c_address] = ranges;
+}
+
+RangeSensor::~RangeSensor()
+{
+}
+
+}  // namespace xmega
+}  // namespace pandora_hardware_interface

@@ -34,7 +34,7 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_xmega_controllers/range_sensor_controller.h"
+#include "xmega_controllers/range_sensor_controller.h"
 
 namespace pandora_hardware_interface
 {

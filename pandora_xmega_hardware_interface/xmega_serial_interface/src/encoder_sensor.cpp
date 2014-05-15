@@ -32,46 +32,28 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Michael Niarchos
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef RANGE_SENSOR_H 
-#define RANGE_SENSOR_H
-
-#include <map>
-#include <pandora_xmega_hardware_interface/sensor_base.h>
+#include <xmega_serial_interface/encoder_sensor.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-struct RangeData
-{
-  RangeData() :
-    sonarRange(0),
-    irRange(0)
-  { }
-  int sonarRange;
-  int irRange;
-};
 
-typedef std::map<int, RangeData> RangeMap;
-
-class RangeSensor : virtual public SensorBase
+EncoderSensor::EncoderSensor()
 {
- public:
-  RangeSensor();
-  ~RangeSensor();
-  
-  virtual void handleData();
-  
- public:
-  
-  RangeMap sensors;
-};
+}
+
+void EncoderSensor::handleData()
+{
+  degrees = ((double)((data[0] << 8) |  data[1]) / 1024) * 360.0;
+}
+
+EncoderSensor::~EncoderSensor()
+{
+}
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-
-#endif

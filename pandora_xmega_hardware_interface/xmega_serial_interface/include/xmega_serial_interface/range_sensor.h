@@ -36,26 +36,42 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef DEFAULT_SENSOR_H 
-#define DEFAULT_SENSOR_H
+#ifndef RANGE_SENSOR_H 
+#define RANGE_SENSOR_H
 
-#include <pandora_xmega_hardware_interface/sensor_base.h>
+#include <map>
+#include <xmega_serial_interface/sensor_base.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-class DefaultSensor : public SensorBase
+struct RangeData
+{
+  RangeData() :
+    sonarRange(0),
+    irRange(0)
+  { }
+  int sonarRange;
+  int irRange;
+};
+
+typedef std::map<int, RangeData> RangeMap;
+
+class RangeSensor : virtual public SensorBase
 {
  public:
-  DefaultSensor() { }
-  ~DefaultSensor() { }
+  RangeSensor();
+  ~RangeSensor();
   
-  virtual void handleData() { }
+  virtual void handleData();
+  
+ public:
+  
+  RangeMap sensors;
 };
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-
 
 #endif

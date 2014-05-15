@@ -36,7 +36,7 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#include "pandora_xmega_hardware_interface/xmega_serial_interface.h"
+#include "xmega_serial_interface/xmega_serial_interface.h"
 
 namespace pandora_hardware_interface
 {

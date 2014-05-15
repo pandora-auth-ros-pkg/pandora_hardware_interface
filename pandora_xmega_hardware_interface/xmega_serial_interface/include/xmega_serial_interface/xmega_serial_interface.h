@@ -47,11 +47,11 @@
 #include <ros/ros.h>
 #include <serial/serial.h>
 
-#include "pandora_xmega_hardware_interface/enums.h"
-#include "pandora_xmega_hardware_interface/default_sensor.h"
-#include "pandora_xmega_hardware_interface/range_sensor.h"
-#include "pandora_xmega_hardware_interface/battery_sensor.h"
-#include "pandora_xmega_hardware_interface/encoder_sensor.h"
+#include "xmega_serial_interface/enums.h"
+#include "xmega_serial_interface/default_sensor.h"
+#include "xmega_serial_interface/range_sensor.h"
+#include "xmega_serial_interface/battery_sensor.h"
+#include "xmega_serial_interface/encoder_sensor.h"
 
 
 namespace pandora_hardware_interface

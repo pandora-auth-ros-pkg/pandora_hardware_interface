@@ -32,51 +32,35 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Michael Niarchos
+* Author: Chris Zalidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
-#define PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
 
-#include <controller_interface/controller.h>
-#include <pandora_xmega_hardware_interface/range_sensor_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <sensor_msgs/Range.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <boost/shared_ptr.hpp>
-
-typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  sensor_msgs::Range> > RangeRealtimePublisher;
+#include <xmega_serial_interface/battery_sensor.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-  class RangeSensorController :
-    public controller_interface::Controller<
-      RangeSensorInterface>
-  {
-    private:
-      const ros::NodeHandle* rootNodeHandle_;
-      std::vector<
-        RangeSensorHandle> sensorHandles_;
-      std::vector<RangeRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      RangeSensorInterface*
-        rangeSensorInterface_;
-      double publishRate_;
 
-    public:
-      RangeSensorController();
-      ~RangeSensorController();
-      virtual bool init(
-        RangeSensorInterface*
-          rangeSensorInterface,
-        ros::NodeHandle& rootNodeHandle,
-        ros::NodeHandle& controllerNodeHandle);
-      virtual void starting(const ros::Time& time);
-      virtual void update(const ros::Time& time, const ros::Duration& period);
-      virtual void stopping(const ros::Time& time);
-  };
+BatterySensor::BatterySensor()
+{
+}
+
+void BatterySensor::handleData()
+{
+  psuVoltage = ((data[0] << 4) | ( data[1] >> 4));
+  //~ psuVoltage *= (2.91 / 4095) * 10;
+  //~ psuVoltage -= psuVoltage * 0.01;
+
+  motorVoltage = (((data[1] & 0x0f) << 8) | data[2]) - 153;
+  //~ motorVoltage *= (2.91 / 4095) * 10;
+  //~ motorVoltage -= motorVoltage * 0.01;
+}
+
+BatterySensor::~BatterySensor()
+{
+}
+
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H

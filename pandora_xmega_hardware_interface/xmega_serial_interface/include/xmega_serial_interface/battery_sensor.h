@@ -36,30 +36,31 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#include <pandora_xmega_hardware_interface/range_sensor.h>
+#ifndef BATTERY_SENSOR_H 
+#define BATTERY_SENSOR_H
+
+#include <xmega_serial_interface/sensor_base.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-
-RangeSensor::RangeSensor()
+class BatterySensor : virtual public SensorBase
 {
-}
-
-void RangeSensor::handleData()
-{
-  RangeData ranges;
+ public:
+  BatterySensor();
+  ~BatterySensor();
   
-  ranges.sonarRange = ((data[2] << 8) | data[3]);
-  ranges.irRange = data[1];
-  
-  sensors[i2c_address] = ranges;
-}
+  virtual void handleData();
 
-RangeSensor::~RangeSensor()
-{
-}
+ public:
+  
+  double psuVoltage;
+  double motorVoltage;
+};
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
+
+
+#endif

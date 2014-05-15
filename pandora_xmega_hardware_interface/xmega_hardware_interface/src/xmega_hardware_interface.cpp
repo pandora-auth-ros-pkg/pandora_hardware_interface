@@ -34,7 +34,7 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "pandora_xmega_hardware_interface/xmega_hardware_interface.h"
+#include "xmega_hardware_interface/xmega_hardware_interface.h"
 
 namespace pandora_hardware_interface
 {

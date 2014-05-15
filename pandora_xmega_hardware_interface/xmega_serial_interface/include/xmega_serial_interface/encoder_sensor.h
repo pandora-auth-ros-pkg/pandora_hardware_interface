@@ -32,35 +32,33 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Michael Niarchos
 * Author: Chris Zalidis
 *********************************************************************/
 
-#include <pandora_xmega_hardware_interface/battery_sensor.h>
+#ifndef ENCODER_SENSOR_H 
+#define ENCODER_SENSOR_H
+
+#include <xmega_serial_interface/sensor_base.h>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-
-BatterySensor::BatterySensor()
+class EncoderSensor : virtual public SensorBase
 {
-}
+ public:
+  EncoderSensor();
+  ~EncoderSensor();
+  
+  virtual void handleData();
 
-void BatterySensor::handleData()
-{
-  psuVoltage = ((data[0] << 4) | ( data[1] >> 4));
-  psuVoltage *= ((3.18 / 1.6) / 4095) * 20;
-  psuVoltage -= psuVoltage * 0.01;
-
-  motorVoltage = (((data[1] & 0x0f) << 8) | data[2]) - 153;
-  motorVoltage *= ((3.18 / 1.6) / 4095) * 20;
-  motorVoltage -= motorVoltage * 0.01;
-}
-
-BatterySensor::~BatterySensor()
-{
-}
+ public:
+  
+  double degrees;
+};
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
+
+
+#endif
