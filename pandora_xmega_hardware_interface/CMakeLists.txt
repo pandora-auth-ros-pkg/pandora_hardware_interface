@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_xmega_hardware_interface)
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   roscpp
   roslint
   controller_manager
   controller_interface
   serial
-  std_msgs
+  sensor_msgs
   pluginlib
+)
+
+add_message_files(
+  FILES
+  BatteryMsg.msg
+  )
+
+generate_messages(
+  DEPENDENCIES
+    sensor_msgs
 )
 
 catkin_package(
@@ -16,6 +27,7 @@ catkin_package(
     power_supply_controller
     range_sensor_controller
   CATKIN_DEPENDS
+    message_generation
     roscpp
     roslint
     controller_manager
@@ -47,11 +59,13 @@ add_executable(
   xmega_hardware_interface_node
   src/pandora_xmega_hardware_interface/xmega_hardware_interface.cpp
   src/pandora_xmega_hardware_interface/xmega_hardware_interface_node.cpp)
+#~ add_dependencies(
+  #~ xmega_hardware_interface_node
+  #~ ${PROJECT_NAME}_gencpp)
 target_link_libraries(
   xmega_hardware_interface_node
   xmega_interface
   ${catkin_LIBRARIES})
-
 add_executable(
   xmega_test
   src/pandora_xmega_hardware_interface/test.cpp)

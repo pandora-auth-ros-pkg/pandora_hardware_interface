@@ -64,48 +64,45 @@ namespace xmega
       powerSupplyHandles_.push_back(
         powerSupplyInterface->getHandle(powerSupplyNames[ii]));
 
-      // Create publisher for each controller
-      FloatRealtimePublisher publisher(
-        new realtime_tools::RealtimePublisher<std_msgs::Float64>(
-          rootNodeHandle, powerSupplyNames[ii], 4));
-      realtimePublishers_.push_back(publisher);
+      // Create publisher
+      realtimePublisher_.reset(
+        new realtime_tools::RealtimePublisher<
+          pandora_xmega_hardware_interface::BatteryMsg>(
+          rootNodeHandle, "/sensors/battery", 4));
     }
 
-    // resize last times published
-    lastTimePublished_.resize(powerSupplyNames.size());
     return true;
   }
 
   void PowerSupplyController::starting(const ros::Time& time)
   {
     // Initialize last time published
-    for (int ii = 0; ii < lastTimePublished_.size(); ii++)
-    {
-      lastTimePublished_[ii] = time;
-    }
+    lastTimePublished_ = time;
   }
 
   void PowerSupplyController::update(
     const ros::Time& time, const ros::Duration& period)
   {
     // Publish messages
-    for (int ii = 0; ii < realtimePublishers_.size(); ii++)
+
+    if (lastTimePublished_ + ros::Duration(1.0/publishRate_) < time)
     {
-      if (lastTimePublished_[ii] + ros::Duration(1.0/publishRate_) < time)
+      if (realtimePublisher_->trylock())
       {
-        if (realtimePublishers_[ii]->trylock())
+        realtimePublisher_->msg_.name.clear();
+        realtimePublisher_->msg_.voltage.clear();
+        for (int ii = 0; ii < powerSupplyHandles_.size(); ii++)
         {
-          lastTimePublished_[ii] =
-            lastTimePublished_[ii] + ros::Duration(1.0/publishRate_);
+          lastTimePublished_ =
+            lastTimePublished_ + ros::Duration(1.0/publishRate_);
 
           // Fill voltage
-          if (powerSupplyHandles_[ii].getVoltage())
-          {
-            realtimePublishers_[ii]->msg_.data =
-              *powerSupplyHandles_[ii].getVoltage();
-          }
-          realtimePublishers_[ii]->unlockAndPublish();
+          realtimePublisher_->msg_.name.push_back(
+            powerSupplyHandles_[ii].getName());
+          realtimePublisher_->msg_.voltage.push_back(
+            *powerSupplyHandles_[ii].getVoltage());
         }
+        realtimePublisher_->unlockAndPublish();
       }
     }
   }

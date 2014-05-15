@@ -40,12 +40,12 @@
 #include <controller_interface/controller.h>
 #include <pandora_xmega_hardware_interface/power_supply_interface.h>
 #include <pluginlib/class_list_macros.h>
-#include <std_msgs/Float64.h>
+#include <pandora_xmega_hardware_interface/BatteryMsg.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 
 typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  std_msgs::Float64> > FloatRealtimePublisher;
+  pandora_xmega_hardware_interface::BatteryMsg> > BatteryRealtimePublisher;
 
 namespace pandora_hardware_interface
 {
@@ -58,8 +58,8 @@ namespace xmega
     private:
       std::vector<
         PowerSupplyHandle> powerSupplyHandles_;
-      std::vector<FloatRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
+      BatteryRealtimePublisher realtimePublisher_;
+      ros::Time lastTimePublished_;
       double publishRate_;
 
     public:
