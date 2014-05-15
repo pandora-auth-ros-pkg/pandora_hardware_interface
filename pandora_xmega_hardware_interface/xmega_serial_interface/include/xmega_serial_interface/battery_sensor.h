@@ -36,8 +36,8 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef BATTERY_SENSOR_H 
-#define BATTERY_SENSOR_H
+#ifndef XMEGA_SERIAL_INTERFACE_BATTERY_SENSOR_H
+#define XMEGA_SERIAL_INTERFACE_BATTERY_SENSOR_H
 
 #include <xmega_serial_interface/sensor_base.h>
 
@@ -50,11 +50,10 @@ class BatterySensor : virtual public SensorBase
  public:
   BatterySensor();
   ~BatterySensor();
-  
+
   virtual void handleData();
 
  public:
-  
   double psuVoltage;
   double motorVoltage;
 };
@@ -62,5 +61,4 @@ class BatterySensor : virtual public SensorBase
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-
-#endif
+#endif  // XMEGA_SERIAL_INTERFACE_BATTERY_SENSOR_H

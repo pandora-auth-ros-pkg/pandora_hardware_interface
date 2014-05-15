@@ -50,10 +50,10 @@ RangeSensor::RangeSensor()
 void RangeSensor::handleData()
 {
   RangeData ranges;
-  
+
   ranges.sonarRange = ((data[2] << 8) | data[3]);
   ranges.irRange = data[1];
-  
+
   sensors[i2c_address] = ranges;
 }
 

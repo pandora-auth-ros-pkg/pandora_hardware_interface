@@ -36,8 +36,8 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef DEFAULT_SENSOR_H 
-#define DEFAULT_SENSOR_H
+#ifndef XMEGA_SERIAL_INTERFACE_DEFAULT_SENSOR_H
+#define XMEGA_SERIAL_INTERFACE_DEFAULT_SENSOR_H
 
 #include <xmega_serial_interface/sensor_base.h>
 
@@ -50,7 +50,7 @@ class DefaultSensor : public SensorBase
  public:
   DefaultSensor() { }
   ~DefaultSensor() { }
-  
+
   virtual void handleData() { }
 };
 
@@ -58,4 +58,4 @@ class DefaultSensor : public SensorBase
 }  // namespace pandora_hardware_interface
 
 
-#endif
+#endif  // XMEGA_SERIAL_INTERFACE_DEFAULT_SENSOR_H

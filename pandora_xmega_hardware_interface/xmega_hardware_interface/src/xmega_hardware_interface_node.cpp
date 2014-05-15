@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     now = ros::Time::now();
     period = now - last;
     last = now;
-    
+
     xmegaHardwareInterface.read();
     controllerManager.update(now, period);
     ros::Duration(0.1).sleep();

@@ -34,8 +34,8 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
-#define PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+#ifndef XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+#define XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
 
 #include <controller_interface/controller.h>
 #include <xmega_hardware_interface/range_sensor_interface.h>
@@ -79,4 +79,4 @@ namespace xmega
   };
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H
+#endif  // XMEGA_CONTROLLERS_RANGE_SENSOR_CONTROLLER_H

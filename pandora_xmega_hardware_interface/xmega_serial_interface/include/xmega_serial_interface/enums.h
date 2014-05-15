@@ -36,8 +36,8 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef XMEGA_SERIAL_INTERFACE_ENUMS_H
+#define XMEGA_SERIAL_INTERFACE_ENUMS_H
 
 namespace pandora_hardware_interface
 {
@@ -74,4 +74,4 @@ enum read_state
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-#endif
+#endif  // XMEGA_SERIAL_INTERFACE_ENUMS_H

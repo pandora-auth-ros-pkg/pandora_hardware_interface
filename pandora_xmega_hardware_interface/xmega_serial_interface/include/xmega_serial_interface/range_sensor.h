@@ -36,8 +36,8 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef RANGE_SENSOR_H 
-#define RANGE_SENSOR_H
+#ifndef XMEGA_SERIAL_INTERFACE_RANGE_SENSOR_H
+#define XMEGA_SERIAL_INTERFACE_RANGE_SENSOR_H
 
 #include <map>
 #include <xmega_serial_interface/sensor_base.h>
@@ -63,15 +63,14 @@ class RangeSensor : virtual public SensorBase
  public:
   RangeSensor();
   ~RangeSensor();
-  
+
   virtual void handleData();
-  
+
  public:
-  
   RangeMap sensors;
 };
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-#endif
+#endif  // XMEGA_SERIAL_INTERFACE_RANGE_SENSOR_H

@@ -36,8 +36,10 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef SENSOR_BASE_H 
-#define SENSOR_BASE_H
+#ifndef XMEGA_SERIAL_INTERFACE_SENSOR_BASE_H
+#define XMEGA_SERIAL_INTERFACE_SENSOR_BASE_H
+
+#include <stdint.h>
 
 namespace pandora_hardware_interface
 {
@@ -46,27 +48,26 @@ namespace xmega
 class SensorBase
 {
  public:
-  SensorBase() : 
+  SensorBase() :
     i2c_address(0),
     status(0),
-    state(0) 
+    state(0)
   { }
-  
+
   virtual ~SensorBase() { }
-  
+
   virtual void handleData() = 0;
- 
+
  public:
- 
   int i2c_address;
   int status;
   int state;
-  
-  short int data[20];
+
+  uint8_t data[20];
 };
 
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-#endif 
+#endif  // XMEGA_SERIAL_INTERFACE_SENSOR_BASE_H

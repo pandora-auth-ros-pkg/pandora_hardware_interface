@@ -34,8 +34,8 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
+#ifndef XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
+#define XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
 
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <string>
@@ -84,4 +84,4 @@ namespace xmega
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H
+#endif  // XMEGA_HARDWARE_INTERFACE_POWER_SUPPLY_INTERFACE_H

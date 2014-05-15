@@ -48,7 +48,7 @@ EncoderSensor::EncoderSensor()
 
 void EncoderSensor::handleData()
 {
-  degrees = ((double)((data[0] << 8) |  data[1]) / 1024) * 360.0;
+  degrees = (static_cast<double>((data[0] << 8) |  data[1]) / 1024) * 360.0;
 }
 
 EncoderSensor::~EncoderSensor()

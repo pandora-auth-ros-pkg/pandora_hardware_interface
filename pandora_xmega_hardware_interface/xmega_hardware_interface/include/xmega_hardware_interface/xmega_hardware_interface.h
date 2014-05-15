@@ -34,8 +34,8 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
-#define PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
+#ifndef XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
+#define XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
 
 #include <boost/math/constants/constants.hpp>
 #include "ros/ros.h"
@@ -95,4 +95,4 @@ namespace xmega
   };
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H
+#endif  // XMEGA_HARDWARE_INTERFACE_XMEGA_HARDWARE_INTERFACE_H

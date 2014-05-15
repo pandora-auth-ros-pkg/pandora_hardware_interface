@@ -35,8 +35,8 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#ifndef ENCODER_SENSOR_H 
-#define ENCODER_SENSOR_H
+#ifndef XMEGA_SERIAL_INTERFACE_ENCODER_SENSOR_H
+#define XMEGA_SERIAL_INTERFACE_ENCODER_SENSOR_H
 
 #include <xmega_serial_interface/sensor_base.h>
 
@@ -49,16 +49,14 @@ class EncoderSensor : virtual public SensorBase
  public:
   EncoderSensor();
   ~EncoderSensor();
-  
+
   virtual void handleData();
 
  public:
-  
   double degrees;
 };
 
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
-
-#endif
+#endif  // XMEGA_SERIAL_INTERFACE_ENCODER_SENSOR_H
