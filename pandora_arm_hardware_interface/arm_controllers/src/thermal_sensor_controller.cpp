@@ -46,7 +46,6 @@ namespace arm
     ros::NodeHandle& rootNodeHandle,
     ros::NodeHandle& controllerNodeHandle)
   {
-    rootNodeHandle_ = &rootNodeHandle;
     thermalSensorInterface_ = thermalSensorInterface;
     // Get sensor names from interface
     const std::vector<std::string>& thermalSensorNames =
@@ -69,7 +68,7 @@ namespace arm
       // Create publisher for each controller
       ImageRealtimePublisher publisher(
         new realtime_tools::RealtimePublisher<sensor_msgs::Image>(
-          *rootNodeHandle_, thermalSensorNames[ii], 4));
+          rootNodeHandle, "/sensors/thermal", 4));
       realtimePublishers_.push_back(publisher);
     }
 

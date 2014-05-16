@@ -57,7 +57,6 @@ namespace arm
       ThermalSensorInterface>
   {
     private:
-      const ros::NodeHandle* rootNodeHandle_;
       std::vector<
         ThermalSensorHandle> sensorHandles_;
       std::vector<ImageRealtimePublisher> realtimePublishers_;
