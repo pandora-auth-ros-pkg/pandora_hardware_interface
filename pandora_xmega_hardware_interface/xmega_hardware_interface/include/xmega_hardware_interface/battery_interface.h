@@ -34,46 +34,54 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#ifndef XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
-#define XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
+#ifndef XMEGA_HARDWARE_INTERFACE_BATTERY_INTERFACE_H
+#define XMEGA_HARDWARE_INTERFACE_BATTERY_INTERFACE_H
 
-#include <controller_interface/controller.h>
-#include <xmega_hardware_interface/power_supply_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <pandora_xmega_hardware_interface/BatteryMsg.h>
-#include <realtime_tools/realtime_publisher.h>
-#include <boost/shared_ptr.hpp>
-
-typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  pandora_xmega_hardware_interface::BatteryMsg> > BatteryRealtimePublisher;
+#include <hardware_interface/internal/hardware_resource_manager.h>
+#include <string>
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-  class PowerSupplyController :
-    public controller_interface::Controller<
-      PowerSupplyInterface>
+  class BatteryHandle
   {
-    private:
-      std::vector<
-        PowerSupplyHandle> powerSupplyHandles_;
-      BatteryRealtimePublisher realtimePublisher_;
-      ros::Time lastTimePublished_;
-      double publishRate_;
+  public:
+    struct Data
+    {
+      Data()
+      {
+      }
 
-    public:
-      PowerSupplyController();
-      ~PowerSupplyController();
-      virtual bool init(
-        PowerSupplyInterface*
-          powerSupplyInterface,
-        ros::NodeHandle& rootNodeHandle,
-        ros::NodeHandle& controllerNodeHandle);
-      virtual void starting(const ros::Time& time);
-      virtual void update(const ros::Time& time, const ros::Duration& period);
-      virtual void stopping(const ros::Time& time);
+      std::string name;
+      double* voltage;
+    };
+
+    BatteryHandle(const Data& data = Data())
+      : name_(data.name),
+        voltage_(data.voltage)
+    {
+    }
+
+    inline const std::string getName() const
+    {
+      return name_;
+    }
+    inline const double* getVoltage() const
+    {
+      return voltage_;
+    }
+
+  private:
+    std::string name_;
+    double* voltage_;
+  };
+
+  class BatteryInterface :
+    public hardware_interface::HardwareResourceManager<BatteryHandle>
+  {
   };
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
-#endif  // XMEGA_CONTROLLERS_POWER_SUPPLY_CONTROLLER_H
+
+#endif  // XMEGA_HARDWARE_INTERFACE_BATTERY_INTERFACE_H

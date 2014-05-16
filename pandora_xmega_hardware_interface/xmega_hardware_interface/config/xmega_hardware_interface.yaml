@@ -1,4 +1,4 @@
-power_supplies:
+batteries:
   - name: '/PSU_battery'
     max_voltage: 24.0
   - name: '/motors_battery'

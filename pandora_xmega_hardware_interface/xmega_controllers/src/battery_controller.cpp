@@ -34,21 +34,21 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "xmega_controllers/power_supply_controller.h"
+#include "xmega_controllers/battery_controller.h"
 
 namespace pandora_hardware_interface
 {
 namespace xmega
 {
-  bool PowerSupplyController::init(
-    PowerSupplyInterface*
-      powerSupplyInterface,
+  bool BatteryController::init(
+    BatteryInterface*
+      batteryInterface,
     ros::NodeHandle& rootNodeHandle,
     ros::NodeHandle& controllerNodeHandle)
   {
     // Get sensor names from interface
-    const std::vector<std::string>& powerSupplyNames =
-      powerSupplyInterface->getNames();
+    const std::vector<std::string>& batteryNames =
+      batteryInterface->getNames();
 
     // Read publish rate from yaml
     if (!controllerNodeHandle.getParam("publish_rate", publishRate_))
@@ -58,11 +58,11 @@ namespace xmega
         "Parameter 'publish_rate' not set in yaml, using default 50Hz");
     }
 
-    for (int ii = 0; ii < powerSupplyNames.size(); ii++)
+    for (int ii = 0; ii < batteryNames.size(); ii++)
     {
       // Get sensor handles from interface
-      powerSupplyHandles_.push_back(
-        powerSupplyInterface->getHandle(powerSupplyNames[ii]));
+      batteryHandles_.push_back(
+        batteryInterface->getHandle(batteryNames[ii]));
 
       // Create publisher
       realtimePublisher_.reset(
@@ -74,13 +74,13 @@ namespace xmega
     return true;
   }
 
-  void PowerSupplyController::starting(const ros::Time& time)
+  void BatteryController::starting(const ros::Time& time)
   {
     // Initialize last time published
     lastTimePublished_ = time;
   }
 
-  void PowerSupplyController::update(
+  void BatteryController::update(
     const ros::Time& time, const ros::Duration& period)
   {
     // Publish messages
@@ -91,36 +91,36 @@ namespace xmega
       {
         realtimePublisher_->msg_.name.clear();
         realtimePublisher_->msg_.voltage.clear();
-        for (int ii = 0; ii < powerSupplyHandles_.size(); ii++)
+        for (int ii = 0; ii < batteryHandles_.size(); ii++)
         {
           lastTimePublished_ =
             lastTimePublished_ + ros::Duration(1.0/publishRate_);
 
           // Fill voltage
           realtimePublisher_->msg_.name.push_back(
-            powerSupplyHandles_[ii].getName());
+            batteryHandles_[ii].getName());
           realtimePublisher_->msg_.voltage.push_back(
-            *powerSupplyHandles_[ii].getVoltage());
+            *batteryHandles_[ii].getVoltage());
         }
         realtimePublisher_->unlockAndPublish();
       }
     }
   }
 
-  void PowerSupplyController::stopping(const ros::Time& time)
+  void BatteryController::stopping(const ros::Time& time)
   {
   }
 
-  PowerSupplyController::PowerSupplyController()
+  BatteryController::BatteryController()
   {
   }
 
-  PowerSupplyController::~PowerSupplyController()
+  BatteryController::~BatteryController()
   {
   }
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
 
 PLUGINLIB_EXPORT_CLASS(
-  pandora_hardware_interface::xmega::PowerSupplyController,
+  pandora_hardware_interface::xmega::BatteryController,
   controller_interface::ControllerBase)

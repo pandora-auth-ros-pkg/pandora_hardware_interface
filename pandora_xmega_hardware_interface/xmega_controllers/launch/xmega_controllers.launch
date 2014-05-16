@@ -1,13 +1,26 @@
 <launch>
-  <!-- spawn power supply controllers -->
-  <include
-    file="$(find pandora_xmega_hardware_interface)/launch/power_supply_controller.launch" />
+  <arg name="namespace" default="xmega" />
+  <!-- load configuration -->
+  <rosparam
+    command="load"
+    file="$(find pandora_xmega_hardware_interface)/xmega_controllers/config/battery_controller.yaml"
+    ns = "$(arg namespace)"/>
 
-  <!-- spawn range sensor controllers -->
-  <include
-    file="$(find pandora_xmega_hardware_interface)/launch/range_sensor_controller.launch" />
+  <rosparam
+    command="load"
+    file="$(find pandora_xmega_hardware_interface)/xmega_controllers/config/range_sensor_controller.yaml"
+    ns = "$(arg namespace)"/>
 
-  <!-- spawn joint states controllers -->
-  <include
-    file="$(find pandora_xmega_hardware_interface)/launch/joint_states_controller.launch" />
+  <rosparam
+    command="load"
+    file="$(find pandora_xmega_hardware_interface)/xmega_controllers/config/joint_states_controller.yaml"
+    ns = "$(arg namespace)"/>
+
+  <!-- spawn controllers -->
+  <node
+    name="xmega_controllers_spawner"
+    pkg="controller_manager"
+    type="spawner" output="screen"
+    args="battery_controller range_sensor_controller joint_states_controller"
+    ns = "$(arg namespace)"/>
 </launch>

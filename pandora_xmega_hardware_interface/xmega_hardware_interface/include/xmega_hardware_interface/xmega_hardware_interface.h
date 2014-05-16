@@ -42,7 +42,7 @@
 #include "tf/tf.h"
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include <xmega_hardware_interface/power_supply_interface.h>
+#include <xmega_hardware_interface/battery_interface.h>
 #include <xmega_hardware_interface/range_sensor_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <xmega_serial_interface/xmega_serial_interface.h>
@@ -58,15 +58,15 @@ namespace xmega
       ros::NodeHandle nodeHandle_;
       XmegaSerialInterface serialInterface;
 
-      PowerSupplyInterface powerSupplyInterface_;
+      BatteryInterface batteryInterface_;
       RangeSensorInterface rangeSensorInterface_;
       hardware_interface::JointStateInterface jointStateInterface_;
-      std::vector<PowerSupplyHandle::Data>
-        powerSupplyData_;
+      std::vector<BatteryHandle::Data>
+        batteryData_;
       std::vector<RangeSensorHandle::Data>
         rangeData_;
 
-      std::vector<std::string> powerSupplyNames_;
+      std::vector<std::string> batteryNames_;
       double* voltage_;
 
       std::vector<std::string> rangeSensorName_;
@@ -84,7 +84,7 @@ namespace xmega
       double velocity_[2];
       double effort_[2];
 
-      void registerPowerSupplyInterface();
+      void registerBatteryInterface();
       void registerRangeSensorInterface();
       void registerJointStateInterface();
     public:

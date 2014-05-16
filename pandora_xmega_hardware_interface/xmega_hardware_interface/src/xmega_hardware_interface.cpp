@@ -49,7 +49,7 @@ namespace xmega
     serialInterface.init();
 
     // connect and register power supply interface
-    registerPowerSupplyInterface();
+    registerBatteryInterface();
 
     // connect and register range sensor interface
     registerRangeSensorInterface();
@@ -113,43 +113,43 @@ namespace xmega
     position_[1] = -radians;
   }
 
-  void XmegaHardwareInterface::registerPowerSupplyInterface()
+  void XmegaHardwareInterface::registerBatteryInterface()
   {
-    XmlRpc::XmlRpcValue powerSupplyList;
-    nodeHandle_.getParam("power_supplies", powerSupplyList);
+    XmlRpc::XmlRpcValue batteryList;
+    nodeHandle_.getParam("batteries", batteryList);
     ROS_ASSERT(
-      powerSupplyList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      batteryList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-    voltage_ = new double[powerSupplyList.size()];
+    voltage_ = new double[batteryList.size()];
 
-    std::vector<PowerSupplyHandle>
-      powerSupplyHandle;
+    std::vector<BatteryHandle>
+      batteryHandle;
     std::string key;
-    for (int ii = 0; ii < powerSupplyList.size(); ii++)
+    for (int ii = 0; ii < batteryList.size(); ii++)
     {
       ROS_ASSERT(
-        powerSupplyList[ii].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+        batteryList[ii].getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
       key = "name";
       ROS_ASSERT(
-        powerSupplyList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
-      powerSupplyNames_.push_back(
-        static_cast<std::string>(powerSupplyList[ii][key]));
+        batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
+      batteryNames_.push_back(
+        static_cast<std::string>(batteryList[ii][key]));
 
       key = "max_voltage";
       ROS_ASSERT(
-        powerSupplyList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-      voltage_[ii] = static_cast<double>(powerSupplyList[ii][key]);
+        batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+      voltage_[ii] = static_cast<double>(batteryList[ii][key]);
 
-      PowerSupplyHandle::Data data;
-      data.name = powerSupplyNames_[ii];
+      BatteryHandle::Data data;
+      data.name = batteryNames_[ii];
       data.voltage = &voltage_[ii];
-      powerSupplyData_.push_back(data);
-      PowerSupplyHandle handle(
-        powerSupplyData_[ii]);
-      powerSupplyInterface_.registerHandle(handle);
+      batteryData_.push_back(data);
+      BatteryHandle handle(
+        batteryData_[ii]);
+      batteryInterface_.registerHandle(handle);
     }
-    registerInterface(&powerSupplyInterface_);
+    registerInterface(&batteryInterface_);
   }
 
   void XmegaHardwareInterface::registerRangeSensorInterface()

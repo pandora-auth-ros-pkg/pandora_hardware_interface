@@ -35,7 +35,7 @@
   <run_depend>pluginlib</run_depend>
 
   <export>
-    <controller_interface plugin="${prefix}/power_supply_controller.xml"/>
+    <controller_interface plugin="${prefix}/battery_controller.xml"/>
     <controller_interface plugin="${prefix}/range_sensor_controller.xml"/>
   </export>
 </package>

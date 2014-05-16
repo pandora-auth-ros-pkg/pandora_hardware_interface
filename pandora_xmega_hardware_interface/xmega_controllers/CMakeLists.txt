@@ -1,11 +1,11 @@
 add_library(
-  power_supply_controller
-  src/power_supply_controller.cpp)
+  battery_controller
+  src/battery_controller.cpp)
 add_dependencies(
-  power_supply_controller
+  battery_controller
   ${PROJECT_NAME}_gencpp)
 target_link_libraries(
-  power_supply_controller
+  battery_controller
   ${catkin_LIBRARIES})
 
 add_library(

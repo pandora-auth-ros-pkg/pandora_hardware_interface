@@ -30,7 +30,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
   LIBRARIES
-    power_supply_controller
+    battery_controller
     range_sensor_controller
   CATKIN_DEPENDS
     message_generation
