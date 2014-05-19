@@ -10,20 +10,26 @@ SerialEposHandler::SerialEposHandler(const std::string& dev, const int& bauds, c
 
 SerialEposHandler::~SerialEposHandler() {}
 
-void SerialEposHandler::getRPM(int* left, int* right) {
+void SerialEposHandler::getRPM(int* left_back, int* left_front, int* right_back, int* right_front) {
   epos::Word out[2];
-  int32_t rpmLeft, rpmRight;
+  int32_t rpmLeft_back, rpmRight_back,rpmLeft_front, rpmRight_front;
   gatewayImpl_->readObject(2, 0x2028, 0, &out[0]);
-  rpmLeft = (int16_t)out[1];
-  gatewayImpl_->readObject(2, 0x206B, 0, &out[0]);
-  rpmRight = (int32_t)out[1];
-  if(rpmRight > 10000) {
-    rpmRight -= 20000;
+  rpmRight_back = (int16_t)out[1];
+  gatewayImpl_->readObject(3, 0x2028, 0, &out[0]);
+  rpmLeft_back = (int16_t)out[1];
+  gatewayImpl_->readObject(4, 0x2028, 0, &out[0]);
+  rpmLeft_front = (int16_t)out[1];
+  gatewayImpl_->readObject(1, 0x206B, 0, &out[0]); // epos p
+  rpmRight_front = (int32_t)out[1];
+  if(rpmRight_front > 10000) {
+    rpmRight_front -= 20000;
     ROS_DEBUG("WTF");
   }
-  rpmRight = -rpmRight;
-  *left = rpmLeft;
-  *right = rpmRight;
+ 
+  *left_back = rpmLeft_back;
+  *left_front = rpmLeft_front;
+  *right_back = -rpmRight_back;
+  *right_front = -rpmRight_front;
 }
 
 Current SerialEposHandler::getCurrent() {
@@ -48,6 +54,9 @@ Error SerialEposHandler::getError() {
 
   return error;
 }
+
+
+
 
 epos::CommandStatus SerialEposHandler::writeRPM(const int& left, const int& right) {
   ROS_INFO("setting speed %d, %d", left, right);

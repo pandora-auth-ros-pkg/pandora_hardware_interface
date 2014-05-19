@@ -48,7 +48,6 @@ MainMotorController::MainMotorController  (std::string dev,
             this);
   softBusy = false;
   m_handle = handle;
-  twistSub = m_handle.subscribe("/cmd_vel", 1, &MainMotorController::setVelocityCallback, this);
 //~     main_motor_measurements= m_handle.advertise<main_motor_control_communications::motor_rpm_msg>("rpm_topic",4);
   _updater.setHardwareID("EPOS");
   _updater.add("Motor Speed", this, &MainMotorController::speedDiagnostic);
@@ -62,8 +61,8 @@ MainMotorController::~MainMotorController() {
 void MainMotorController::postStatus(const ros::TimerEvent& event) {
   guard.lock();
   if (!calledTooOften()) {
-    int left, right;
-    motors->getRPM(&left, &right);
+    //~ int left, right;
+    //~ motors->getRPM(&left, &right);
 //~         main_motor_control_communications::motor_rpm_msg msg;
 //~         msg.rpm_left_demand=controlInput.left;
 //~         msg.rpm_right_demand=controlInput.right;
@@ -77,7 +76,7 @@ void MainMotorController::postStatus(const ros::TimerEvent& event) {
   return;
 }
 
-epos::CommandStatus MainMotorController::setSpeed(float linear, float angular) {
+epos::CommandStatus MainMotorController::setVelocity(float linear) {
   epos::CommandStatus retVal;
   guard.lock();
   if(calledTooOften()) {
@@ -85,16 +84,11 @@ epos::CommandStatus MainMotorController::setSpeed(float linear, float angular) {
     retVal = epos::BUSY;
   }
 
-  ROS_INFO("mainMotorControl: got speed, linear: '%f', angular: '%f'",
-           linear, angular);
+  ROS_INFO("mainMotorControl: got speed, linear: '%f'",
+           linear);
 
-  //Robot kinematic velocity structure
-  Kinematic::Velocity velocity(linear, 0, -angular);
-
-  //Get required robot rpms
-
-  controlInput = calculateRPM(velocity);
-  motorStatus = motors->writeRPM(controlInput.left, controlInput.right);
+  int left,right;
+  motorStatus = motors->writeRPM(left, right);
   if(motorStatus != epos::SUCCESS) ROS_ERROR("error setting speed ");
   retVal = motorStatus;
   guard.unlock();
@@ -102,17 +96,10 @@ epos::CommandStatus MainMotorController::setSpeed(float linear, float angular) {
 
 }
 
-void MainMotorController::setVelocityCallback(const geometry_msgs::Twist& msg)
-{
-
-  epos::CommandStatus ret = setSpeed(msg.linear.x, -msg.angular.z);
-  if(ret != 0 && !softBusy) {
-    ROS_ERROR_STREAM("MainMotorCOntroller::setSpeed: Error" << convertStatusToString(ret));
-
-  }
-  else if (softBusy) softBusy = false;
-  return ;
-}
+//void MainMotorController::getVelocity(int* left_back, int* left_front, int* right_back, int* right_front) {
+ // int left, right;
+ // motorStatus = motors->getRPM(&left, &right);
+//}
 
 
 void MainMotorController::speedDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat) {

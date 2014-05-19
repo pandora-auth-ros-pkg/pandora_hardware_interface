@@ -10,7 +10,7 @@ class SerialEposHandler: public AbstractEposHandler {
  public:
   SerialEposHandler(const std::string& dev, const int& bauds, const int& time);
   virtual ~SerialEposHandler();
-  virtual void getRPM(int* left, int* right);
+  virtual void getRPM(int* left_back, int* left_front, int* right_back, int* right_front);
   virtual Current getCurrent();
   virtual Error getError();
   virtual epos::CommandStatus writeRPM(const int& left, const int& right);

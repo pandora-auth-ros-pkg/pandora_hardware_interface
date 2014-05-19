@@ -22,16 +22,12 @@
 #define MAINMOTORCONTROLLER_H
 
 #include "ros/ros.h"
-#include <geometry_msgs/Twist.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <epos_gateway/epos_serial_gateway.h>
 #include <fstream>
 #include "epos_handler/serial_epos_handler.h"
 #include "epos_handler/fake_epos_handler.h"
-#include "epos_handler/kinematic.h"
-
-
 #include "diagnostic_updater/diagnostic_updater.h"
 
 using namespace pandora_hardware_interface::motor;
@@ -42,19 +38,16 @@ class MainMotorController
 
   std::ofstream outfile;
   AbstractEposHandler *motors;
-  ros::Subscriber twistSub;
   ros::Publisher main_motor_measurements;
   ros::NodeHandle m_handle;
   epos::CommandStatus motorStatus;
   ros::Timer timer;
-  Kinematic::RPM controlInput;
   bool softBusy;
   boost::mutex guard;
   //For Diagnostics about motor status and setVehicleSpeed Calls
   ros::Time lastSetSpeedCall;
   bool falseSpeedCall;
   ros::Duration timeBetweenCalls;
-  void setVelocityCallback(const geometry_msgs::Twist& msg);
 
   /**
   * The diagnostic updater
@@ -73,7 +66,8 @@ public:
                       ros::NodeHandle &handle,
                       float period);
   ~MainMotorController();
-  epos::CommandStatus setSpeed(float linear, float angular);
+  epos::CommandStatus setVelocity(float linear);
+  void getVelocity(float linear);
 
 
 
