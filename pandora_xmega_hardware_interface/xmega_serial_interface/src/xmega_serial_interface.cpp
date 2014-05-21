@@ -224,11 +224,10 @@ int XmegaSerialInterface::processData()
       int i = 0;
       while ( pdataBuffer_[bufferPointer] != '\n' )
       {
-        temp[0] = pdataBuffer_[bufferPointer];
-        temp[1] = pdataBuffer_[bufferPointer + 1];
+        temp[0] = pdataBuffer_[bufferPointer++];
+        temp[1] = pdataBuffer_[bufferPointer++];
         getSensor(type)->data[i] = myatoi(temp, 2);
         ROS_DEBUG("%d ", getSensor(type)->data[i]);
-        bufferPointer += 2;
         i++;
       }
       bufferPointer++;  // LF after Data
