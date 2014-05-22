@@ -13,7 +13,7 @@ class SerialEposHandler: public AbstractEposHandler {
   virtual void getRPM(int* left_back, int* left_front, int* right_back, int* right_front);
   virtual Current getCurrent();
   virtual Error getError();
-  virtual epos::CommandStatus writeRPM(const int& left, const int& right);
+  virtual epos::CommandStatus writeRPM(const int& left_rpm, const int& right_rpm);
 };
 
 }  // namespace motor

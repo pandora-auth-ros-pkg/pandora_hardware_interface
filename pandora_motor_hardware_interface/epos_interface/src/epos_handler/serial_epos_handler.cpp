@@ -19,7 +19,7 @@ void SerialEposHandler::getRPM(int* left_back, int* left_front, int* right_back,
   rpmLeft_back = (int16_t)out[1];
   gatewayImpl_->readObject(4, 0x2028, 0, &out[0]);
   rpmLeft_front = (int16_t)out[1];
-  gatewayImpl_->readObject(1, 0x206B, 0, &out[0]); // epos p
+  gatewayImpl_->readObject(2, 0x206B, 0, &out[0]); // epos p
   rpmRight_front = (int32_t)out[1];
   if(rpmRight_front > 10000) {
     rpmRight_front -= 20000;
@@ -58,10 +58,10 @@ Error SerialEposHandler::getError() {
 
 
 
-epos::CommandStatus SerialEposHandler::writeRPM(const int& left, const int& right) {
-  ROS_INFO("setting speed %d, %d", left, right);
+epos::CommandStatus SerialEposHandler::writeRPM(const int& left_rpm, const int& right_rpm) {
+  ROS_INFO("setting speed %d, %d", left_rpm, right_rpm);
   //Right motor rpm speed needs to be reversed because of its placement in the vehicle
-  uint32_t controlWord = encodeToControlWord(left, -right);
+  uint32_t controlWord = encodeToControlWord(left_rpm, -right_rpm);
   epos::CommandStatus error = gatewayImpl_->writeObject(2, 0x200C, 1, controlWord);
 
   if(error != epos::SUCCESS) {

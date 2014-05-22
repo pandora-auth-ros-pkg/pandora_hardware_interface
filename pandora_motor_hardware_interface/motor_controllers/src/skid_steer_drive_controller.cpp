@@ -160,9 +160,6 @@ namespace motor
     else
       rightCommand = rightVelocity;
 
-    modf( (leftCommand/maxAngularVelocity_) * 255, &leftCommand);
-    modf( (rightCommand/maxAngularVelocity_) * 255, &rightCommand);
-
     std::string str1 = "left";
     std::string str2 = "right";
 
