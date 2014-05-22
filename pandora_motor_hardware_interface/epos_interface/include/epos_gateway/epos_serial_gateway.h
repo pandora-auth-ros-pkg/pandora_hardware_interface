@@ -82,8 +82,10 @@
 #include <serial/serial.h>
 #include "epos_gateway/abstract_epos_gateway.h"
 
-namespace pandora_hardware_interface {
-namespace motor {
+namespace pandora_hardware_interface
+{
+namespace motor
+{
 
 /**
  * \brief RS232 EPOS gateway
@@ -101,9 +103,7 @@ namespace motor {
 
 class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
 {
-
  public:
-
   ///Construct an EposRs232Gateway object and open EPOS device for read/write
   /**
    *
@@ -151,7 +151,7 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
   epos::CommandStatus sendFrame(
       unsigned char opCode,
       epos::Word* data,
-      unsigned short length,
+      uint8_t length,
       epos::Word* response);
 
   /** Read object dictionary entry (4 Data Bytes and less)
@@ -215,7 +215,6 @@ class EposSerialGateway : public AbstractEposGateway, private boost::noncopyable
       char data);
 
 private:
-
     ///Rs232 object used to access underlaying hardware
     boost::scoped_ptr<serial::Serial> serialPtr_;
     /** POSIX mutex to lock when a transmition is ongoing. Since the RS232 EPOS
@@ -234,5 +233,4 @@ private:
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-
-#endif // EPOS_GATEWAY_EPOS_SERIAL_GATEWAY_H
+#endif  // EPOS_GATEWAY_EPOS_SERIAL_GATEWAY_H

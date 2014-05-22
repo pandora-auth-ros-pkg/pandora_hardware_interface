@@ -17,7 +17,6 @@
  *   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  *
  *   MA 02110-1301, USA.                                                   *
  ***************************************************************************/
-
 #ifndef EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
 #define EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
 
@@ -90,161 +89,163 @@
  *
  */
 
-namespace pandora_hardware_interface {
-namespace motor {
-  
-namespace epos {
-/// EPOS word (16bit)
-typedef uint16_t Word;
-/// Double (long) EPOS word (32bit)
-typedef uint32_t DWord;
-/// Short EPOS word (8bit)
-typedef unsigned char Byte;
+namespace pandora_hardware_interface
+{
+namespace motor
+{
+namespace epos
+{
+  /// EPOS word (16bit)
+  typedef uint16_t Word;
+  /// Double (long) EPOS word (32bit)
+  typedef uint32_t DWord;
+  /// Short EPOS word (8bit)
+  typedef unsigned char Byte;
 
-/**
- * \brief enumeration of error codes during device communication
- *
- * For communication with the device, a protocol is implemented. In the
- * event that the communication was successful, each protocol command
- * returns CommandStatus::SUCCESS.
- *
- */
-enum CommandStatus {
   /**
-   * \brief Command sent successfully
+   * \brief enumeration of error codes during device communication
    *
-   * This status code is returned by the implementation in the event
-   * of a successful transaction with the device. Please, note that
-   * this doesn't mean the command execution was successful, only the
-   * data transfer was. In some cases the device my return error codes
-   * using the response data, signifying the result of the command
-   * execution. In the event that a transaction does not return SUCCESS
-   * the returned data are undefined.
+   * For communication with the device, a protocol is implemented. In the
+   * event that the communication was successful, each protocol command
+   * returns CommandStatus::SUCCESS.
    *
    */
-  SUCCESS=0,
-  /**
-   * \brief Device busy
-   *
-   * This error code is returned if the device signals that it is not
-   * ready to receive new commands.
-   *
-   */
-  BUSY,
-  ///Device replied with NACK
-  NACK,
-  ///Time out
-  TIMEOUT,
-  ///RS232 port error. Usually port disconnected
-  RS232,
-  ///Invalid API usage. Read documentation
-  API,
-  ///Unexpected responce during handshake. Please disconnect and
-  ///reconnect to resyncronize gateway
-  RESYNC,
-  ///Responce from device violates protocol. Check for changes in
-  ///updated firmware
-  PROTOCOL,
-  DEFAULT
-};
+  enum CommandStatus
+  {
+    /**
+     * \brief Command sent successfully
+     *
+     * This status code is returned by the implementation in the event
+     * of a successful transaction with the device. Please, note that
+     * this doesn't mean the command execution was successful, only the
+     * data transfer was. In some cases the device my return error codes
+     * using the response data, signifying the result of the command
+     * execution. In the event that a transaction does not return SUCCESS
+     * the returned data are undefined.
+     *
+     */
+    SUCCESS = 0,
+    /**
+     * \brief Device busy
+     *
+     * This error code is returned if the device signals that it is not
+     * ready to receive new commands.
+     *
+     */
+    BUSY,
+    ///Device replied with NACK
+    NACK,
+    ///Time out
+    TIMEOUT,
+    ///RS232 port error. Usually port disconnected
+    RS232,
+    ///Invalid API usage. Read documentation
+    API,
+    ///Unexpected responce during handshake. Please disconnect and
+    ///reconnect to resyncronize gateway
+    RESYNC,
+    ///Responce from device violates protocol. Check for changes in
+    ///updated firmware
+    PROTOCOL,
+    DEFAULT
+  };
 
 }  // namespace epos
-/**
- * \brief Abstract gateway for EPOS devices
- *
- * All gateways for EPOS (P) devices must implement this class to
- * provide compatibility with new devices and hardware implementations.
- *
- * \author Charalampos Serenis
- * \author Electical and Computer Engineer
- * \author Department of Electrical and Computer Engineering
- * \author Aristotle University of Thessaloniki, Greece
- *
- */
-
-
-class AbstractEposGateway {
-public:
-
-  /** Send a custom frame using the EPOS gateway
+  /**
+   * \brief Abstract gateway for EPOS devices
    *
-   * this function can be used to send new, or custom CAN commands to the
-   * CANOpen bus.
+   * All gateways for EPOS (P) devices must implement this class to
+   * provide compatibility with new devices and hardware implementations.
    *
-   * \param[in] opCode the operation code of the command
-   * \param[in[ data the data that we wish to write to the CANOpen bus
-   * \param[in] length the size of the data array
-   * \param[in] response the data received from the device as a response to the
-   * command
+   * \author Charalampos Serenis
+   * \author Electical and Computer Engineer
+   * \author Department of Electrical and Computer Engineering
+   * \author Aristotle University of Thessaloniki, Greece
+   *
    */
-  virtual epos::CommandStatus sendFrame(
-    unsigned char opCode,
-    epos::Word* data,
-    unsigned short length,
-    epos::Word* response)=0;
 
-  /** Read object dictionary entry (4 Data Bytes and less)
-  *
-  * Read an object value at the given Index and SubIndex from the
-  * Object Dictionary.
-  *
-  * \param[in] nodeId the node ID of the device from which to read
-  * the data
-  * \param[in] index the index of the Object Dictionary we wish to
-  * read
-  * \param[in] subIndex the sub-index of the Dictionary we wish to
-  * read
-  * \param[out] responce the data read
-  * \return the status of the operation
-  */
-  virtual epos::CommandStatus readObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    epos::DWord* responce)=0;
-  virtual epos::CommandStatus readObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    epos::Word* responce)=0;
-  virtual epos::CommandStatus readObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    char* responce)=0;
 
-  /** Write Object Dictionary Entry (4 Data Bytes and less)
-  *
-  * Write an object value to the given Index and SubIndex from the
-  * Object Dictionary.
-  *
-  * \param[in] nodeID the node ID of the device from which to read the
-  * data
-  * \param[in] index the index of the Object Dictionary we wish to
-  * read
-  * \param[in] subIndex the sub-index of the Dictionary we wish to
-  * read
-  * \param[in] data the data that should be written
-  * \return the status of the operation
-  */
-  virtual epos::CommandStatus writeObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    epos::DWord data)=0;
-  virtual epos::CommandStatus writeObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    epos::Word data)=0;
-  virtual epos::CommandStatus writeObject(
-    unsigned char nodeId,
-    uint16_t index,
-    unsigned char subIndex,
-    char data)=0;
-};
+  class AbstractEposGateway
+  {
+    public:
+      /** Send a custom frame using the EPOS gateway
+       *
+       * this function can be used to send new, or custom CAN commands to the
+       * CANOpen bus.
+       *
+       * \param[in] opCode the operation code of the command
+       * \param[in[ data the data that we wish to write to the CANOpen bus
+       * \param[in] length the size of the data array
+       * \param[in] response the data received from the device as a response to the
+       * command
+       */
+      virtual epos::CommandStatus sendFrame(
+        unsigned char opCode,
+        epos::Word* data,
+        uint8_t length,
+        epos::Word* response)=0;
 
-}  // mamespace motor
+      /** Read object dictionary entry (4 Data Bytes and less)
+      *
+      * Read an object value at the given Index and SubIndex from the
+      * Object Dictionary.
+      *
+      * \param[in] nodeId the node ID of the device from which to read
+      * the data
+      * \param[in] index the index of the Object Dictionary we wish to
+      * read
+      * \param[in] subIndex the sub-index of the Dictionary we wish to
+      * read
+      * \param[out] responce the data read
+      * \return the status of the operation
+      */
+      virtual epos::CommandStatus readObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        epos::DWord* responce)=0;
+      virtual epos::CommandStatus readObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        epos::Word* responce)=0;
+      virtual epos::CommandStatus readObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        char* responce)=0;
+
+      /** Write Object Dictionary Entry (4 Data Bytes and less)
+      *
+      * Write an object value to the given Index and SubIndex from the
+      * Object Dictionary.
+      *
+      * \param[in] nodeID the node ID of the device from which to read the
+      * data
+      * \param[in] index the index of the Object Dictionary we wish to
+      * read
+      * \param[in] subIndex the sub-index of the Dictionary we wish to
+      * read
+      * \param[in] data the data that should be written
+      * \return the status of the operation
+      */
+      virtual epos::CommandStatus writeObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        epos::DWord data)=0;
+      virtual epos::CommandStatus writeObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        epos::Word data)=0;
+      virtual epos::CommandStatus writeObject(
+        unsigned char nodeId,
+        uint16_t index,
+        unsigned char subIndex,
+        char data)=0;
+  };
+}  // namespace motor
 }  // namespace pandora_hardware_interface
 
-#endif // EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
+#endif  // EPOS_GATEWAY_ABSTRACT_EPOS_GATEWAY_H
