@@ -41,6 +41,9 @@
 
 #include <xmega_serial_interface/sensor_base.h>
 
+#define AREF 2.78
+#define VoltageDividerScale 10
+
 namespace pandora_hardware_interface
 {
 namespace xmega
