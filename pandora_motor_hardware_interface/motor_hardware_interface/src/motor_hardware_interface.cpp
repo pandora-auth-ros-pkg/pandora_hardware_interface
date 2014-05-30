@@ -82,7 +82,7 @@ namespace motor
   {
     //~ int feedback[4];
     //~ motors_->getRPM(&feedback[2], &feedback[0], &feedback[3], &feedback[1]);
-//~ 
+
     //~ for (int ii = 0; ii < 4; ii++)
     //~ {
       //~ velocity_[ii] = static_cast<double>(feedback[ii]);
