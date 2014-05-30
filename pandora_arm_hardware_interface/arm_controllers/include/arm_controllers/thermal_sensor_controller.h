@@ -42,11 +42,16 @@
 #include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include <pandora_arm_hardware_interface/ThermalMeanMsg.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 
 typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
   sensor_msgs::Image> > ImageRealtimePublisher;
+
+typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
+  pandora_arm_hardware_interface::ThermalMeanMsg> >
+  ThermalMeanRealtimePublisher;
 
 namespace pandora_hardware_interface
 {
@@ -59,8 +64,10 @@ namespace arm
     private:
       std::vector<
         ThermalSensorHandle> sensorHandles_;
-      std::vector<ImageRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
+      std::vector<ImageRealtimePublisher> imagePublishers_;
+      std::vector<ThermalMeanRealtimePublisher> meanPublishers_;
+      std::vector<ros::Time> lastTimePublishedImage_;
+      std::vector<ros::Time> lastTimePublishedMean_;
       ThermalSensorInterface*
         thermalSensorInterface_;
       double publishRate_;

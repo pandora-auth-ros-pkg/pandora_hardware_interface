@@ -22,6 +22,7 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 add_message_files(
   FILES
   Co2Msg.msg
+  ThermalMeanMsg.msg
 )
 
 generate_messages(

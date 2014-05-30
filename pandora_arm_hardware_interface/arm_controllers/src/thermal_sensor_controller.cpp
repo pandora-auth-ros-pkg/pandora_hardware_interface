@@ -66,23 +66,34 @@ namespace arm
         thermalSensorInterface_->getHandle(thermalSensorNames[ii]));
 
       // Create publisher for each controller
-      ImageRealtimePublisher publisher(
+      ImageRealtimePublisher imagePublisher(
         new realtime_tools::RealtimePublisher<sensor_msgs::Image>(
           rootNodeHandle, "/sensors/thermal", 4));
-      realtimePublishers_.push_back(publisher);
+      imagePublishers_.push_back(imagePublisher);
+
+      ThermalMeanRealtimePublisher meanPublisher(
+        new realtime_tools::RealtimePublisher<
+        pandora_arm_hardware_interface::ThermalMeanMsg>(
+          rootNodeHandle, "/sensors/thermal_mean", 4));
+      meanPublishers_.push_back(meanPublisher);
     }
 
     // resize last times published
-    lastTimePublished_.resize(thermalSensorNames.size());
+    lastTimePublishedImage_.resize(thermalSensorNames.size());
+    lastTimePublishedMean_.resize(thermalSensorNames.size());
     return true;
   }
 
   void ThermalSensorController::starting(const ros::Time& time)
   {
     // Initialize last time published
-    for (int ii = 0; ii < lastTimePublished_.size(); ii++)
+    for (int ii = 0; ii < lastTimePublishedImage_.size(); ii++)
     {
-      lastTimePublished_[ii] = time;
+      lastTimePublishedImage_[ii] = time;
+    }
+    for (int ii = 0; ii < lastTimePublishedMean_.size(); ii++)
+    {
+      lastTimePublishedMean_[ii] = time;
     }
   }
 
@@ -90,36 +101,65 @@ namespace arm
     const ros::Time& time, const ros::Duration& period)
   {
     // Publish messages
-    for (int ii = 0; ii < realtimePublishers_.size(); ii++)
+    for (int ii = 0; ii < imagePublishers_.size(); ii++)
     {
-      if (lastTimePublished_[ii] + ros::Duration(1.0/publishRate_) < time)
+      if (lastTimePublishedImage_[ii] + ros::Duration(1.0/publishRate_) < time)
       {
-        if (realtimePublishers_[ii]->trylock())
+        if (imagePublishers_[ii]->trylock())
         {
-          lastTimePublished_[ii] =
-            lastTimePublished_[ii] + ros::Duration(1.0/publishRate_);
+          lastTimePublishedImage_[ii] =
+            lastTimePublishedImage_[ii] + ros::Duration(1.0/publishRate_);
 
-          realtimePublishers_[ii]->msg_.header.stamp = time;
-          realtimePublishers_[ii]->msg_.header.frame_id =
+          imagePublishers_[ii]->msg_.header.stamp = time;
+          imagePublishers_[ii]->msg_.header.frame_id =
             sensorHandles_[ii].getFrameId();
-          realtimePublishers_[ii]->msg_.encoding =
+          imagePublishers_[ii]->msg_.encoding =
             sensor_msgs::image_encodings::MONO8;
 
           int height, width;
           height = *sensorHandles_[ii].getHeight();
-          realtimePublishers_[ii]->msg_.height = height;
+          imagePublishers_[ii]->msg_.height = height;
           width= *sensorHandles_[ii].getWidth();
-          realtimePublishers_[ii]->msg_.width = width;
-          realtimePublishers_[ii]->msg_.step = *sensorHandles_[ii].getStep();
+          imagePublishers_[ii]->msg_.width = width;
+          imagePublishers_[ii]->msg_.step = *sensorHandles_[ii].getStep();
 
-          realtimePublishers_[ii]->msg_.data.clear();
+          imagePublishers_[ii]->msg_.data.clear();
           uint8_t* data = sensorHandles_[ii].getData();
           for (int jj = 0; jj < height * width; jj++)
           {
-            realtimePublishers_[ii]->msg_.data.push_back(data[jj]);
+            imagePublishers_[ii]->msg_.data.push_back(data[jj]);
           }
 
-          realtimePublishers_[ii]->unlockAndPublish();
+          imagePublishers_[ii]->unlockAndPublish();
+        }
+      }
+
+      if (lastTimePublishedMean_[ii] + ros::Duration(1.0/publishRate_) < time)
+      {
+        if (meanPublishers_[ii]->trylock())
+        {
+          lastTimePublishedMean_[ii] =
+            lastTimePublishedMean_[ii] + ros::Duration(1.0/publishRate_);
+
+          meanPublishers_[ii]->msg_.header.stamp = time;
+          meanPublishers_[ii]->msg_.header.frame_id =
+            sensorHandles_[ii].getFrameId();
+
+          int height, width;
+          height = *sensorHandles_[ii].getHeight();
+          width= *sensorHandles_[ii].getWidth();
+
+          uint8_t* data = sensorHandles_[ii].getData();
+          meanPublishers_[ii]->msg_.thermal_mean = 0;
+          for (int jj = 0; jj < height * width; jj++)
+          {
+            meanPublishers_[ii]->msg_.thermal_mean +=
+              static_cast<float>(data[jj]);
+          }
+          meanPublishers_[ii]->msg_.thermal_mean =
+            meanPublishers_[ii]->msg_.thermal_mean / (height * width);
+
+          meanPublishers_[ii]->unlockAndPublish();
         }
       }
     }
