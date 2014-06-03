@@ -46,9 +46,10 @@ T clamp(T x, T min, T max)
   return std::min(std::max(min, x), max);
 }
 
-namespace diff_drive_controller
+namespace pandora_hardware_interface
 {
-
+namespace motor
+{
   SpeedLimiter::SpeedLimiter(
     bool has_velocity_limits,
     bool has_acceleration_limits,
@@ -95,4 +96,5 @@ namespace diff_drive_controller
     }
   }
 
-} // namespace diff_drive_controller
+}  // namespace motor
+}  // namespace pandora_hardware_interface

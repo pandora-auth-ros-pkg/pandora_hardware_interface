@@ -39,9 +39,10 @@
 #ifndef SPEED_LIMITER_H
 #define SPEED_LIMITER_H
 
-namespace diff_drive_controller
+namespace pandora_hardware_interface
 {
-
+namespace motor
+{
   class SpeedLimiter
   {
   public:
@@ -100,6 +101,7 @@ namespace diff_drive_controller
     double max_acceleration;
   };
 
-} // namespace diff_drive_controller
+}  // namespace motor
+}  // namespace pandora_hardware_interface
 
 #endif // SPEED_LIMITER_H

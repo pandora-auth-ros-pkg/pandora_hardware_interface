@@ -41,7 +41,9 @@
 #include <angles/angles.h>
 #include <boost/bind.hpp>
 
-namespace diff_drive_controller
+namespace pandora_hardware_interface
+{
+namespace motor
 {
   namespace bacc = boost::accumulators;
 
@@ -144,4 +146,5 @@ namespace diff_drive_controller
     }
   }
 
-} // namespace diff_drive_controller
+}  // namespace motor
+}  // namespace pandora_hardware_interface

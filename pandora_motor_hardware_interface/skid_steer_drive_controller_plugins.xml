@@ -4,8 +4,8 @@
     type="pandora_hardware_interface::motor::SkidSteerDriveController"
     base_class_type="controller_interface::ControllerBase">
     <description>
-      This controller subscribes to a Twist solves the kinematic for
-      SkidSteerDrive and sets the appropriate commands for each joint. 
+      SkidSteerDriveController created from diff_drive_controller/DiffDriveController 
     </description>
   </class>
+
 </library>
