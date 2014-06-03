@@ -8,6 +8,10 @@ find_package(catkin REQUIRED COMPONENTS
   serial
   geometry_msgs
   pluginlib
+  urdf
+  angles
+  tf
+  nav_msgs
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
@@ -27,6 +31,10 @@ catkin_package(
     serial
     geometry_msgs
     pluginlib
+    urdf
+    angles
+    tf
+    nav_msgs
   LIBRARIES
     skid_steer_drive_controller
 #  DEPENDS

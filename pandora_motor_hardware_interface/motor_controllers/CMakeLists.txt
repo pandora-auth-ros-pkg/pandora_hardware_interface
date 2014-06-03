@@ -4,3 +4,12 @@ add_library(
 target_link_libraries(
   skid_steer_drive_controller
   ${catkin_LIBRARIES})
+
+add_library(
+  diff_drive_controller
+  src/diff_drive_controller.cpp
+  src/odometry.cpp
+  src/speed_limiter.cpp)
+target_link_libraries(
+  diff_drive_controller
+  ${catkin_LIBRARIES})
