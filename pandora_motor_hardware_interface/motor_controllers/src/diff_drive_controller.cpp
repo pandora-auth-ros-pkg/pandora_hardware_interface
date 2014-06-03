@@ -125,18 +125,31 @@ namespace diff_drive_controller{
     std::size_t id = complete_ns.find_last_of("/");
     name_ = complete_ns.substr(id + 1);
     // Get joint names from the parameter server
-    std::string left_wheel_name, right_wheel_name;
+    std::string left_front_wheel_name, right_front_wheel_name;
+    std::string left_rear_wheel_name, right_rear_wheel_name;
 
-    bool res = controller_nh.hasParam("left_wheel");
-    if(!res || !controller_nh.getParam("left_wheel", left_wheel_name))
+    bool res = controller_nh.hasParam("left_front_wheel");
+    if(!res || !controller_nh.getParam("left_front_wheel", left_front_wheel_name))
     {
-      ROS_ERROR_NAMED(name_, "Couldn't retrieve left wheel name from param server.");
+      ROS_ERROR_NAMED(name_, "Couldn't retrieve left front wheel name from param server.");
       return false;
     }
-    res = controller_nh.hasParam("right_wheel");
-    if(!res || !controller_nh.getParam("right_wheel", right_wheel_name))
+    res = controller_nh.hasParam("right_front_wheel");
+    if(!res || !controller_nh.getParam("right_front_wheel", right_front_wheel_name))
     {
-      ROS_ERROR_NAMED(name_, "Couldn't retrieve right wheel name from param server.");
+      ROS_ERROR_NAMED(name_, "Couldn't retrieve right front wheel name from param server.");
+      return false;
+    }
+    res = controller_nh.hasParam("left_rear_wheel");
+    if(!res || !controller_nh.getParam("left_rear_wheel", left_rear_wheel_name))
+    {
+      ROS_ERROR_NAMED(name_, "Couldn't retrieve left rear wheel name from param server.");
+      return false;
+    }
+    res = controller_nh.hasParam("right_rear_wheel");
+    if(!res || !controller_nh.getParam("right_rear_wheel", right_rear_wheel_name))
+    {
+      ROS_ERROR_NAMED(name_, "Couldn't retrieve right rear wheel name from param server.");
       return false;
     }
 
@@ -176,17 +189,21 @@ namespace diff_drive_controller{
     controller_nh.param("angular/z/max_acceleration"       , limiter_ang_.max_acceleration       ,  limiter_ang_.max_acceleration      );
     controller_nh.param("angular/z/min_acceleration"       , limiter_ang_.min_acceleration       , -limiter_ang_.max_acceleration      );
 
-    if(!setOdomParamsFromUrdf(root_nh, left_wheel_name, right_wheel_name))
+    if(!setOdomParamsFromUrdf(root_nh, left_front_wheel_name, right_front_wheel_name))
       return false;
 
     setOdomPubFields(root_nh, controller_nh);
 
     // Get the joint object to use in the realtime loop
     ROS_INFO_STREAM_NAMED(name_,
-                          "Adding left wheel with joint name: " << left_wheel_name
-                          << " and right wheel with joint name: " << right_wheel_name);
-    left_wheel_joint_ = hw->getHandle(left_wheel_name);  // throws on failure
-    right_wheel_joint_ = hw->getHandle(right_wheel_name);  // throws on failure
+                          "Adding left front wheel with joint name: " << left_front_wheel_name
+                          << ", right front wheel with joint name: " << right_front_wheel_name
+                          << ", left rear wheel with joint name: " << left_rear_wheel_name
+                          << " and right rear wheel with joint name: " << right_rear_wheel_name);
+    left_front_wheel_joint_ = hw->getHandle(left_front_wheel_name);  // throws on failure
+    right_front_wheel_joint_ = hw->getHandle(right_front_wheel_name);  // throws on failure
+    left_rear_wheel_joint_ = hw->getHandle(left_rear_wheel_name);  // throws on failure
+    right_rear_wheel_joint_ = hw->getHandle(right_rear_wheel_name);  // throws on failure
 
     sub_command_ = controller_nh.subscribe("cmd_vel", 1, &DiffDriveController::cmdVelCallback, this);
 
@@ -197,7 +214,7 @@ namespace diff_drive_controller{
   {
     // COMPUTE AND PUBLISH ODOMETRY
     // Estimate linear and angular velocity using joint information
-    odometry_.update(left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition(), time);
+    odometry_.update(left_front_wheel_joint_.getPosition(), right_front_wheel_joint_.getPosition(), time);
 
     // Publish odometry message
     if(last_state_publish_time_ + publish_period_ < time)
@@ -258,8 +275,10 @@ namespace diff_drive_controller{
     const double vel_right = (curr_cmd.lin + curr_cmd.ang * ws / 2.0)/wr;
 
     // Set wheels velocities:
-    left_wheel_joint_.setCommand(vel_left);
-    right_wheel_joint_.setCommand(vel_right);
+    left_front_wheel_joint_.setCommand(vel_left);
+    right_front_wheel_joint_.setCommand(vel_right);
+    left_rear_wheel_joint_.setCommand(vel_left);
+    right_rear_wheel_joint_.setCommand(vel_right);
   }
 
   void DiffDriveController::starting(const ros::Time& time)
@@ -278,8 +297,10 @@ namespace diff_drive_controller{
   void DiffDriveController::brake()
   {
     const double vel = 0.0;
-    left_wheel_joint_.setCommand(vel);
-    right_wheel_joint_.setCommand(vel);
+    left_front_wheel_joint_.setCommand(vel);
+    right_front_wheel_joint_.setCommand(vel);
+    left_rear_wheel_joint_.setCommand(vel);
+    right_rear_wheel_joint_.setCommand(vel);
   }
 
   void DiffDriveController::cmdVelCallback(const geometry_msgs::Twist& command)
@@ -303,8 +324,8 @@ namespace diff_drive_controller{
   }
 
   bool DiffDriveController::setOdomParamsFromUrdf(ros::NodeHandle& root_nh,
-                             const std::string& left_wheel_name,
-                             const std::string& right_wheel_name)
+                             const std::string& left_front_wheel_name,
+                             const std::string& right_front_wheel_name)
   {
     // Parse robot description
     const std::string model_param_name = "robot_description";
@@ -319,35 +340,35 @@ namespace diff_drive_controller{
     boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robot_model_str));
 
     // Get wheel separation
-    boost::shared_ptr<const urdf::Joint> left_wheel_joint(model->getJoint(left_wheel_name));
-    if(!left_wheel_joint)
+    boost::shared_ptr<const urdf::Joint> left_front_wheel_joint(model->getJoint(left_front_wheel_name));
+    if(!left_front_wheel_joint)
     {
-      ROS_ERROR_STREAM_NAMED(name_, left_wheel_name
+      ROS_ERROR_STREAM_NAMED(name_, left_front_wheel_name
                              << " couldn't be retrieved from model description");
       return false;
     }
-    boost::shared_ptr<const urdf::Joint> right_wheel_joint(model->getJoint(right_wheel_name));
-    if(!right_wheel_joint)
+    boost::shared_ptr<const urdf::Joint> right_front_wheel_joint(model->getJoint(right_front_wheel_name));
+    if(!right_front_wheel_joint)
     {
-      ROS_ERROR_STREAM_NAMED(name_, right_wheel_name
+      ROS_ERROR_STREAM_NAMED(name_, right_front_wheel_name
                              << " couldn't be retrieved from model description");
       return false;
     }
 
-    ROS_INFO_STREAM("left wheel to origin: " << left_wheel_joint->parent_to_joint_origin_transform.position.x << ","
-                    << left_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
-                    << left_wheel_joint->parent_to_joint_origin_transform.position.z);
-    ROS_INFO_STREAM("right wheel to origin: " << right_wheel_joint->parent_to_joint_origin_transform.position.x << ","
-                    << right_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
-                    << right_wheel_joint->parent_to_joint_origin_transform.position.z);
+    ROS_INFO_STREAM("left front wheel to origin: " << left_front_wheel_joint->parent_to_joint_origin_transform.position.x << ","
+                    << left_front_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
+                    << left_front_wheel_joint->parent_to_joint_origin_transform.position.z);
+    ROS_INFO_STREAM("right front wheel to origin: " << right_front_wheel_joint->parent_to_joint_origin_transform.position.x << ","
+                    << right_front_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
+                    << right_front_wheel_joint->parent_to_joint_origin_transform.position.z);
 
-    wheel_separation_ = euclideanOfVectors(left_wheel_joint->parent_to_joint_origin_transform.position,
-                                           right_wheel_joint->parent_to_joint_origin_transform.position);
+    wheel_separation_ = euclideanOfVectors(left_front_wheel_joint->parent_to_joint_origin_transform.position,
+                                           right_front_wheel_joint->parent_to_joint_origin_transform.position);
 
     // Get wheel radius
-    if(!getWheelRadius(model->getLink(left_wheel_joint->child_link_name), wheel_radius_))
+    if(!getWheelRadius(model->getLink(left_front_wheel_joint->child_link_name), wheel_radius_))
     {
-      ROS_ERROR_STREAM_NAMED(name_, "Couldn't retrieve " << left_wheel_name << " wheel radius");
+      ROS_ERROR_STREAM_NAMED(name_, "Couldn't retrieve " << left_front_wheel_name << " wheel radius");
       return false;
     }
 

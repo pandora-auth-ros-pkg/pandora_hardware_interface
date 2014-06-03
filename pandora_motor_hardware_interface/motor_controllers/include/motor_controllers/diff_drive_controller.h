@@ -104,8 +104,10 @@ namespace diff_drive_controller{
     ros::Time last_state_publish_time_;
 
     /// Hardware handles:
-    hardware_interface::JointHandle left_wheel_joint_;
-    hardware_interface::JointHandle right_wheel_joint_;
+    hardware_interface::JointHandle left_front_wheel_joint_;
+    hardware_interface::JointHandle right_front_wheel_joint_;
+    hardware_interface::JointHandle left_rear_wheel_joint_;
+    hardware_interface::JointHandle right_rear_wheel_joint_;
 
     /// Velocity command related:
     struct Commands
@@ -162,12 +164,12 @@ namespace diff_drive_controller{
     /**
      * \brief Sets odometry parameters from the URDF, i.e. the wheel radius and separation
      * \param root_nh Root node handle
-     * \param left_wheel_name Name of the left wheel joint
-     * \param right_wheel_name Name of the right wheel joint
+     * \param left_front_wheel_name Name of the left wheel joint
+     * \param right_front_wheel_name Name of the right wheel joint
      */
     bool setOdomParamsFromUrdf(ros::NodeHandle& root_nh,
-                               const std::string& left_wheel_name,
-                               const std::string& right_wheel_name);
+                               const std::string& left_front_wheel_name,
+                               const std::string& right_front_wheel_name);
 
     /**
      * \brief Sets the odometry publishing fields
