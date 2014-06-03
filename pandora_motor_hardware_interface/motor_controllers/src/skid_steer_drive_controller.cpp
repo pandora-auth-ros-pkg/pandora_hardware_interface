@@ -343,13 +343,34 @@ namespace motor
     boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robot_model_str));
 
     // Get wheel separation
-    boost::shared_ptr<const urdf::Joint> left_front_wheel_joint(model->getJoint(left_front_wheel_name));
+    boost::shared_ptr<const urdf::Joint>
+      left_front_wheel_joint(model->getJoint(left_front_wheel_name));
     if(!left_front_wheel_joint)
     {
       ROS_ERROR_STREAM_NAMED(name_, left_front_wheel_name
                              << " couldn't be retrieved from model description");
       return false;
     }
+    boost::shared_ptr<const urdf::Joint> left_current_joint =
+      left_front_wheel_joint;
+    urdf::Vector3 left_position =
+      left_front_wheel_joint->parent_to_joint_origin_transform.position;
+    while (left_current_joint->parent_link_name != base_frame_id_)
+    {
+      boost::shared_ptr<const urdf::Joint>
+        parent_joint(model->getLink(
+          left_front_wheel_joint->parent_link_name)->parent_joint);
+      if(!parent_joint)
+      {
+        ROS_ERROR_STREAM_NAMED(name_, left_front_wheel_joint->parent_link_name
+                               << " couldn't be retrieved from model description");
+        return false;
+      }
+      left_current_joint = parent_joint;
+      left_position = left_position +
+      left_current_joint->parent_to_joint_origin_transform.position;
+    }
+
     boost::shared_ptr<const urdf::Joint> right_front_wheel_joint(model->getJoint(right_front_wheel_name));
     if(!right_front_wheel_joint)
     {
@@ -357,16 +378,35 @@ namespace motor
                              << " couldn't be retrieved from model description");
       return false;
     }
+    boost::shared_ptr<const urdf::Joint> right_current_joint =
+      right_front_wheel_joint;
+    urdf::Vector3 right_position =
+      right_front_wheel_joint->parent_to_joint_origin_transform.position;
+    while (right_current_joint->parent_link_name != base_frame_id_)
+    {
+      boost::shared_ptr<const urdf::Joint>
+        parent_joint(model->getLink(
+          right_front_wheel_joint->parent_link_name)->parent_joint);
+      if(!parent_joint)
+      {
+        ROS_ERROR_STREAM_NAMED(name_, right_front_wheel_joint->parent_link_name
+                               << " couldn't be retrieved from model description");
+        return false;
+      }
+      right_current_joint = parent_joint;
+      right_position = right_position +
+      right_current_joint->parent_to_joint_origin_transform.position;
+    }
 
-    ROS_INFO_STREAM("left front wheel to origin: " << left_front_wheel_joint->parent_to_joint_origin_transform.position.x << ","
-                    << left_front_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
-                    << left_front_wheel_joint->parent_to_joint_origin_transform.position.z);
-    ROS_INFO_STREAM("right front wheel to origin: " << right_front_wheel_joint->parent_to_joint_origin_transform.position.x << ","
-                    << right_front_wheel_joint->parent_to_joint_origin_transform.position.y << ", "
-                    << right_front_wheel_joint->parent_to_joint_origin_transform.position.z);
+    ROS_INFO_STREAM("left front wheel to origin: " << left_position.x << ","
+                    << left_position.y << ", "
+                    << left_position.z);
+    ROS_INFO_STREAM("right front wheel to origin: " << right_position.x << ","
+                    << right_position.y << ", "
+                    << right_position.z);
 
-    wheel_separation_ = euclideanOfVectors(left_front_wheel_joint->parent_to_joint_origin_transform.position,
-                                           right_front_wheel_joint->parent_to_joint_origin_transform.position);
+    wheel_separation_ = euclideanOfVectors(left_position,
+                                           right_position);
 
     // Get wheel radius
     if(!getWheelRadius(model->getLink(left_front_wheel_joint->child_link_name), wheel_radius_))
