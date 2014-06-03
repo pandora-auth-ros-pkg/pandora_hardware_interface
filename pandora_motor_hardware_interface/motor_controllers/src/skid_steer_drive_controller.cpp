@@ -79,7 +79,7 @@ static bool isCylinder(const boost::shared_ptr<const urdf::Link>& link)
 
   if(link->collision->geometry->type != urdf::Geometry::CYLINDER)
   {
-    ROS_ERROR_STREAM("Link " << link->name << " does not have cylinder geometry");
+    ROS_DEBUG_STREAM("Link " << link->name << " does not have cylinder geometry");
     return false;
   }
 
@@ -96,7 +96,7 @@ static bool getWheelRadius(const boost::shared_ptr<const urdf::Link>& wheel_link
 {
   if(!isCylinder(wheel_link))
   {
-    ROS_ERROR_STREAM("Wheel link " << wheel_link->name << " is NOT modeled as a cylinder!");
+    ROS_DEBUG_STREAM("Wheel link " << wheel_link->name << " is NOT modeled as a cylinder!");
     return false;
   }
 
@@ -155,6 +155,13 @@ namespace motor
       ROS_ERROR_NAMED(name_, "Couldn't retrieve right rear wheel name from param server.");
       return false;
     }
+    
+    res = controller_nh.hasParam("wheel_radius");
+    if(!res || !controller_nh.getParam("wheel_radius", wheel_radius_))
+    {
+      ROS_WARN_NAMED(name_, "Couldn't retrieve left front wheel radius from param server.");
+      wheel_radius_ = -1;
+    }
 
     double publish_rate;
     controller_nh.param("publish_rate", publish_rate, 50.0);
@@ -208,7 +215,7 @@ namespace motor
     left_rear_wheel_joint_ = hw->getHandle(left_rear_wheel_name);  // throws on failure
     right_rear_wheel_joint_ = hw->getHandle(right_rear_wheel_name);  // throws on failure
 
-    sub_command_ = controller_nh.subscribe("cmd_vel", 1, &SkidSteerDriveController::cmdVelCallback, this);
+    sub_command_ = controller_nh.subscribe("/cmd_vel", 1, &SkidSteerDriveController::cmdVelCallback, this);
 
     return true;
   }
@@ -331,7 +338,7 @@ namespace motor
                              const std::string& right_front_wheel_name)
   {
     // Parse robot description
-    const std::string model_param_name = "robot_description";
+    const std::string model_param_name = "/robot_description";
     bool res = root_nh.hasParam(model_param_name);
     std::string robot_model_str="";
     if(!res || !root_nh.getParam(model_param_name,robot_model_str))
@@ -409,7 +416,8 @@ namespace motor
                                            right_position);
 
     // Get wheel radius
-    if(!getWheelRadius(model->getLink(left_front_wheel_joint->child_link_name), wheel_radius_))
+    if(!getWheelRadius(model->getLink(left_front_wheel_joint->child_link_name), wheel_radius_)
+      && wheel_radius_ == -1)
     {
       ROS_ERROR_STREAM_NAMED(name_, "Couldn't retrieve " << left_front_wheel_name << " wheel radius");
       return false;
@@ -443,7 +451,7 @@ namespace motor
       ROS_ASSERT(twist_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 
     // Setup odometry realtime publisher + odom message constant fields
-    odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "odom", 100));
+    odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "/odom", 100));
     odom_pub_->msg_.header.frame_id = "odom";
     odom_pub_->msg_.child_frame_id = base_frame_id_;
     odom_pub_->msg_.pose.pose.position.z = 0;

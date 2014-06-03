@@ -59,13 +59,13 @@ set(ROSLINT_CPP_OPTS
   
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
-  motor_hardware_interface/*.h 
+  motor_hardware_interface/*.h
   motor_hardware_interface/*.cpp
-  motor_controllers/*.h 
-  motor_controllers/*.cpp
-  orangutan_interface/*.h 
+  #~ motor_controllers/*.h
+  #~ motor_controllers/*.cpp
+  orangutan_interface/*.h
   orangutan_interface/*.cpp
-  epos_interface/*.h 
+  epos_interface/*.h
   epos_interface/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

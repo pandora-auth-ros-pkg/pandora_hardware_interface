@@ -7,7 +7,7 @@
     ns="$(arg namespace)"/>
 
   <param
-    name="$(arg namespace)/robot_description"
+    name="robot_description"
     command="$(find xacro)/xacro.py '$(find pandora_robots_description)/urdf/gears/bringup.urdf.xacro'"/>
 
   <!-- spawn controller -->

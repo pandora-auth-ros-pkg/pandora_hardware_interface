@@ -7,6 +7,7 @@ skid_steer_drive_controller:
   publish_rate: 50
   wheel_separation_multiplier: 1
   wheel_radius_multiplier: 1
+  wheel_radius: 0.0975
   cmd_vel_timeout: 3
   base_frame_id: base_link
   linear:
