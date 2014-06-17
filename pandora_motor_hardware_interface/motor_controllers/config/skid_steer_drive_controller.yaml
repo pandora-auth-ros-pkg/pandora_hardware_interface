@@ -5,7 +5,7 @@ skid_steer_drive_controller:
   left_rear_wheel: left_rear_wheel_joint
   right_rear_wheel: right_rear_wheel_joint
   publish_rate: 50
-  wheel_separation_multiplier: 2.2
+  wheel_separation_multiplier: 1
   wheel_radius_multiplier: 1
   wheel_radius: 0.0975
   cmd_vel_timeout: 3

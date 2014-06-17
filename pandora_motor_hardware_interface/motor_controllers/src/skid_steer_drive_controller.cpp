@@ -311,10 +311,7 @@ namespace motor
     double ws = wheel_separation_multiplier_ * wheel_separation_;
     const double wr = wheel_radius_multiplier_     * wheel_radius_;
 
-    ROS_WARN_STREAM("comm: " << curr_cmd.ang * ws / 2.0 / wr);
     ws = ws * getAngularMultiplier(curr_cmd.ang);
-    ROS_WARN_STREAM("multi: " << getAngularMultiplier(curr_cmd.ang));
-    ROS_WARN_STREAM("final comm: " << curr_cmd.ang * ws / 2.0 / wr);
 
     // Compute wheels velocities:
     const double vel_left  = (curr_cmd.lin - curr_cmd.ang * ws / 2.0)/wr;
@@ -515,27 +512,29 @@ namespace motor
     odom_frame_.child_frame_id = base_frame_id_;
     odom_frame_.header.frame_id = "odom";
   }
+
   double SkidSteerDriveController::getAngularMultiplier(double velocity)
   {
     if (hasSlippage_)
     {
-      for (int ii = 0; ii < expectedAngular_.size()-1; ii++)
+      for (int ii = 0; ii < expectedAngular_.size() - 1; ii++)
       {
-        if (velocity <= expectedAngular_[ii] &&
-          velocity >= expectedAngular_[ii + 1])
+        if (fabs(velocity) == actualAngular_[ii])
+        {
+          return  expectedAngular_[ii] / actualAngular_[ii];
+        }
+        else if (fabs(velocity) < actualAngular_[ii] &&
+          fabs(velocity) > actualAngular_[ii + 1])
         {
           double target;
-          target = (actualAngular_[ii] - actualAngular_[ii + 1]) *
-            (velocity - expectedAngular_[ii + 1]) /
-            (expectedAngular_[ii] - expectedAngular_[ii + 1]) + actualAngular_[ii + 1];
-          return target / velocity;
+          target = (expectedAngular_[ii] - expectedAngular_[ii + 1]) *
+            (fabs(velocity) - actualAngular_[ii + 1]) /
+            (actualAngular_[ii] - actualAngular_[ii + 1]) + expectedAngular_[ii + 1];
+          return target / fabs(velocity);
         }
       }
     }
-    else
-    {
-      return 1;
-    }
+    return 1;
   }
 }  // namespace motor
 }  // namespace pandora_hardware_interface
