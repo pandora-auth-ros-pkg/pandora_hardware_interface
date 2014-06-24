@@ -117,6 +117,7 @@ namespace motor
     , wheel_radius_multiplier_(1.0)
     , cmd_vel_timeout_(0.5)
     , base_frame_id_("base_link")
+    , odometry_(2)
   {
   }
 
