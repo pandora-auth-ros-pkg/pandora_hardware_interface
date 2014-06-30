@@ -85,7 +85,6 @@ namespace linear
 
   void LinearMotorHardwareInterface::write()
   {
-    //linear_motor_->clearErrors();
     int target = static_cast<int>(command_/0.23*4080);
     if (target >= 0 && target <= 3215)
     {
