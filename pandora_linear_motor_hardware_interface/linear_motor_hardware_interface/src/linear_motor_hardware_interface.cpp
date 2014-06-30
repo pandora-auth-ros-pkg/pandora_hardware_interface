@@ -80,7 +80,7 @@ namespace linear
   {
     int feedback = linear_motor_->readScaledFeedback();
     position_ = static_cast<float>(feedback)/4080*0.23;
-    ROS_ERROR("Feedback: %f", position_);
+    ROS_DEBUG_STREAM("Feedback: " << position_);
   }
 
   void LinearMotorHardwareInterface::write()
