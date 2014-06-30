@@ -56,16 +56,22 @@
     ros::AsyncSpinner spinner(2);
     spinner.start();
 
+    ros::Rate rate(50);
+
     while ( ros::ok() )
     {
       now = ros::Time::now();
       period = now - last;
       last = now;
+      
+      ros::Duration(0.01).sleep();
 
       linearMotorHardwareInterface.read();
       controllerManager.update(now, period);
+      ros::Duration(0.01).sleep();
       linearMotorHardwareInterface.write();
-      ros::Duration(0.1).sleep();
+      //ros::Duration(0.1).sleep();
+      rate.sleep();
     }
     spinner.stop();
     return 0;
