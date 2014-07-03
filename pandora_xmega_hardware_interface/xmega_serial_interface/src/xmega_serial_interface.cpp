@@ -136,7 +136,7 @@ void XmegaSerialInterface::receiveData()
       memset(pdataBuffer_, 0x00, dataSize_);
       currentState_ = serialIO_->readData(dataSize_, pdataBuffer_);
       break;
-    case READ_CRC_STATE:
+    case READ_ CRC_STATE:
       currentState_ = serialIO_->readCRC();
       break;
     case ACK_STATE:
@@ -229,7 +229,7 @@ int XmegaSerialInterface::processData()
       readState = SENSOR_DATA;
       break;
     case SENSOR_DATA:
-    {
+    {s z
       int i = 0;
       while ( pdataBuffer_[bufferPointer] != '\n' )
       {
@@ -305,12 +305,12 @@ void SerialIO::openDevice()
   {
     throw std::logic_error("Init called twice!!");
   }
-  serialPtr_->flush(); //Flush input and output buffers on startup.
+  serialPtr_->flush(); //Flush I/O buffers on startup.
 }
 
 void SerialIO::closeDevice()
 {
-  serialPtr_->flush();
+  serialPtr_->flush();  //Flush I/O buffers on exit.
   serialPtr_->close();
 }
 
