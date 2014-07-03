@@ -9,24 +9,26 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/utility.hpp>
 #include <ros/ros.h>
-#ifdef _WIN32
-#define O_NOCTTY 0
-#else
-#include <termios.h>
-#endif
 
-class JrkSerial
+
+namespace pandora_hardware_interface
+{
+namespace linear
+{
+
+class JrkSerial: private boost::noncopyable
 {
   private:
-    int fd;
     boost::scoped_ptr<serial::Serial> serialPtr_;
     const std::string device_;
     const int speed_;
     const int timeout_;
   public:
-    JrkSerial();
+    JrkSerial(const std::string& device,
+                int spoeed,
+                int timeout);
     ~JrkSerial();
-    void init();
+    void openDevice();
     int readVariable(const unsigned char command);
     bool write(const uint8_t *data, size_t size);
     int readErrors(unsigned char command);
@@ -40,4 +42,6 @@ class JrkSerial
     int clearErrors();
     void closeDevice();
 };
+} //namespace linear
+} //namespace pandora_hardware_interface
 #endif  // JRK_INTERFACE_JRKSERIAL_H

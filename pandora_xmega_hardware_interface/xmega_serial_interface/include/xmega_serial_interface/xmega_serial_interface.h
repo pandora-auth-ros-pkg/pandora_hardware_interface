@@ -53,6 +53,10 @@
 #include "xmega_serial_interface/battery_sensor.h"
 #include "xmega_serial_interface/encoder_sensor.h"
 
+#define DEVICE "/dev/ttyS0"
+#define SPEED       115200
+#define TIMEOUT     100
+
 namespace pandora_hardware_interface
 {
 namespace xmega
@@ -65,34 +69,30 @@ class SerialIO : private boost::noncopyable
            int speed,
            int timeout);
 
-  void init();
-
+  void openDevice();
   int readMessageType();
   int readSize(uint16_t *dataSize);
   int readData(uint16_t dataSize, unsigned char *dataBuffer);
   int readCRC();
   bool write(const uint8_t *data, size_t size);
+  void closeDevice();
+  ~SerialIO();
 
  private:
   int CRC_;
-
   const std::string device_;
   const int speed_;
   const int timeout_;
-
   boost::scoped_ptr<serial::Serial> serialPtr_;
 };
 
 class XmegaSerialInterface : private boost::noncopyable
 {
  public:
-  XmegaSerialInterface(const std::string& device,
-                       int speed,
-                       int timeout);
+  XmegaSerialInterface();
+  ~XmegaSerialInterface();
   void init();
-
   void read();
-
   inline void getBatteryData(double* psuVoltage, double* motorVoltage) const
   {
     *psuVoltage = batterySensor_.psuVoltage;
@@ -112,12 +112,8 @@ class XmegaSerialInterface : private boost::noncopyable
  private:
   void receiveData();
   int processData();
-
   SensorBase* getSensor(int sensorType);
-
- private:
   unsigned char *pdataBuffer_;
-
   int currentState_;
   timeval tim_;
   double t1_;
@@ -129,7 +125,7 @@ class XmegaSerialInterface : private boost::noncopyable
   EncoderSensor encoderSensor_;
   RangeSensor rangeSensors_;
 
-  SerialIO serialIO_;
+  SerialIO* serialIO_;
 };
 
 static unsigned char myatoi(char *array, int size);

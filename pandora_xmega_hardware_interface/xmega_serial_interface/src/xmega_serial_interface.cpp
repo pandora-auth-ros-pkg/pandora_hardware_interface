@@ -44,27 +44,36 @@ namespace xmega
 {
 
 
-XmegaSerialInterface::XmegaSerialInterface(const std::string& device,
-                                      int speed,
-                                      int timeout) :
-  serialIO_(device, speed, timeout),
+XmegaSerialInterface::XmegaSerialInterface() :
   t1_(0),
   t2_(0),
   dataSize_(0),
   currentState_(IDLE_STATE)
 {
+  serialIO_ = new SerialIO(DEVICE, SPEED, TIMEOUT);
 }
 
+/*!
+ * \fn void XmegaSerialInterface::init()
+ * \brief Call to open device serial communication port
+ */
 void XmegaSerialInterface::init()
 {
-  serialIO_.init();
+  serialIO_->openDevice();
 }
-
+/*!
+ * \fn void XmegaSerialInterface::read()
+ * \brief Call to received data main routine.
+ */
 void XmegaSerialInterface::read()
 {
   receiveData();
 }
 
+XmegaSerialInterface::~XmegaSerialInterface()
+{
+  delete serialIO_;
+}
 //------------- Private Members -------------------//
 
 void XmegaSerialInterface::receiveData()
@@ -97,7 +106,7 @@ void XmegaSerialInterface::receiveData()
     {
   /* <IDLE_STATE indicates the state waiting for start of transmission characters> */
     case IDLE_STATE:
-      currentState_ = serialIO_.readMessageType();
+      currentState_ = serialIO_->readMessageType();
       gettimeofday(&current, NULL);
       seconds = current.tv_sec - start.tv_sec;
       useconds = current.tv_usec - start.tv_usec;
@@ -120,21 +129,21 @@ void XmegaSerialInterface::receiveData()
     case READ_SIZE_STATE:
       gettimeofday(&tim_, NULL);
       t1_ = tim_.tv_sec + (tim_.tv_usec / 1000000.0);
-      currentState_ = serialIO_.readSize(&dataSize_);
+      currentState_ = serialIO_->readSize(&dataSize_);
       break;
     case READ_DATA_STATE:
       pdataBuffer_ = new unsigned char[dataSize_];
       memset(pdataBuffer_, 0x00, dataSize_);
-      currentState_ = serialIO_.readData(dataSize_, pdataBuffer_);
+      currentState_ = serialIO_->readData(dataSize_, pdataBuffer_);
       break;
     case READ_CRC_STATE:
-      currentState_ = serialIO_.readCRC();
+      currentState_ = serialIO_->readCRC();
       break;
     case ACK_STATE:
       previousState = ACK_STATE;
       timer_flag = 1;
       gettimeofday(&start, NULL);
-      if (!serialIO_.write(ACK, 1))
+      if (!serialIO_->write(ACK, 1))
         ROS_ERROR("[xmega] Failed to write ACK!\n");
       counter_ack++;
       ROS_DEBUG("[xmega] counter_ack: %d \n", counter_ack);
@@ -144,7 +153,7 @@ void XmegaSerialInterface::receiveData()
       previousState = NAK_STATE;
       timer_flag = 1;
       gettimeofday(&start, NULL);
-      if (!serialIO_.write(NAK, 2))
+      if (!serialIO_->write(NAK, 2))
         ROS_ERROR("[xmega] Failed to write NAK!\n");
       currentState_ = IDLE_STATE;
       counter_nak++;
@@ -273,7 +282,7 @@ SerialIO::SerialIO(const std::string& device,
 {
 }
 
-void SerialIO::init()
+void SerialIO::openDevice()
 {
   if (serialPtr_ == NULL)
   {
@@ -296,6 +305,18 @@ void SerialIO::init()
   {
     throw std::logic_error("Init called twice!!");
   }
+  serialPtr_->flush(); //Flush input and output buffers on startup.
+}
+
+void SerialIO::closeDevice()
+{
+  serialPtr_->flush();
+  serialPtr_->close();
+}
+
+SerialIO::~SerialIO()
+{
+  if (serialPtr_->isOpen()) {  closeDevice(); }
 }
 
 int SerialIO::readMessageType()
