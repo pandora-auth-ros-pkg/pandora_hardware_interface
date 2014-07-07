@@ -43,7 +43,6 @@ namespace pandora_hardware_interface
 namespace xmega
 {
 
-
 XmegaSerialInterface::XmegaSerialInterface() :
   t1_(0),
   t2_(0),
@@ -53,28 +52,25 @@ XmegaSerialInterface::XmegaSerialInterface() :
   serialIO_ = new SerialIO(DEVICE, SPEED, TIMEOUT);
 }
 
-/*!
- * \fn void XmegaSerialInterface::init()
- * \brief Call to open device serial communication port
- */
+
 void XmegaSerialInterface::init()
 {
   serialIO_->openDevice();
 }
-/*!
- * \fn void XmegaSerialInterface::read()
- * \brief Call to received data main routine.
- */
+
+
 void XmegaSerialInterface::read()
 {
   receiveData();
 }
+
 
 XmegaSerialInterface::~XmegaSerialInterface()
 {
   delete serialIO_;
 }
 //------------- Private Members -------------------//
+
 
 void XmegaSerialInterface::receiveData()
 {
@@ -113,7 +109,8 @@ void XmegaSerialInterface::receiveData()
       ms_elapsed = ((seconds) * 1000 + useconds / 1000.0) + 0.5;  // +0.5 is used for rounding positive values
       if (ms_elapsed >= 20000)
         throw std::runtime_error(
-          "xmega doesn't seem to respond! Is it connected?");
+          "[xMega]: Error - Not any activity for 20 sec. Fatal!"
+			 );
 
       if (timer_flag == 0)
       {
@@ -279,9 +276,9 @@ SerialIO::SerialIO(const std::string& device,
   speed_(speed),
   timeout_(timeout),
   CRC_(0)
-{
-}
+{}
 
+ 	
 void SerialIO::openDevice()
 {
   if (serialPtr_ == NULL)
@@ -305,18 +302,29 @@ void SerialIO::openDevice()
   {
     throw std::logic_error("Init called twice!!");
   }
-  serialPtr_->flush(); //Flush I/O buffers on startup.
+  //serialPtr_->flush();	//flush I/O software buffers on startup.
+  serialPtr_->flushInput();	//Flush Input software buffer on startup.
+  serialPtr_->flushOutput();	//Flush Output software buffer on startup.
 }
+
 
 void SerialIO::closeDevice()
 {
-  serialPtr_->flush();  //Flush I/O buffers on exit.
-  serialPtr_->close();
+
+  if (serialPtr_->isOpen())	
+  {
+	 //serialPtr_->flush();	//Flush I/O software buffers on termination.
+	 serialPtr_->flushInput();	//Flush Input software buffer on termination.
+	 serialPtr_->flushOutput();	//Flush Output software buffer on termination.
+	 serialPtr_->close();
+	 ROS_INFO("[xMega]: Closing Communication.");
+  }
 }
+
 
 SerialIO::~SerialIO()
 {
-  if (serialPtr_->isOpen()) {  closeDevice(); }
+  closeDevice();
 }
 
 int SerialIO::readMessageType()
@@ -328,16 +336,16 @@ int SerialIO::readMessageType()
 
   serialPtr_->read(command, size);
 
-  /* <If start of data package chars (0x0C , 0x0A)> */
+  /* <If they match the start of data package char sequence (0x0C , 0x0A)> */
   if (static_cast<int>(command[0]) == 12 && static_cast<int>(command[1]) == 10)
   {
     CRC_ += static_cast<int>(command[0]) + static_cast<int>(command[1]);
     return READ_SIZE_STATE;
-    //return READ_DATA_STATE;
   }
   else
     return IDLE_STATE;
 }
+
 
 int SerialIO::readSize(uint16_t *dataSize_)
 {
@@ -374,6 +382,7 @@ int SerialIO::readSize(uint16_t *dataSize_)
     return READ_DATA_STATE;
   }
 }
+
 
 int SerialIO::readData(uint16_t dataSize_, unsigned char *dataBuffer)
 {
@@ -424,6 +433,7 @@ int SerialIO::readCRC()
   }
 }
 
+
 bool SerialIO::write(const uint8_t *data, size_t size)
 {
   if (serialPtr_->write(data, size) == size)
@@ -432,9 +442,11 @@ bool SerialIO::write(const uint8_t *data, size_t size)
   }
   else
   {
+	 throw std::runtime_error("[xMega]: Error! Failed to write!");
     return false;
   }
 }
+
 
 static unsigned char myatoi(char *array, int size)
 {
@@ -442,15 +454,15 @@ static unsigned char myatoi(char *array, int size)
   int result = 0;
   for (int i = 0; i < size; i++)
   {
-    if ((static_cast<int>(array[i]) >= 65) &&
-      (static_cast<int>(array[i]) <= 70))
-      result += (static_cast<int>(array[i]) - 55) * pow(16, size - i - 1);
-    else if ((static_cast<int>(array[i]) >= 48) &&
-      (static_cast<int>(array[i]) <= 57))
-      result += (static_cast<int>(array[i]) - 48) * pow(16, size - i - 1);
+    if ((static_cast<int>(array[i]) >= 65) && (static_cast<int>(array[i]) <= 70))
+		{result += (static_cast<int>(array[i]) - 55) * pow(16, size - i - 1);}
+    else if ((static_cast<int>(array[i]) >= 48) && (static_cast<int>(array[i]) <= 57))
+		{result += (static_cast<int>(array[i]) - 48) * pow(16, size - i - 1);}
   }
 
   return result;
 }
+
+
 }  // namespace xmega
 }  // namespace pandora_hardware_interface
