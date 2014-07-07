@@ -1,5 +1,5 @@
 /** @file xmega_serial_interface.h
- *  @brief Serial interface drivers for xMega uController.
+ *  @brief Serial interface drivers header file for xMega uController.
  * 
  *		This contains classes and prototypes for xMega Com driver
  *		and eventually any definitions and globals.

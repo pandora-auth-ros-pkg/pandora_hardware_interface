@@ -1,3 +1,14 @@
+/** @file xmega_serial_interface.cpp
+ *  @brief Serial interface drivers cpp file for xMega uController.
+ *
+ *  This contains xMega serial interface classes and methods implementations.
+ *
+ *  @author Michael Niarchos
+ *  @author Chris Zalidis
+ *  @author Konstantinos Panayiotou
+ *  @bug No known bug.
+ */
+
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -293,14 +304,14 @@ void SerialIO::openDevice()
     }
     catch (serial::IOException& ex)
     {
-      ROS_FATAL("[xmega-serialIO] Cannot open port!!");
+      ROS_FATAL("[xMega-serialIO]: Cannot open port!!");
       ROS_FATAL("%s", ex.what());
       exit(-1);
     }
   }
   else
   {
-    throw std::logic_error("Init called twice!!");
+    throw std::logic_error("[xMega-serialIO]: Device allready open!");
   }
   //serialPtr_->flush();	//flush I/O software buffers on startup.
   serialPtr_->flushInput();	//Flush Input software buffer on startup.
@@ -317,7 +328,7 @@ void SerialIO::closeDevice()
 	 serialPtr_->flushInput();	//Flush Input software buffer on termination.
 	 serialPtr_->flushOutput();	//Flush Output software buffer on termination.
 	 serialPtr_->close();
-	 ROS_INFO("[xMega]: Closing Communication.");
+	 ROS_INFO("[xMega-serialIO]: Closing Communication.");
   }
 }
 
@@ -387,7 +398,7 @@ int SerialIO::readSize(uint16_t *dataSize_)
 int SerialIO::readData(uint16_t dataSize_, unsigned char *dataBuffer)
 {
   if (serialPtr_->read(static_cast<uint8_t*>(dataBuffer), dataSize_ - 5) != dataSize_ - 5)
-    ROS_DEBUG("[xmega-serialIO] ERROR!!\n");
+    ROS_ERROR("[xmega-serialIO]: ERROR writing!");
 
   for (int i = 0; i < dataSize_; i++) {
     ROS_DEBUG("[xmega-serialIO] %c", dataBuffer[i]);
