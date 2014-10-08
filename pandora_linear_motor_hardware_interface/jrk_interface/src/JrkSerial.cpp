@@ -1,11 +1,50 @@
+/*********************************************************************
+*
+* Software License Agreement (BSD License)
+*
+*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions
+*  are met:
+*
+*   * Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*   * Redistributions in binary form must reproduce the above
+*     copyright notice, this list of conditions and the following
+*     disclaimer in the documentation and/or other materials provided
+*     with the distribution.
+*   * Neither the name of the P.A.N.D.O.R.A. Team nor the names of its
+*     contributors may be used to endorse or promote products derived
+*     from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*
+* Author:  
+*********************************************************************/
+
 #include <jrk_interface/JrkSerial.h>
 #include <ros/ros.h>
 #include <jrk_interface/JrkDefinitions.h>
+
 
 namespace pandora_hardware_interface
 {
 namespace linear
 {
+
 JrkSerial::JrkSerial(const std::string& device,
                       int speed,
                       int timeout):
@@ -16,16 +55,13 @@ JrkSerial::JrkSerial(const std::string& device,
 {
 }
 
+
 JrkSerial::~JrkSerial()
 {
   if (serialPtr_->isOpen()) {   closeDevice();  }
 }
 
 
-/*!
- * \fn void JrkSerial::open_device()
- * \brief This method is used for opening linear motor device communication port
- */
 void JrkSerial::openDevice()
 {
   if (serialPtr_ == NULL)
@@ -49,107 +85,75 @@ void JrkSerial::openDevice()
   {
     throw std::logic_error("[Linear Motor]: Declined second call on open_device");
   }
-  serialPtr_->flush(); //Flush I/O buffers on startup.
-  clearErrors();
+  /* <Flushes (discards) not-send data (data still in the UART send buffer) and/or flushes (discards) received data (data already in the UART receive buffer)>*/
+  //serialPtr_->flushInput; /* <Flush received, but unread data> */
+  //serialPtr_->flushOutput; /* <Flush written, but not send data> */ 
+  serialPtr_->flush(); /* <Flush both Input and output buffers> */
+
+  clearErrors(); /* <Call to linear motor controller to lean any errors on startup> */
 }
 
 
-/*!
- * \fn void JrkSerial::closeDevice()
- * \brief This method is used to close linear motor serial com port.
- */
 void JrkSerial::closeDevice()
 {
-  serialPtr_->flush();  //Flush I/O buffers on exit.
+  serialPtr_->flush();  /* <Flush both input and output  buffers on exit> */
   serialPtr_->close();
 }
 
 
-/*!
- * \fn int JrkSerial::readVariable(const unsigned char command)
- * \brief
- */
 int JrkSerial::readVariable(const unsigned char command)
 {
   uint8_t message[] = {command};
   if ( !write(message, 1) )
   {
-    ROS_ERROR_STREAM("[Linear]: Error writing >" << strerror(errno));
+    ROS_ERROR_STREAM("[Linear Motor]: Error writing > " << strerror(errno));
     return -1;
   }
   uint8_t response[2];
   if ( serialPtr_->read(response, 2) != 2 )
   {
-    ROS_ERROR_STREAM("[Linear]: Error reading >" << strerror(errno));
+    ROS_ERROR_STREAM("[Linear Motor]: Error reading > " << strerror(errno));
     return -1;
   }
   return response[0] + 256*response[1];
 }
 
-/*!
- * \fn bool JrkSerial::write(const uint8_t *data, size_t size)
- * \brief Write to Linear serial com port method. Includes flushInput before every write to the buffer.
- */
+
 bool JrkSerial::write(const uint8_t *data, size_t size)
 {
-  serialPtr_->flushInput();
-  if (serialPtr_->write(data, size) == size)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  serialPtr_->flushOutput(); /*Flush written but not send data*/
+  if (serialPtr_->write(data, size) == size)  {return true;}
+  else  {return false;}
 }
 
-/*!
- * \fn int JrkSerial::readFeedback()
- * \brief Asks linear motor for position feedback from. Returns position feedback value.
- */
+
 int JrkSerial::readFeedback()
-{
-  return readVariable(FEEDBACK_VARIABLE);
-}
+{return readVariable(FEEDBACK_VARIABLE);}
 
-/*!
- * \fn int JrkSerial::readScaledFeedback()
- * \brief Asks linear motor for scaled position feedback value. Returns position feedback value.
- */
+
 int JrkSerial::readScaledFeedback()
 {
   return readVariable(SCALED_FEEDBACK_VARIABLE);
 }
 
-/*!
- * \fn int JrkSerial::readDutyCycle()
- * \brief Asks linear motor for duty cycle value. Returns duty cycle value.
- */
+
 int JrkSerial::readDutyCycle()
 {
   return readVariable(DUTY_CYCLE_VARIABLE);
 }
 
-/*!
- * \fn int JrkSerial::readTarget()
- * \brief Asks linear motor for position target value. Returns position target value.
- */
+
 int JrkSerial::readTarget()
 {
   return readVariable(TARGET_VARIABLE);
 }
 
-/*!
- * \fn int JrkSerial::setTarget(unsigned short target)
- * \brief Sends position target command to linear motor.
- * \param target position target value.
- */
 int JrkSerial::setTarget(unsigned short target)
 {
   uint8_t command[] = {0xB3, 0xC0 + (target & 0x1F), (target >> 5) & 0x7F};
   if ( !serialPtr_->write(command, sizeof(command)) )
   {
-    ROS_ERROR_STREAM("[Linear Motor] Error writing >" << strerror(errno));
+    ROS_ERROR_STREAM("[Linear Motor] Error writing > " << strerror(errno));
     return -1;
   }
   return 0;
@@ -181,11 +185,6 @@ int JrkSerial::readErrors(unsigned char command)
   return response[0];
 }
 
-/*!
- * \fn void JrkSerial::printErrors(int errors)
- * \brief Prints errors reported from Linear Motor
- * \param errors Error index.
- */
 void JrkSerial::printErrors(int errors)
 {
   if ( errors >= 32 && errors <= 63 )
@@ -230,17 +229,13 @@ void JrkSerial::printErrors(int errors)
   }
 }
 
-/*!
- * \fn int JrkSerial::clearErrors()
- * \brief This method sends the ERRORS_HALTING_VARIABLE char to linear uContorller to clear errors reported on startup.
- */
 int JrkSerial::clearErrors()
 {
-  //Gets error flags halting and clears any latched errors
+  /*Gets error flags halting and clears any latched errors*/
   uint8_t command[] = {ERRORS_HALTING_VARIABLE};
   if ( !write(command, 1) )
   {
-    ROS_ERROR_STREAM("error writing clearing: " << strerror(errno));
+    ROS_ERROR_STREAM("[Linear Motor] Error writing > " << strerror(errno));
     return -1;
   }
   return 0;
