@@ -1,13 +1,3 @@
-/** @file encoder_sensor.h
- *  @brief Encoder sensor header file.
- *
- *  This file contains encoder sensor prototypes.
- *
- *  @author Michael Nicarchos
- *  @author Chris Zalidis
- *  @author Konstantinos Panayiotou
- */
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -44,6 +34,16 @@
 *
 * Author: Chris Zalidis, Konstantinos Panayiotou
 *********************************************************************/
+
+/*! @file encoder_sensor.h
+ *  @brief Encoder sensor header file.
+ *
+ *  This file contains encoder sensor prototypes.
+ *
+ *  @author Michael Nicarchos
+ *  @author Chris Zalidis
+ *  @author Konstantinos Panayiotou
+ */
 
 #ifndef XMEGA_SERIAL_INTERFACE_ENCODER_SENSOR_H
 #define XMEGA_SERIAL_INTERFACE_ENCODER_SENSOR_H
@@ -84,7 +84,6 @@ class EncoderSensor : virtual public SensorBase
   virtual void handleData();
 
  public:
-
   /*! < Rotary encoder degrees measurement */
   double degrees;
 };

@@ -1,15 +1,3 @@
-/** @file battery_sensor.h
- *  @brief Battery sensor class header file.
- *
- *  This contains Battery class and methods used for batteries
- *  voltage level measurements.
- *
- *  @author Michael Niarchos
- *  @author Chris Zalidis
- *  @author Konstantinos Panayiotou
- *  @bug No known bugs.
- */
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -69,7 +57,6 @@ namespace xmega
 class BatterySensor : virtual public SensorBase
 {
  public:
-
   /*!
    * @brief Default constructor.
    * @return Void
@@ -90,7 +77,6 @@ class BatterySensor : virtual public SensorBase
   virtual void handleData();
 
  public:
-
   /*! < Electronics battery voltage level measurement. */
   double psuVoltage;
 

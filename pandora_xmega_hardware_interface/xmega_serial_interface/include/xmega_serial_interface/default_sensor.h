@@ -1,11 +1,3 @@
-/** @file default_sensor.h
- *  @brief Default sensors class header file
- *
- *  @author Chris Zalidis
- *  @author Evaggelos Apostolidis
- *  @bug No known bugs.
- */
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -43,6 +35,15 @@
 * Author: Michael Niarchos
 * Author: Chris Zalidis
 *********************************************************************/
+
+/** @file default_sensor.h
+ *  @brief Default sensors class header file
+ *
+ *  @author Chris Zalidis
+ *  @author Evaggelos Apostolidis
+ *  @bug No known bugs.
+ */
+
 
 #ifndef XMEGA_SERIAL_INTERFACE_DEFAULT_SENSOR_H
 #define XMEGA_SERIAL_INTERFACE_DEFAULT_SENSOR_H

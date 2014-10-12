@@ -1,13 +1,3 @@
-/** @file enums.h
- *  @brief Enum types.
- *
- *  This contains enum types regarding communication states and sensor types.
- *
- *  @author Michael Niarchos
- *  @author Chris Zalidis
- *  @author Konstantinos Panayiotou
- */
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -43,6 +33,16 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *
 *********************************************************************/
+
+/*! @file enums.h
+ *  @brief Enum types.
+ *
+ *  This contains enum types regarding communication states and sensor types.
+ *
+ *  @author Michael Niarchos
+ *  @author Chris Zalidis
+ *  @author Konstantinos Panayiotou
+ */
 
 #ifndef XMEGA_SERIAL_INTERFACE_ENUMS_H
 #define XMEGA_SERIAL_INTERFACE_ENUMS_H
@@ -88,7 +88,7 @@ enum read_state
   SENSOR_TYPE,
   SENSOR_I2C_ADDRESS,
   SENSOR_STATUS,
-  SNSOR_CURRENT_STATE,
+  SENSOR_CURRENT_STATE,
   SENSOR_DATA
 };
 

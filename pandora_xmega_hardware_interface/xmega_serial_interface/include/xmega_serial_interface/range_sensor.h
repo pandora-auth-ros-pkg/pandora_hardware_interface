@@ -1,14 +1,3 @@
-/** @file range_sensor.h
- *  @brief Sonar range sensors header file.
- *
- *  This file contains class and methods used for sonar range measurements.
- *
- *  @author Michael Niarchos
- *  @author Chris Zalidis
- *  @author Konstantinos Panayiotou
- *  @bug No known bug.
- */
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -44,6 +33,19 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *
 *********************************************************************/
+
+/** @file range_sensor.h
+ *  @brief Sonar range sensors header file.
+ *
+ *  This file contains class and methods used for sonar range measurements.
+ *
+ *  @author Michael Niarchos
+ *  @author Chris Zalidis
+ *  @author Konstantinos Panayiotou
+ *  @bug No known bug.
+ */
+
+
 
 #ifndef XMEGA_SERIAL_INTERFACE_RANGE_SENSOR_H
 #define XMEGA_SERIAL_INTERFACE_RANGE_SENSOR_H
@@ -87,7 +89,6 @@ class RangeSensor : virtual public SensorBase
   virtual void handleData();
 
  public:
-
   /*! < Range sensors Map */
   RangeMap sensors;
 };
