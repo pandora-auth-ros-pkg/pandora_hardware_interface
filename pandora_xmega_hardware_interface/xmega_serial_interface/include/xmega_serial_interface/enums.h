@@ -51,8 +51,10 @@ namespace pandora_hardware_interface
 {
 namespace xmega
 {
-/** @enum state
- *  @brief Enum type for data package process states.
+
+/*!
+ * @enum state
+ * @brief Enum type for data package process states.
  */
 enum state
 {
@@ -65,8 +67,9 @@ enum state
   PROCESS_DATA_STATE
 };
 
-/** @enum sensor_type
- *  @brief Enum type for sensor types (e.g. encoder,sonar...).
+/*!
+ * @enum sensor_type
+ * @brief Enum type for sensor types (e.g. encoder,sonar...).
  */
 enum sensor_type
 {
@@ -75,8 +78,9 @@ enum sensor_type
   ENCODER
 };
 
-/** @enum read_state
- *  @brief Enum type for I2C sensors data reading states.
+/*!
+ * @enum read_state
+ * @brief Enum type for I2C sensors data reading states.
  */
 enum read_state
 {
@@ -84,7 +88,7 @@ enum read_state
   SENSOR_TYPE,
   SENSOR_I2C_ADDRESS,
   SENSOR_STATUS,
-  SENSOR_CURRENT_STATE,
+  SNSOR_CURRENT_STATE,
   SENSOR_DATA
 };
 

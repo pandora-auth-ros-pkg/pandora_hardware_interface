@@ -1,7 +1,7 @@
 /** @file range_sensor.h
  *  @brief Sonar range sensors header file.
  *
- *  This contains class and methods used for sonar range measurements.
+ *  This file contains class and methods used for sonar range measurements.
  *
  *  @author Michael Niarchos
  *  @author Chris Zalidis
@@ -67,22 +67,28 @@ struct RangeData
 
 typedef std::map<int, RangeData> RangeMap;
 
-/** @class RangeSensor
+/*!
+ *  @class RangeSensor
  *  @brief Sonar Range Sensor class.
  */
 class RangeSensor : virtual public SensorBase
 {
  public:
-  /** Default constructor */	
+  /*! < Default constructor */
   RangeSensor();
 
-  /** Default destructor */
+  /*! < Default destructor */
   ~RangeSensor();
-  
-  /** Handles received sonar data and stores sonar range values. */
+
+  /*!
+   * @fn virtual void handleData()
+   * @brief Handles received sonar data and stores sonar range values.
+   */
   virtual void handleData();
 
  public:
+
+  /*! < Range sensors Map */
   RangeMap sensors;
 };
 
