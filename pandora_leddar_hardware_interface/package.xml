@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package>
+  <name>pandora_leddar_hardware_interface</name>
+  <version>0.0.0</version>
+  <description>The pandora_leddar_hardware_interface package</description>
+
+  <maintainer email="gkourosg@yahoo.gr">George Kouros</maintainer>
+  
+  <license>BSD</license>
+  
+  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
+  
+  <author email="gkourosg@yahoo.gr">George Kouros</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>roscpp</build_depend>
+  <build_depend>roslint</build_depend>
+  <build_depend>controller_manager</build_depend>
+  <build_depend>serial</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>roslint</run_depend>
+  <run_depend>controller_manager</run_depend>
+  <run_depend>serial</run_depend>
+  <run_depend>ros_controllers</run_depend>
+
+  <export>
+  </export>
+</package>
