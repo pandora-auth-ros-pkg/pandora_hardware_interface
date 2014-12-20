@@ -34,20 +34,14 @@
 *
 * Author: George Kouros
 *********************************************************************/
-<<<<<<< Updated upstream:pandora_leddar_hardware_interface/leddar_serial_interface/include/leddar_serial_interface/leddar_serial_interface.h
-=======
-#ifndef XMEGA_HARDWARE_INTERFACE_ENCODER_SENSOR_INTERFACE_H
-#define XMEGA_HARDWARE_INTERFACE_ENCODER_SENSOR_INTERFACE_H
->>>>>>> Stashed changes:pandora_xmega_hardware_interface/xmega_hardware_interface/include/xmega_hardware_interface/encoder_sensor_interface.h
 
 #ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
 #define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
 
+#include <stdlib.h>
 #include <stdio.h>
-#include <serial/serial.h>
 #include <ros/ros.h>
-#include "LeddarC.h"
-#include "LeddarProperties.h"
+#include "Leddar.h"
 
 #define NUM_OF_DETECTIONS 16
 
@@ -55,71 +49,28 @@ namespace pandora_hardware_interface
 {
 namespace leddar
 {
-  class LeddarSerialInterface() : private boost::noncopyable
+  class LeddarSerialInterface : private boost::noncopyable
   {
     public:
-<<<<<<< Updated upstream:pandora_leddar_hardware_interface/leddar_serial_interface/include/leddar_serial_interface/leddar_serial_interface.h
       LeddarSerialInterface(
-          const std::string& device,
-          int speed,
-          int timeout);
-          
-      ~LeddarSerialInterface();
-      
+        std::string device,
+        std::string port_number,
+        int address);
+      ~LeddarSerialInterface();      
       void init();
-      void dataCallback();
       void read();
-      void readConfiguration();
-      void writeConfiguration();
+      LtAcquisition* getMeasurements()
+      {
+        return lAcquisition;
+      }
       
     private:
-      const std::string device_;
-      const int speed_;
-      const int timeout_;
-      LeddarHandle leddarHandle_;
-      LdDetections lDetections[num_detections]
-=======
-      struct Data
-      {
-        Data()
-        {
-        }
-
-        std::string name;
-        double* degrees; 
-      };
-    
-      EncoderSensorHandle(const Data& data = Data())
-        :  name_(data.name),
-           degrees_(data.degrees)
-      {
-      }
-      
-      ~EncoderSensorHandle()
-      {
-      }
-
-      inline std::string getName() const
-      {
-        return name_;
-      }
-      
-      inline const double* getDegrees() const
-      {
-        return degrees_;
-      }
-       
-    private:
-      std::string name_;
-      double* degrees_;
->>>>>>> Stashed changes:pandora_xmega_hardware_interface/xmega_hardware_interface/include/xmega_hardware_interface/encoder_sensor_interface.h
+      std::string device_;
+      std::string port_name_; // ttyUSB*
+      int address_; // 1-255
+      LtAcquisition *lAcquisition;
   };
 
 } // namespace leddar
 } // namespace pandora_hardware_interface
 #endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-
-<<<<<<< Updated upstream:pandora_leddar_hardware_interface/leddar_serial_interface/include/leddar_serial_interface/leddar_serial_interface.h
-=======
-#endif // XMEGA_HARDWARE_INTERFACE_ENCODER_SENSOR_INTERFACE_H
->>>>>>> Stashed changes:pandora_xmega_hardware_interface/xmega_hardware_interface/include/xmega_hardware_interface/encoder_sensor_interface.h

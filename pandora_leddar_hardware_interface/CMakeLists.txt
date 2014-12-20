@@ -1,43 +1,40 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_leddar_hardware_interface)
 
-find_package(catkin REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  message_runtime
+  roslint
+  )
 
-
-add_message_files(
-  FILES
-  Message1.msg
-  Message2.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-)
+set(THIS_PACKAGE_INCLUDE_DIRS
+  leddar_serial_interface/include
+  )
 
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES pandora_leddar_hardware_interface
-  CATKIN_DEPENDS other_catkin_pkg
-  DEPENDS system_lib
-)
+  INCLUDE_DIRS 
+    ${THIS_PACKAGE_INCLUDE_DIRS}
+  LIBRARIES 
+  CATKIN_DEPENDS
+    roscpp
+    roslint
+  )
 
-include_directories(include)
+include_directories(
+  ${THIS_PACKAGE_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
+  )
 
-add_library(pandora_leddar_hardware_interface
-  src/${PROJECT_NAME}/pandora_leddar_hardware_interface.cpp
-)
+add_subdirectory(leddar_serial_interface)
 
-add_executable()
+# To check lint : catkin_make roslint_pandora_arm_hardware_interface
+set(ROSLINT_CPP_OPTS
+  "--filter=-build/include_what_you_use, -runtime/references")
+  FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
+  RELATIVE ${PROJECT_SOURCE_DIR}
+  leddar_serial_interface/leddar_serial_interface.h
+  leddar_serial_interface/leddar_serial_interface.cpp
+  leddar_serial_interface/leddar_serial_interface_demo.cpp
+  )
 
-add_dependencies(pandora_leddar_hardware_interface_node pandora_leddar_hardware_interface_generate_messages_cpp)
-target_link_libraries(pandora_leddar_hardware_interface_node
-  ${catkin_LIBRARIES}
-)
-
-install(PROGRAMS
-  scripts/my_python_script
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
+roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

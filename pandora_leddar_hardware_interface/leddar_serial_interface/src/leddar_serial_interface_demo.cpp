@@ -34,57 +34,39 @@
 *
 * Author: George Kouros
 *********************************************************************/
-
 #include "leddar_serial_interface/leddar_serial_interface.h"
+#include <iostream>
 
-namespace pandora_hardware_interface
+using pandora_hardware_interface::leddar::LeddarSerialInterface;
+
+int main(int argc, char** argv)
 {
-namespace leddar
-{
-  LeddarSerialInterface::LeddarSerialInterface(
-    std::string device,
-    std::string port_name,
-    int address)
-  :
-    device_(device),
-    port_name_(port_name),
-    address_(address)
-  {
-    lAcquisition = new LtAcquisition();
-  }
+  ros::init(argc, argv, "leddar_demo");
+  ros::NodeHandle nh;
   
-  LeddarSerialInterface::~LeddarSerialInterface()
-  {
-    delete[] lAcquisition;
-    LeddarDisconnect();
-  }
+  ROS_INFO("Leddar demo node launched");  
   
-  void LeddarSerialInterface::init()
-  { 
-    char* pn = new char[port_name_.length()+1];
-    strcpy(pn, port_name_.c_str());
+  std::ostringstream ss;
+  std::ostringstream sm;  
+  LtAcquisition* measurements;
+  
+  LeddarSerialInterface serial("leddar", "dev/leddar", 1); 
+  serial.init();  
+  
+  while (ros::ok())
+  {
+    serial.read();
+    measurements = serial.getMeasurements();
     
-    ROS_INFO("[leddar] Attempting to establish serial communication...");
-    if ( LeddarConnect(pn, address_) != LT_SUCCESS )
+    for (int ii=0; ii<measurements->mDetectionCount; ii++)
     {
-      ROS_FATAL("[leddar] Unable to establish serial communication.");
-      exit(-1);
+      ss<<" "<<measurements->mDetections[ii].mSegment;
+      sm<<" "<<measurements->mDetections[ii].mDistance;
     }
-    else
-    {
-      ROS_INFO("[leddar] Connection established.");
-    }
+    ROS_INFO("#: %s", ss.str().c_str());
+    ROS_INFO("D: %s", sm.str().c_str());
+    
+    ros::Duration(0.5).sleep();
   }
-
-  
-  void LeddarSerialInterface::read()
-  {
-    if( LeddarGetResults(lAcquisition) != LT_SUCCESS)
-    {
-      ROS_FATAL("[leddar] Communication error, aborting.");
-      exit(-1);
-    }
-  }
-  
-} // namespace leddar
-} // namespace pandora_hardware_interface
+  return 0;
+}
