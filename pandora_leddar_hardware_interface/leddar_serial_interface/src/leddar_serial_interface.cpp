@@ -50,12 +50,12 @@ namespace leddar
     port_name_(port_name),
     address_(address)
   {
-    lAcquisition = new LtAcquisition();
+    lAcquisition_ = new LtAcquisition();
   }
   
   LeddarSerialInterface::~LeddarSerialInterface()
   {
-    delete[] lAcquisition;
+    delete[] lAcquisition_;
     LeddarDisconnect();
   }
   
@@ -65,24 +65,28 @@ namespace leddar
     strcpy(pn, port_name_.c_str());
     
     ROS_INFO("[leddar] Attempting to establish serial communication...");
-    if ( LeddarConnect(pn, address_) != LT_SUCCESS )
+    int connection_attempts = 3;
+    while (LeddarConnect(pn, address_) != LT_SUCCESS)
     {
-      ROS_FATAL("[leddar] Unable to establish serial communication.");
-      exit(-1);
+      connection_attempts--;
+      ROS_ERROR("[leddar] Unable to establish serial communication [%d attempts left]",
+        connection_attempts);
+      if (connection_attempts == 0)
+      {
+        exit(-1);  
+      } 
+      ros::Duration(0.5).sleep();
     }
-    else
-    {
-      ROS_INFO("[leddar] Connection established.");
-    }
+    
+    ROS_INFO("[leddar] Connection established.");
   }
 
-  
+
   void LeddarSerialInterface::read()
   {
-    if( LeddarGetResults(lAcquisition) != LT_SUCCESS)
+    while(LeddarGetResults(lAcquisition_) != LT_SUCCESS && ros::ok())
     {
-      ROS_FATAL("[leddar] Communication error, aborting.");
-      exit(-1);
+      ROS_ERROR("[leddar] Acquisition failed. Reattempting Acquisition...");
     }
   }
   

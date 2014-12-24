@@ -1,5 +1,5 @@
 add_library(
-  leddar_interface 
+  leddar_serial_interface 
   src/leddar_serial_interface.cpp
   src/OS.cpp
   src/Modbus.cpp
@@ -7,7 +7,7 @@ add_library(
   )
 
 target_link_libraries(
-  leddar_interface
+  leddar_serial_interface
   ${catkin_LIBRARIES}
   )
   
@@ -17,6 +17,6 @@ add_executable(
 
 target_link_libraries(
   leddar_serial_interface_demo
-  leddar_interface
+  leddar_serial_interface
   ${catkin_LIBRARIES}
   )

@@ -34,41 +34,67 @@
 *
 * Author: George Kouros
 *********************************************************************/
+#ifndef LEDDAR_HARDWARE_INTERFACE_LEDDAR_SENSOR_INTERFACE_H
+#define LEDDAR_HARDWARE_INTERFACE_LEDDAR_SENSOR_INTERFACE_H
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <ros/ros.h>
-#include "Leddar.h"
+#include <hardware_interface/internal/hardware_resource_manager.h>
+#include <string>
 
 namespace pandora_hardware_interface
 {
 namespace leddar
 {
-  class LeddarSerialInterface : private boost::noncopyable
+  class LeddarSensorHandle
   {
     public:
-      LeddarSerialInterface(
-        std::string device,
-        std::string port_number,
-        int address);
-      ~LeddarSerialInterface();      
-      void init();
-      void read();
-      LtAcquisition* getLAcquisition()
+      struct Data
       {
-        return lAcquisition_;
+        Data()
+        {
+        }
+        std::string name;
+        std::string frameId;
+        int* leddarDetectionCount;
+        float* leddarDistances;
+      };
+      
+      LeddarSensorHandle(const Data& data = Data())
+      :
+        name_(data.name),
+        frameId_(data.frameId),
+        leddarDetectionCount_(data.leddarDetectionCount),
+        leddarDistances_(data.leddarDistances)
+      {
       }
       
+      inline const std::string getName() const
+      {
+        return name_;
+      }
+      inline const std::string getFrameId() const
+      {
+        return frameId_;
+      }
+      inline const int* getLeddarDetectionCount() const
+      {
+        return leddarDetectionCount_;
+      }
+      inline const float* getLeddarDistances() const
+      {
+        return leddarDistances_;
+      }
+    
     private:
-      std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
-      LtAcquisition *lAcquisition_;
+      std::string name_;
+      std::string frameId_;
+      int* leddarDetectionCount_;
+      float* leddarDistances_;
   };
-
+  
+  class LeddarSensorInterface :
+    public hardware_interface::HardwareResourceManager<LeddarSensorHandle>
+  {
+  };
 } // namespace leddar
 } // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#endif // LEDDAR_HARDWARE_INTERFACE_LEDDAR_SENSOR_INTERFACE_H

@@ -35,40 +35,56 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#include "leddar_usb_interface/leddar_usb_interface.h"
+#include "pandora_leddar_hardware_interface/LeddarMsg.h"
+#include <iostream>
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <ros/ros.h>
-#include "Leddar.h"
+using pandora_hardware_interface::leddar::LeddarUSBInterface;
 
-namespace pandora_hardware_interface
+LeddarHandle LeddarUSBInterface::leddarHandle_ = NULL;
+LdDetection* LeddarUSBInterface::measurements_ = NULL;
+int LeddarUSBInterface::leddarDetectionCount_;
+
+int main(int argc, char** argv)
 {
-namespace leddar
-{
-  class LeddarSerialInterface : private boost::noncopyable
+  ros::init(argc, argv, "leddar_usb_demo");
+  ros::NodeHandle nodeHandle;
+  
+  ROS_INFO("Leddar USB demo node launched");  
+  
+  LeddarUSBInterface leddarUSBInterface("leddar", "AF44010"); 
+  
+  leddarUSBInterface.init();  
+
+  ros::Duration(0.1).sleep();
+
+  // create publisher to publish all the readings from the leddar
+  ros::Publisher leddarPub = nodeHandle.advertise<
+    pandora_leddar_hardware_interface::LeddarMsg>("leddar", 100);
+  // create the msg to be published
+  pandora_leddar_hardware_interface::LeddarMsg msg; 
+  
+  while (ros::ok())
   {
-    public:
-      LeddarSerialInterface(
-        std::string device,
-        std::string port_number,
-        int address);
-      ~LeddarSerialInterface();      
-      void init();
-      void read();
-      LtAcquisition* getLAcquisition()
-      {
-        return lAcquisition_;
-      }
-      
-    private:
-      std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
-      LtAcquisition *lAcquisition_;
-  };
+    // If a live connection is active we need to ping it periodically.
+    leddarUSBInterface.ping();
+    
+    // clear the msg
+    msg.leddar_distances.clear();
+    msg.leddar_detection_count = 16;
+    
+    // fill the msg with the detections
+    for (int ii=0; ii<LeddarUSBInterface::leddarDetectionCount_; ii++)
+    {
+      msg.leddar_distances.push_back(LeddarUSBInterface::measurements_[ii].mDistance);
+    }
 
-} // namespace leddar
-} // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+    // publish the msg
+    leddarPub.publish(msg);
+
+    //sleep for 0.5 seconds
+    ros::Duration(0.5).sleep();
+  }
+  
+  return 0;
+}

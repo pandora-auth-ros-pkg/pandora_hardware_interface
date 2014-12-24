@@ -50,14 +50,15 @@ int main(int argc, char** argv)
   std::ostringstream sm;  
   LtAcquisition* measurements;
   
-  LeddarSerialInterface serial("leddar", "dev/leddar", 1); 
+  LeddarSerialInterface serial("leddar", "leddar", 1); 
   serial.init();  
   
   while (ros::ok())
   {
     serial.read();
-    measurements = serial.getMeasurements();
-    
+    measurements = serial.getLAcquisition();
+
+    ROS_INFO("Number of Detections: %d", measurements->mDetectionCount);    
     for (int ii=0; ii<measurements->mDetectionCount; ii++)
     {
       ss<<" "<<measurements->mDetections[ii].mSegment;
@@ -65,6 +66,10 @@ int main(int argc, char** argv)
     }
     ROS_INFO("#: %s", ss.str().c_str());
     ROS_INFO("D: %s", sm.str().c_str());
+    
+    
+    ss.str(std::string());
+    sm.str(std::string());
     
     ros::Duration(0.5).sleep();
   }

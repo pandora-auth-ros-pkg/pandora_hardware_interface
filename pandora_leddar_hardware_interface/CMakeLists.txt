@@ -3,20 +3,43 @@ project(pandora_leddar_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  message_generation
   message_runtime
+  controller_manager
+  controller_interface
   roslint
+  pluginlib
   )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
   leddar_serial_interface/include
+  leddar_usb_interface/include
+  leddar_hardware_interface/include
+  leddar_controllers/include
+  )
+
+add_message_files(
+  FILES
+    LeddarMsg.msg
+  )
+  
+generate_messages(
+  DEPENDENCIES
+    std_msgs  
   )
 
 catkin_package(
   INCLUDE_DIRS 
     ${THIS_PACKAGE_INCLUDE_DIRS}
   LIBRARIES 
+    leddar_sensor_controller
   CATKIN_DEPENDS
     roscpp
+    message_generation
+    message_runtime
+    controller_manager
+    controller_interface
+    pluginlib
     roslint
   )
 
@@ -26,8 +49,11 @@ include_directories(
   )
 
 add_subdirectory(leddar_serial_interface)
+add_subdirectory(leddar_usb_interface)
+add_subdirectory(leddar_hardware_interface)
+add_subdirectory(leddar_controllers)
 
-# To check lint : catkin_make roslint_pandora_arm_hardware_interface
+# To check lint : catkin_make roslint_pandora_leddar_hardware_interface
 set(ROSLINT_CPP_OPTS
   "--filter=-build/include_what_you_use, -runtime/references")
   FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
@@ -35,6 +61,14 @@ set(ROSLINT_CPP_OPTS
   leddar_serial_interface/leddar_serial_interface.h
   leddar_serial_interface/leddar_serial_interface.cpp
   leddar_serial_interface/leddar_serial_interface_demo.cpp
+  #
+  leddar_hardware_interface/leddar_hardware_interface.h
+  leddar_hardware_interface/leddar_sensor_interface.h
+  leddar_hardware_interface/leddar_hardware_interface.cpp
+  leddar_hardware_interface/leddar_hardware_interface_node.cpp
+  #
+  leddar_controllers/leddar_sensor_controller.h
+  leddar_controllers/leddar_sensor_controller.cpp
   )
 
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

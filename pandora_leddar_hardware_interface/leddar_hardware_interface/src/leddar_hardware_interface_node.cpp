@@ -35,40 +35,34 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#include "leddar_hardware_interface/leddar_hardware_interface.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <ros/ros.h>
-#include "Leddar.h"
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "leddar_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
+  
+  pandora_hardware_interface::leddar::LeddarHardwareInterface
+    leddarHardwareInterface(nodeHandle);
+  
+  controller_manager::ControllerManager controllerManager(
+    &leddarHardwareInterface, nodeHandle);
 
-namespace pandora_hardware_interface
-{
-namespace leddar
-{
-  class LeddarSerialInterface : private boost::noncopyable
+  ros::Time last, now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while ( ros::ok() )
   {
-    public:
-      LeddarSerialInterface(
-        std::string device,
-        std::string port_number,
-        int address);
-      ~LeddarSerialInterface();      
-      void init();
-      void read();
-      LtAcquisition* getLAcquisition()
-      {
-        return lAcquisition_;
-      }
-      
-    private:
-      std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
-      LtAcquisition *lAcquisition_;
-  };
-
-} // namespace leddar
-} // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
+    leddarHardwareInterface.read();
+    controllerManager.update(now, period);
+    ros::Duration(0.1).sleep();
+  }
+  spinner.stop();
+  return 0;
+}

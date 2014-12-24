@@ -35,40 +35,40 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H
+#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ros/ros.h>
-#include "Leddar.h"
+#include "LeddarC.h"
+#include "LeddarProperties.h"
+
+#define ARRAY_LEN( a )  (sizeof(a)/sizeof(a[0]))
 
 namespace pandora_hardware_interface
 {
 namespace leddar
 {
-  class LeddarSerialInterface : private boost::noncopyable
+  class LeddarUSBInterface : private boost::noncopyable
   {
     public:
-      LeddarSerialInterface(
+      LeddarUSBInterface(
         std::string device,
-        std::string port_number,
-        int address);
-      ~LeddarSerialInterface();      
+        std::string lAddress);
+      ~LeddarUSBInterface();      
       void init();
-      void read();
-      LtAcquisition* getLAcquisition()
-      {
-        return lAcquisition_;
-      }
+      void ping();
+      static unsigned char dataCallback(void* aHandle, unsigned int aLevels);
       
     private:
       std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
-      LtAcquisition *lAcquisition_;
+      std::string lAddress_;
+    public:
+      static LeddarHandle leddarHandle_;
+      static LdDetection* measurements_;
+      static int leddarDetectionCount_;
   };
-
 } // namespace leddar
 } // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H

@@ -35,40 +35,44 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
+#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <ros/ros.h>
-#include "Leddar.h"
+#include <hardware_interface/robot_hw.h>
+#include <controller_manager/controller_manager.h>
+#include "leddar_serial_interface/leddar_serial_interface.h"
+#include "leddar_hardware_interface/leddar_sensor_interface.h"
 
 namespace pandora_hardware_interface
 {
 namespace leddar
 {
-  class LeddarSerialInterface : private boost::noncopyable
+  class LeddarHardwareInterface : public hardware_interface::RobotHW
   {
     public:
-      LeddarSerialInterface(
-        std::string device,
-        std::string port_number,
-        int address);
-      ~LeddarSerialInterface();      
-      void init();
+      explicit LeddarHardwareInterface(ros::NodeHandle nodeHandle);
+      ~LeddarHardwareInterface();
       void read();
-      LtAcquisition* getLAcquisition()
-      {
-        return lAcquisition_;
-      }
-      
-    private:
-      std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
-      LtAcquisition *lAcquisition_;
-  };
 
+    private:
+      void registerLeddarSensorInterface();
+    
+    private:
+      ros::NodeHandle nodeHandle_;
+      LeddarSerialInterface leddarSerialInterface_;
+      LeddarSensorInterface leddarSensorInterface_;      
+      LeddarSensorHandle::Data leddarSensorData_;
+      LtAcquisition* lAcquisition_;
+
+      std::string name_;
+      std::string frameId_;
+      int* leddarDetectionCount_;
+      float* leddarDistances_;
+  };
 } // namespace leddar
 } // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+
+
+#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
+
