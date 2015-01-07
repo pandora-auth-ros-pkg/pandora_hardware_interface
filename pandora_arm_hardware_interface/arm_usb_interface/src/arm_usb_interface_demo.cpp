@@ -42,19 +42,23 @@ int main(int argc, char** argv)
 
   pandora_hardware_interface::arm::ArmUSBInterface arm;
 
-  uint8_t temperature[64];
-
   while (1)
   {
-    arm.grideyeValuesGet('C', temperature);
+    arm.sonarValuesGet('L');
 
-    arm.grideyeValuesGet('L', temperature);
-
-    arm.grideyeValuesGet('R', temperature);
+    arm.sonarValuesGet('R');
 
     arm.co2ValueGet();
 
+    arm.encoderValueGet();
+
+    arm.batteryValuesGet('M');
+
+    arm.batteryValuesGet('S');
+
     ros::Duration(0.1).sleep();
+
+    ROS_INFO("I just looped!\n");
   }
 
   return 0;

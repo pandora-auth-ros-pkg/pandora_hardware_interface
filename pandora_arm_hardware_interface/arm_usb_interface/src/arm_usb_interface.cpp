@@ -68,7 +68,7 @@ void ArmUSBInterface::openUSBPort()
 
     ros::Duration(0.5).sleep();
     timeout++;
-    if (timeout > 10)
+    if (timeout > 100)
       throw std::runtime_error("[Head]: cannot open usb port");
   }
 
@@ -99,6 +99,8 @@ void ArmUSBInterface::openUSBPort()
     ROS_ERROR("init_serialport: Couldn't set term attributes\n");
   }
 }
+
+//-----------------------THIS IS NEEDED ONLY FOR COMPILE----------------------------
 
 int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
                                       uint8_t * values)
@@ -155,9 +157,68 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
     {
       ss << static_cast<int>(values[i]) << " ";
     }
-    ROS_DEBUG("%s", ss.str().c_str());
+    ROS_INFO("%s", ss.str().c_str());
 
     return 1;
+  }
+}
+
+//-----------------THE CODE ABOVE IS NEEDED ONLY FOR COMPILE----------------------
+
+uint16_t ArmUSBInterface::sonarValuesGet(const char& sonarSelect)
+{
+  union
+  {
+    uint8_t sonarBufIN[SONAR_NBYTES];
+    uint16_t sonarBufIN_uint16_t;
+  };
+  
+  int nr;
+  uint8_t bufOUT;
+
+  switch (sonarSelect)
+  {
+    case 'L':
+      bufOUT = COMMAND_SONAR_LEFT;
+      break;
+    case 'R':
+      bufOUT = COMMAND_SONAR_RIGHT;
+      break;
+    default:
+      bufOUT = COMMAND_SONAR_LEFT;  //shouldn't get in there
+      break;
+  }
+
+  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                           // -> and data written but not transmitted
+  ROS_INFO("EFTASA PRIN TO WRITE");
+  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
+  ROS_INFO("EFTASA META TO WRITE");
+  if (nr != 1)
+  {
+    ROS_ERROR("[Head]: Write Error\n");
+    reconnectUSB();
+    return -1;
+  }
+  ROS_INFO("EFTASA PRIN TO READ");
+  nr = read(fd, sonarBufIN, SONAR_NBYTES);  // blocking
+  ROS_INFO("EFTASA META TO READ");
+  if (nr < 0)
+  {
+    ROS_ERROR("[Head]: Read Error\n");
+    reconnectUSB();
+    return -2;
+  }
+  else if (nr != SONAR_NBYTES)
+  {
+    ROS_ERROR("[Head]: Wrong number of bytes read\n");
+    reconnectUSB();
+    return -3;
+  }
+  else
+  {
+    ROS_INFO("[Head]: Sonar (%c) = %u\n", sonarSelect, sonarBufIN_uint16_t);
+    return sonarBufIN_uint16_t;
   }
 }
 
@@ -199,8 +260,107 @@ float ArmUSBInterface::co2ValueGet()
   }
   else
   {
-    ROS_DEBUG("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
+    ROS_INFO("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
     return CO2bufIN_float;
+  }
+}
+
+uint16_t ArmUSBInterface::encoderValueGet()
+{
+  union
+  {
+    uint8_t encoderBufIN[ENCODER_NBYTES];
+    uint16_t encoderBufIN_uint16_t;
+  };
+
+  int nr;
+  uint8_t bufOUT;
+
+  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                           // -> and data written but not transmitted
+
+  bufOUT = COMMAND_ENCODER;
+  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
+  if (nr != 1)
+  {
+    ROS_ERROR("[Head]: Write Error\n");
+    reconnectUSB();
+    return -1;
+  }
+
+  nr = read(fd, encoderBufIN, ENCODER_NBYTES);  // blocking
+  if (nr < 0)
+  {
+    ROS_ERROR("[Head]: Read Error\n");
+    reconnectUSB();
+    return -2;
+  }
+  else if (nr != ENCODER_NBYTES)
+  {
+    ROS_ERROR("[Head]: Wrong number of bytes read\n");
+    reconnectUSB();
+    return -3;
+  }
+  else
+  {
+    ROS_INFO("[Head]: Encoder Reading = %u\n", encoderBufIN_uint16_t);
+    return encoderBufIN_uint16_t;
+  }
+}
+
+uint16_t ArmUSBInterface::batteryValuesGet(const char& batterySelect)
+{
+  
+  union
+  {
+    uint8_t batteryBufIN[BATTERY_NBYTES];
+    uint16_t batteryBufIN_uint16_t;
+  };
+  
+  int nr;
+  uint8_t bufOUT;
+
+  switch (batterySelect)
+  {
+    case 'M':
+      bufOUT = COMMAND_BATTERY_MOTOR;
+      break;
+    case 'S':
+      bufOUT = COMMAND_BATTERY_SUPPLY;
+      break;
+    default:
+      bufOUT = COMMAND_BATTERY_MOTOR;  //shouldn't get in there
+      break;
+  }
+
+  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                           // -> and data written but not transmitted
+
+  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
+  if (nr != 1)
+  {
+    ROS_ERROR("[Head]: Write Error\n");
+    reconnectUSB();
+    return -1;
+  }
+
+  nr = read(fd, batteryBufIN, BATTERY_NBYTES);  // blocking
+  if (nr < 0)
+  {
+    ROS_ERROR("[Head]: Read Error\n");
+    reconnectUSB();
+    return -2;
+  }
+  else if (nr != BATTERY_NBYTES)
+  {
+    ROS_ERROR("[Head]: Wrong number of bytes read\n");
+    reconnectUSB();
+    return -3;
+  }
+  else
+  {
+    ROS_INFO("[Head]: Battery (%c) = %u\n", batterySelect, batteryBufIN_uint16_t);
+    return batteryBufIN_uint16_t;
   }
 }
 
