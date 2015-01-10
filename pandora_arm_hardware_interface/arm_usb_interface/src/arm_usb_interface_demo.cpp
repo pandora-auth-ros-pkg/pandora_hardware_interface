@@ -41,24 +41,29 @@ int main(int argc, char** argv)
   ros::Time::init();
 
   pandora_hardware_interface::arm::ArmUSBInterface arm;
+  
+  double voltage=0;
 
   while (1)
   {
-    arm.sonarValuesGet('L');
+    arm.sonarValuesRead('L');
 
-    arm.sonarValuesGet('R');
+    arm.sonarValuesRead('R');
 
     arm.co2ValueGet();
 
-    arm.encoderValueGet();
+    arm.encoderValueRead();
 
-    arm.batteryValuesGet('M');
+    voltage = arm.batteryValuesRead('M');
+    voltage = (voltage/4096.)*33;
+    ROS_INFO("MOTOR VOLTAGE = %f\n\r", voltage);
 
-    arm.batteryValuesGet('S');
+    voltage = arm.batteryValuesRead('S');
+    voltage = (voltage/4096.)*33;
+    ROS_INFO("SUPPLY VOLTAGE = %f\n\r",voltage); 
 
-    ros::Duration(0.1).sleep();
+    ros::Duration(0.5).sleep();
 
-    ROS_INFO("I just looped!\n");
   }
 
   return 0;

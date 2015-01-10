@@ -111,10 +111,12 @@ public:
    * @returns 1 for a successful read, -1 for write error, -2 for read error,
    *  -3 for incorrect number of bytes read
    */
-
+   
+//-------THIS CODE IS NEEDED ONLY FOR COMPILE----------------------------
   int grideyeValuesGet(const char& grideyeSelect, uint8_t * values);
+//--------------------------------------------------------------------------
 
-  uint16_t sonarValuesGet(const char& sonarSelect);
+  uint16_t sonarValuesRead(const char& sonarSelect);
 
   /**
    * @attention If the uController detects a malfunction in a sensor it returns
@@ -126,11 +128,11 @@ public:
    *  -1 for write error, -2 for read error,
    *  -3 for incorrect number of bytes read
    */
-  float co2ValueGet();
+  float co2ValueGet();     //Should be renamed to co2ValueRead();
 
-  uint16_t encoderValueGet();
+  uint16_t encoderValueRead();
 
-  uint16_t batteryValuesGet(const char& batterySelect);
+  uint16_t batteryValuesRead(const char& batterySelect);
 
 private:
   void reconnectUSB();

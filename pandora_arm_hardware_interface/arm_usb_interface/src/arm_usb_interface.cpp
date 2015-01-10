@@ -32,7 +32,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * Author: Orestis Zachariadis
+ * Author: Nikos Taras
  *********************************************************************/
 
 #include "arm_usb_interface/arm_usb_interface.h"
@@ -100,7 +100,7 @@ void ArmUSBInterface::openUSBPort()
   }
 }
 
-//-----------------------THIS IS NEEDED ONLY FOR COMPILE----------------------------
+//-----------------------THIS IS NEEDED ONLY FOR COMPILE-----------------------
 
 int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
                                       uint8_t * values)
@@ -163,9 +163,9 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
   }
 }
 
-//-----------------THE CODE ABOVE IS NEEDED ONLY FOR COMPILE----------------------
+//-----------------THE CODE ABOVE IS NEEDED ONLY FOR COMPILE-------------------
 
-uint16_t ArmUSBInterface::sonarValuesGet(const char& sonarSelect)
+uint16_t ArmUSBInterface::sonarValuesRead(const char& sonarSelect)
 {
   union
   {
@@ -191,18 +191,14 @@ uint16_t ArmUSBInterface::sonarValuesGet(const char& sonarSelect)
 
   tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
                            // -> and data written but not transmitted
-  ROS_INFO("EFTASA PRIN TO WRITE");
   nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  ROS_INFO("EFTASA META TO WRITE");
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
     reconnectUSB();
     return -1;
   }
-  ROS_INFO("EFTASA PRIN TO READ");
   nr = read(fd, sonarBufIN, SONAR_NBYTES);  // blocking
-  ROS_INFO("EFTASA META TO READ");
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
@@ -221,7 +217,7 @@ uint16_t ArmUSBInterface::sonarValuesGet(const char& sonarSelect)
     return sonarBufIN_uint16_t;
   }
 }
-
+//--------------------------------This function's name should be co2ValueRead()
 float ArmUSBInterface::co2ValueGet()
 {
   union
@@ -265,7 +261,7 @@ float ArmUSBInterface::co2ValueGet()
   }
 }
 
-uint16_t ArmUSBInterface::encoderValueGet()
+uint16_t ArmUSBInterface::encoderValueRead()
 {
   union
   {
@@ -308,7 +304,7 @@ uint16_t ArmUSBInterface::encoderValueGet()
   }
 }
 
-uint16_t ArmUSBInterface::batteryValuesGet(const char& batterySelect)
+uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
 {
   
   union
