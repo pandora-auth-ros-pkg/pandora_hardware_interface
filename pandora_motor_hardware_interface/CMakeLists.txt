@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   angles
   tf
   nav_msgs
+  message_generation
+  std_msgs
+  sensor_msgs
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
@@ -19,6 +22,18 @@ set(THIS_PACKAGE_INCLUDE_DIRS
     motor_hardware_interface/include
     orangutan_interface/include
     epos_interface/include
+)
+
+add_message_files(
+  DIRECTORY msg
+  FILES
+  MotorCurrents.msg
+  )
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  sensor_msgs
 )
 
 catkin_package(
@@ -34,6 +49,9 @@ catkin_package(
     angles
     tf
     nav_msgs
+    message_runtime
+    message_generation
+    std_msgs
   LIBRARIES
     skid_steer_drive_controller
 #  DEPENDS

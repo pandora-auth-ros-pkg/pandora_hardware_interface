@@ -43,6 +43,9 @@
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include "epos_handler/serial_epos_handler.h"
+#include <pandora_motor_hardware_interface/MotorCurrents.h>
+
+typedef pandora_motor_hardware_interface::MotorCurrents MotorCurrentsMsg;
 
 namespace pandora_hardware_interface
 {
@@ -52,8 +55,11 @@ namespace motor
   {
     private:
       AbstractEposHandler *motors_;
-
+     
       ros::NodeHandle nodeHandle_;
+      ros::Publisher currentPub_;
+  
+      MotorCurrentsMsg motorCurrentsMsg_;
 
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
@@ -62,6 +68,7 @@ namespace motor
       double position_[4];
       double velocity_[4];
       double effort_[4];
+      double current_[4];
       double maxRPM_;
       double gearboxRatio_;
 

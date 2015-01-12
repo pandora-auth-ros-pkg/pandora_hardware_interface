@@ -54,9 +54,17 @@ namespace motor
    public:
     AbstractEposHandler();
     virtual ~AbstractEposHandler();
-    virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
-      int* rightRearRpm, int* rightFrontRpm) = 0;
-    virtual Current getCurrent() = 0;
+    
+    virtual void getRPM(
+      int* leftRearRpm, int* leftFrontRpm,
+      int* rightRearRpm, int* rightFrontRpm
+      ) = 0;
+
+    virtual void getCurrent(
+      int* leftRearCurrent, int* leftFrontCurrent,
+      int* rightRearCurrent, int* rightFrontCurrent
+      ) = 0;
+
     virtual Error getError() = 0;
     virtual epos::CommandStatus writeRPM(const int& leftRpm, const int& rightRpm) = 0;
 

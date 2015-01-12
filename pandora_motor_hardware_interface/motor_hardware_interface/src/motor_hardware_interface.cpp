@@ -74,6 +74,25 @@ namespace motor
       velocityJointInterface_.registerHandle(jointVelocityHandle);
     }
     registerInterface(&velocityJointInterface_);
+
+    motorCurrentsMsg_.name.push_back(
+      "Axis0: Node 2, Right_Rear Wheel, EPOS communication controller"
+      );
+    motorCurrentsMsg_.current.push_back(0);
+    motorCurrentsMsg_.name.push_back(
+      "Axis1: Node 1, Right_Front Wheel, EPOS-P controller"
+      );
+    motorCurrentsMsg_.current.push_back(0);
+    motorCurrentsMsg_.name.push_back(
+      "Axis2: Node 3, Left_Rear Wheel, EPOS controller"
+      );
+    motorCurrentsMsg_.current.push_back(0);
+    motorCurrentsMsg_.name.push_back(
+      "Axis3: Node 4, Left_Front Wheel, EPOS controller."
+      );
+    motorCurrentsMsg_.current.push_back(0);
+    currentPub_ = nodeHandle_.advertise<MotorCurrentsMsg>(
+      "/motors/current", 1);
   }
 
   MotorHardwareInterface::~MotorHardwareInterface()
@@ -82,15 +101,33 @@ namespace motor
 
   void MotorHardwareInterface::read(const ros::Duration& period)
   {
-    int feedback[4];
-    motors_->getRPM(&feedback[2], &feedback[0], &feedback[3], &feedback[1]);
+    int velFeed[4];
+    int currFeed[4];
 
+    /*--<Read motors actual velocity value from EPOS controllers>--*/
+    motors_->getRPM(&velFeed[2], &velFeed[0], &velFeed[3], &velFeed[1]);
+    /*-------------------------------------------------------------*/
+
+    /*--<Read motors actual current value from EPOS controllers>---*/
+    motors_->getCurrent(&currFeed[0], &currFeed[1], &currFeed[2], 
+      &currFeed[3]); 
+    /*-------------------------------------------------------------*/
+
+    /*--<Update local velocity, current, and position values>--*/
     for (int ii = 0; ii < 4; ii++)
     {
-      velocity_[ii] = static_cast<double>(feedback[ii]) / gearboxRatio_
+      velocity_[ii] = static_cast<double>(velFeed[ii]) / gearboxRatio_
         / 30 * 3.14;
+      current_[ii] = static_cast<double>(velFeed[ii]);
+      motorCurrentsMsg_.current[ii] = current_[ii];
       position_[ii] = position_[ii] + period.toSec() * velocity_[ii];
     }
+    /*---------------------------------------------------------*/
+
+    /*--<Publish motors currents at the specific topic>--*/
+    motorCurrentsMsg_.header.stamp = ros::Time::now();
+    currentPub_.publish(motorCurrentsMsg_);
+    /*---------------------------------------------------*/
   }
 
   void MotorHardwareInterface::write()
