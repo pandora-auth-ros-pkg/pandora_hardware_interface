@@ -88,7 +88,7 @@ void SerialEposHandler::getCurrent(int* axis0, int* axis1,
   /* Read EPOS-P (Right-Front) current value stored in 
    *   comm_EPOS register 0x2030.
    *---------------------------------------------------*/
-  gatewayImpl_->readObject(2, 0x206B, 0, &out[0]);
+  gatewayImpl_->readObject(2, 0x2030, 0, &out[0]);
   axis1[0] = (int16_t)out[1];
   /*---------------------------------------------------*/
   

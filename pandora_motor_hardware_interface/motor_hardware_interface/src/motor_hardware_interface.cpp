@@ -45,7 +45,7 @@ namespace motor
   :
     nodeHandle_(nodeHandle)
   {
-    motors_ = new SerialEposHandler("/dev/ttyS1", 115200, 500);
+    motors_ = new SerialEposHandler("/dev/ttyUSB0", 115200, 500);
     readJointNameFromParamServer();
     nodeHandle_.getParam("max_RPM", maxRPM_);
     nodeHandle_.getParam("gearbox_ratio", gearboxRatio_);
@@ -118,7 +118,7 @@ namespace motor
     {
       velocity_[ii] = static_cast<double>(velFeed[ii]) / gearboxRatio_
         / 30 * 3.14;
-      current_[ii] = static_cast<double>(velFeed[ii]);
+      current_[ii] = static_cast<double>(currFeed[ii]);
       motorCurrentsMsg_.current[ii] = current_[ii];
       position_[ii] = position_[ii] + period.toSec() * velocity_[ii];
     }
