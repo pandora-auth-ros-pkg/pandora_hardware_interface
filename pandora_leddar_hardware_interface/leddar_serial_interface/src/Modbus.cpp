@@ -189,14 +189,13 @@ ModbusSend( LtByte aFunction, LtByte *aBuffer, LtByte aLength )
 ///          LT_ERROR Any Windows error while trying to read serial port.
 // *****************************************************************************
 
+#include "ros/ros.h"
 LtResult
 ModbusReceive( LtByte *aBuffer )
 {
     LtResult lRead;
     LtByte   lMessage[MODBUS_MAX_LEN];
-
     lRead = ReadFromSerialPort( gHandle, lMessage, sizeof(lMessage) );
-
     if ( lRead < 0 )
     {
         return LT_ERROR;

@@ -75,7 +75,7 @@ namespace leddar
       {
         exit(-1);  
       } 
-      ros::Duration(0.5).sleep();
+      ros::Duration(1.0).sleep();
     }
     
     ROS_INFO("[leddar] Connection established.");
@@ -84,9 +84,17 @@ namespace leddar
 
   void LeddarSerialInterface::read()
   {
+    int acquisition_attempts = 3;
     while(LeddarGetResults(lAcquisition_) != LT_SUCCESS && ros::ok())
     {
       ROS_ERROR("[leddar] Acquisition failed. Reattempting Acquisition...");
+      acquisition_attempts--;
+      if (acquisition_attempts == 0)
+      {
+        LeddarDisconnect();
+        init();
+      }
+      
     }
   }
   

@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include "leddar_serial_interface/OS.h"
-
+#include "ros/ros.h"
 #ifdef LT_WINDOWS
 #include <windows.h>
 #include <conio.h>
@@ -401,33 +401,33 @@ ReadFromSerialPort( LtHandle aHandle, LtByte *aData, int aMaxLength )
     // In theory we want an inter-character timeout of 2 character but
     // in practice setting a value too low is not reliable.
     lMicroseconds = lMicroseconds < 2000 ? 2000 : lMicroseconds;
+    ros::Time begin = ros::Time::now();
+    ros::Duration timeout(1.0);
     // Now read the data with a short inter-byte timeout.
     // We end either when we have received the number of bytes or
     // there is a too long interval between 2 bytes (indicating
     // the end of the message).
-    while( lRead < aMaxLength )
+    while( lRead < aMaxLength && ros::ok() && ros::Time::now()-begin < timeout)
     {
     	int lResult;
 
-        lTimeout.tv_sec = 0;
-        lTimeout.tv_usec = lMicroseconds;
+      lTimeout.tv_sec = 0;
+      lTimeout.tv_usec = lMicroseconds;
 
-        FD_ZERO( &lFds );
-        FD_SET( aHandle, &lFds );
+      FD_ZERO( &lFds );
+      FD_SET( aHandle, &lFds );
 
-        lResult = select( aHandle+1, &lFds, NULL, NULL, &lTimeout );
+      lResult = select( aHandle+1, &lFds, NULL, NULL, &lTimeout );
 
-        if ( lResult < 0 )
-        {
-        	return LT_ERROR;
-        }
-        else if ( lResult == 0 )
-        {
-        	return lRead;
-        }
-
+      if ( lResult < 0 )
+      {
+      	return LT_ERROR;
+      }
+      else if ( lResult == 0 )
+      {
+      	return lRead;
+      }
     	lResult = read( aHandle, aData+lRead, aMaxLength-lRead );
-
     	if ( lResult < 0 )
     	{
     		return LT_ERROR;
@@ -435,7 +435,6 @@ ReadFromSerialPort( LtHandle aHandle, LtByte *aData, int aMaxLength )
 
     	lRead += lResult;
     }
-
     return lRead;
 #endif
 }

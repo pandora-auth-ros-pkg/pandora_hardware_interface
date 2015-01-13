@@ -132,9 +132,7 @@ LeddarGetResults( LtAcquisition *aAcquisition )
     if ( lResult == LT_SUCCESS )
     {
         LtByte lBuffer[MODBUS_MAX_PAYLOAD];
-
         lResult = ModbusReceive( lBuffer );
-
         if ( lResult > 0 )
         {
             int i;
