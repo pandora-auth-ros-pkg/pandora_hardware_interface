@@ -69,6 +69,7 @@ namespace leddar
       std::string frameId_;
       int* leddarDetectionCount_;
       float* leddarDistances_;
+      float* leddarAmplitudes_;
   };
 } // namespace leddar
 } // namespace pandora_hardware_interface

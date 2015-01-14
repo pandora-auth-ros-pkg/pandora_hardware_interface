@@ -3,8 +3,7 @@ project(pandora_leddar_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  message_generation
-  message_runtime
+  sensor_msgs
   controller_manager
   controller_interface
   roslint
@@ -13,21 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
 
 set(THIS_PACKAGE_INCLUDE_DIRS
   leddar_serial_interface/include
-  leddar_usb_interface/include
+#  leddar_usb_interface/include
   leddar_hardware_interface/include
   leddar_controllers/include
   )
-
-add_message_files(
-  FILES
-    LeddarMsg.msg
-  )
   
-generate_messages(
-  DEPENDENCIES
-    std_msgs  
-  )
-
 catkin_package(
   INCLUDE_DIRS 
     ${THIS_PACKAGE_INCLUDE_DIRS}
@@ -35,8 +24,7 @@ catkin_package(
     leddar_sensor_controller
   CATKIN_DEPENDS
     roscpp
-    message_generation
-    message_runtime
+    sensor_msgs
     controller_manager
     controller_interface
     pluginlib
@@ -49,7 +37,7 @@ include_directories(
   )
 
 add_subdirectory(leddar_serial_interface)
-add_subdirectory(leddar_usb_interface)
+#add_subdirectory(leddar_usb_interface)
 add_subdirectory(leddar_hardware_interface)
 add_subdirectory(leddar_controllers)
 

@@ -56,6 +56,7 @@ namespace leddar
         std::string frameId;
         int* leddarDetectionCount;
         float* leddarDistances;
+        float* leddarAmplitudes; 
       };
       
       LeddarSensorHandle(const Data& data = Data())
@@ -63,7 +64,8 @@ namespace leddar
         name_(data.name),
         frameId_(data.frameId),
         leddarDetectionCount_(data.leddarDetectionCount),
-        leddarDistances_(data.leddarDistances)
+        leddarDistances_(data.leddarDistances),
+        leddarAmplitudes_(data.leddarAmplitudes)
       {
       }
       
@@ -83,12 +85,17 @@ namespace leddar
       {
         return leddarDistances_;
       }
+      inline const float* getLeddarAmplitudes() const
+      {
+        return leddarAmplitudes_;
+      }
     
     private:
       std::string name_;
       std::string frameId_;
       int* leddarDetectionCount_;
       float* leddarDistances_;
+      float* leddarAmplitudes_;
   };
   
   class LeddarSensorInterface :

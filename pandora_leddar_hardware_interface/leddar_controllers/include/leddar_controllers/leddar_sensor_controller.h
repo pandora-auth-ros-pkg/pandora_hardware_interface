@@ -40,12 +40,12 @@
 #include <controller_interface/controller.h>
 #include <leddar_hardware_interface/leddar_sensor_interface.h>
 #include <pluginlib/class_list_macros.h>
-#include <pandora_leddar_hardware_interface/LeddarMsg.h>
+#include <sensor_msgs/LaserScan.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 
 typedef boost::shared_ptr<realtime_tools::RealtimePublisher<
-  pandora_leddar_hardware_interface::LeddarMsg> > LeddarRealtimePublisher;
+  sensor_msgs::LaserScan> > LeddarRealtimePublisher;
 
 namespace pandora_hardware_interface
 {
@@ -54,12 +54,6 @@ namespace leddar
   class LeddarSensorController :
     public controller_interface::Controller<LeddarSensorInterface>
   {
-    private:
-      std::vector<LeddarSensorHandle> sensorHandles_;
-      std::vector<LeddarRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      double publishRate_;
-
     public:
       LeddarSensorController();
       ~LeddarSensorController();
@@ -70,6 +64,12 @@ namespace leddar
       virtual void starting(const ros::Time& time);
       virtual void update(const ros::Time& time, const ros::Duration& period);
       virtual void stopping(const ros::Time& time);
+      
+    private:
+      std::vector<LeddarSensorHandle> sensorHandles_;
+      std::vector<LeddarRealtimePublisher> realtimePublishers_;
+      std::vector<ros::Time> lastTimePublished_;
+      double publishRate_;
   };
 }  // namespace leddar
 }  // namespace pandora_hardware_interface

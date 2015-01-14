@@ -44,7 +44,7 @@ namespace leddar
   LeddarHardwareInterface::LeddarHardwareInterface(ros::NodeHandle nodeHandle)
   :
     nodeHandle_(nodeHandle),
-    leddarSerialInterface_( "leddar", "leddar", 1)
+    leddarSerialInterface_( "leddar", "ttyS0", 1)
   {
     // initialize serial communication
     leddarSerialInterface_.init();
@@ -65,6 +65,7 @@ namespace leddar
     for (int ii=0; ii<*leddarDetectionCount_; ii++)
     {
       leddarDistances_[ii] = lAcquisition->mDetections[ii].mDistance;
+      leddarAmplitudes_[ii] = lAcquisition->mDetections[ii].mAmplitude;
     }
   }
 
@@ -76,6 +77,7 @@ namespace leddar
     
     leddarDetectionCount_ = new int;
     leddarDistances_ = new float[LEDDAR_MAX_DETECTIONS];
+    leddarAmplitudes_ = new float[LEDDAR_MAX_DETECTIONS];
     
     ROS_ASSERT(
       leddarSensorList[0].getType() == XmlRpc::XmlRpcValue::TypeStruct);
@@ -97,7 +99,7 @@ namespace leddar
     data.frameId = frameId_;
     data.leddarDetectionCount =  leddarDetectionCount_;
     data.leddarDistances = leddarDistances_;
-    
+    data.leddarAmplitudes = leddarAmplitudes_;
     // create leddar sensor handle
     leddarSensorData_ = data;
     LeddarSensorHandle leddarSensorHandle( leddarSensorData_ );

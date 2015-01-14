@@ -65,9 +65,27 @@ namespace leddar
       // Create publisher for each controller
       LeddarRealtimePublisher publisher(
         new realtime_tools::RealtimePublisher<
-          pandora_leddar_hardware_interface::LeddarMsg>(
+          sensor_msgs::LaserScan>(
             rootNodeHandle, "/sensors/leddar", 4));
       realtimePublishers_.push_back(publisher);
+      // TODO set params of msg (angle_min, angle_max, angle_increment, 
+      // time_increment, scan_time, range_min, range_max) from yaml
+      
+      double temp_param;
+      controllerNodeHandle.getParam("angle_min", temp_param); 
+      realtimePublishers_[ii]->msg_.angle_min = (float)temp_param;
+      controllerNodeHandle.getParam("angle_max", temp_param);
+      realtimePublishers_[ii]->msg_.angle_max = (float)temp_param;
+      controllerNodeHandle.getParam("angle_increment", temp_param); 
+      realtimePublishers_[ii]->msg_.angle_increment = (float)temp_param;
+//    controllerNodeHandle.getParam("time_increment", temp_param); 
+//    &realtimePublishers_[ii]->msg_.time_increment = (float)temp_param;
+      controllerNodeHandle.getParam("scan_time", temp_param); 
+      realtimePublishers_[ii]->msg_.scan_time = (float)temp_param;                
+      controllerNodeHandle.getParam("range_min", temp_param);  
+      realtimePublishers_[ii]->msg_.range_min = (float)temp_param;        
+      controllerNodeHandle.getParam("range_max", temp_param);  
+      realtimePublishers_[ii]->msg_.range_max = (float)temp_param;
     }
 
     // resize last times published
@@ -101,15 +119,15 @@ namespace leddar
           realtimePublishers_[ii]->msg_.header.stamp = time;
           realtimePublishers_[ii]->msg_.header.frame_id =
             sensorHandles_[ii].getFrameId();
-          
-
           int count = *(sensorHandles_[ii].getLeddarDetectionCount());
-          realtimePublishers_[ii]->msg_.leddar_detection_count = count;
+          realtimePublishers_[ii]->msg_.ranges.clear();
+          realtimePublishers_[ii]->msg_.intensities.clear();
           
-          realtimePublishers_[ii]->msg_.leddar_distances.clear();
           for (int jj=0; jj<count; jj++){
-            realtimePublishers_[ii]->msg_.leddar_distances.push_back( 
+            realtimePublishers_[ii]->msg_.ranges.push_back( 
               *(sensorHandles_[ii].getLeddarDistances() + jj) );
+            realtimePublishers_[ii]->msg_.intensities.push_back(
+              *(sensorHandles_[ii].getLeddarAmplitudes() + jj) );
           }
           realtimePublishers_[ii]->unlockAndPublish();
         }

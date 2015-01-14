@@ -65,7 +65,7 @@ namespace leddar
     strcpy(pn, port_name_.c_str());
     
     ROS_INFO("[leddar] Attempting to establish serial communication...");
-    int connection_attempts = 3;
+    int connection_attempts = 5;
     while (LeddarConnect(pn, address_) != LT_SUCCESS)
     {
       connection_attempts--;
@@ -73,6 +73,7 @@ namespace leddar
         connection_attempts);
       if (connection_attempts == 0)
       {
+        ROS_FATAL("Failed to establish serial communication. Aborting...");
         exit(-1);  
       } 
       ros::Duration(1.0).sleep();
