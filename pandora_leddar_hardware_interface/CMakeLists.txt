@@ -44,19 +44,18 @@ add_subdirectory(leddar_controllers)
 # To check lint : catkin_make roslint_pandora_leddar_hardware_interface
 set(ROSLINT_CPP_OPTS
   "--filter=-build/include_what_you_use, -runtime/references")
-  FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
+
+FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
+  leddar_controllers/*.h
+  ledddar_controllers/*.cpp
+  leddar_hardware_interface/*.h
+  leddar_hardware_interface/*.cpp
   leddar_serial_interface/leddar_serial_interface.h
   leddar_serial_interface/leddar_serial_interface.cpp
   leddar_serial_interface/leddar_serial_interface_demo.cpp
-  #
-  leddar_hardware_interface/leddar_hardware_interface.h
-  leddar_hardware_interface/leddar_sensor_interface.h
-  leddar_hardware_interface/leddar_hardware_interface.cpp
-  leddar_hardware_interface/leddar_hardware_interface_node.cpp
-  #
-  leddar_controllers/leddar_sensor_controller.h
-  leddar_controllers/leddar_sensor_controller.cpp
+  leddar_usb_interface/leddar_usb_interface.h
+  leddar_usb_interface/*.cpp
   )
 
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

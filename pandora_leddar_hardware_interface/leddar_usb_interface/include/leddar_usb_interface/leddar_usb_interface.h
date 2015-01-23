@@ -35,16 +35,16 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H
+#ifndef LEDDAR_USB_INTERFACE_LEDDAR_USB_INTERFACE_H
+#define LEDDAR_USB_INTERFACE_LEDDAR_USB_INTERFACE_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ros/ros.h>
-#include "LeddarC.h"
-#include "LeddarProperties.h"
+#include "leddar_usb_interface/LeddarC.h"
+#include "leddar_usb_interface/LeddarProperties.h"
 
-#define ARRAY_LEN( a )  (sizeof(a)/sizeof(a[0]))
+#define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
 
 namespace pandora_hardware_interface
 {
@@ -56,11 +56,11 @@ namespace leddar
       LeddarUSBInterface(
         std::string device,
         std::string lAddress);
-      ~LeddarUSBInterface();      
+      ~LeddarUSBInterface();
       void init();
       void ping();
       static unsigned char dataCallback(void* aHandle, unsigned int aLevels);
-      
+
     private:
       std::string device_;
       std::string lAddress_;
@@ -69,6 +69,6 @@ namespace leddar
       static LdDetection* measurements_;
       static int leddarDetectionCount_;
   };
-} // namespace leddar
-} // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_USB_INTERFACE_H
+}  // namespace leddar
+}  // namespace pandora_hardware_interface
+#endif  // LEDDAR_USB_INTERFACE_LEDDAR_USB_INTERFACE_H

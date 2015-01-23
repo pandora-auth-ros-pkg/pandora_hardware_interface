@@ -35,8 +35,8 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
+#ifndef LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
+#define LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
 
 #include <ros/ros.h>
 #include <hardware_interface/robot_hw.h>
@@ -57,11 +57,11 @@ namespace leddar
 
     private:
       void registerLeddarSensorInterface();
-    
+
     private:
       ros::NodeHandle nodeHandle_;
       LeddarSerialInterface leddarSerialInterface_;
-      LeddarSensorInterface leddarSensorInterface_;      
+      LeddarSensorInterface leddarSensorInterface_;
       LeddarSensorHandle::Data leddarSensorData_;
       LtAcquisition* lAcquisition_;
 
@@ -71,9 +71,6 @@ namespace leddar
       float* leddarDistances_;
       float* leddarAmplitudes_;
   };
-} // namespace leddar
-} // namespace pandora_hardware_interface
-
-
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H
-
+}  // namespace leddar
+}  // namespace pandora_hardware_interface
+#endif  // LEDDAR_HARDWARE_INTERFACE_LEDDAR_HARDWARE_INTERFACE_H

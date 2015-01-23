@@ -35,13 +35,13 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
-#define PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#ifndef LEDDAR_SERIAL_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+#define LEDDAR_SERIAL_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ros/ros.h>
-#include "Leddar.h"
+#include "leddar_serial_interface/Leddar.h"
 
 namespace pandora_hardware_interface
 {
@@ -54,21 +54,20 @@ namespace leddar
         std::string device,
         std::string port_number,
         int address);
-      ~LeddarSerialInterface();      
+      ~LeddarSerialInterface();
       void init();
       void read();
       LtAcquisition* getLAcquisition()
       {
         return lAcquisition_;
       }
-      
+
     private:
       std::string device_;
-      std::string port_name_; // ttyUSB*
-      int address_; // 1-255
+      std::string port_name_;  // ttyUSB*
+      int address_;  // 1-255
       LtAcquisition *lAcquisition_;
   };
-
-} // namespace leddar
-} // namespace pandora_hardware_interface
-#endif // PANDORA_LEDDAR_HARDWARE_INTERFACE_LEDDAR_SERIAL_INTERFACE_H
+}  // namespace leddar
+}  // namespace pandora_hardware_interface
+#endif  // LEDDAR_SERIAL_INTERFACE_LEDDAR_SERIAL_INTERFACE_H

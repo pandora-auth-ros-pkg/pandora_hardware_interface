@@ -34,6 +34,7 @@
 *
 * Author: George Kouros
 *********************************************************************/
+
 #include "leddar_serial_interface/leddar_serial_interface.h"
 #include <iostream>
 
@@ -43,34 +44,33 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "leddar_demo");
   ros::NodeHandle nh;
-  
-  ROS_INFO("Leddar demo node launched");  
-  
+
+  ROS_INFO("Leddar demo node launched");
+
   std::ostringstream ss;
-  std::ostringstream sm;  
+  std::ostringstream sm;
   LtAcquisition* measurements;
-  
-  LeddarSerialInterface serial("leddar", "leddar", 1); 
-  serial.init();  
-  
+
+  LeddarSerialInterface serial("leddar", "leddar", 1);
+  serial.init();
+
   while (ros::ok())
   {
     serial.read();
     measurements = serial.getLAcquisition();
 
-    ROS_INFO("Number of Detections: %d", measurements->mDetectionCount);    
-    for (int ii=0; ii<measurements->mDetectionCount; ii++)
+    ROS_INFO("Number of Detections: %d", measurements->mDetectionCount);
+    for (int ii = 0; ii < measurements->mDetectionCount; ii++)
     {
-      ss<<" "<<measurements->mDetections[ii].mSegment;
-      sm<<" "<<measurements->mDetections[ii].mDistance;
+      ss << " " << measurements->mDetections[ii].mSegment;
+      sm << " " << measurements->mDetections[ii].mDistance;
     }
     ROS_INFO("#: %s", ss.str().c_str());
     ROS_INFO("D: %s", sm.str().c_str());
-    
-    
+
     ss.str(std::string());
     sm.str(std::string());
-    
+
     ros::Duration(0.5).sleep();
   }
   return 0;

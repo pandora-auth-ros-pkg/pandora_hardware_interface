@@ -49,12 +49,12 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "leddar_usb_demo");
   ros::NodeHandle nodeHandle;
-  
-  ROS_INFO("Leddar USB demo node launched");  
-  
-  LeddarUSBInterface leddarUSBInterface("leddar", "AF44010"); 
-  
-  leddarUSBInterface.init();  
+
+  ROS_INFO("Leddar USB demo node launched");
+
+  LeddarUSBInterface leddarUSBInterface("leddar", "AF44010");
+
+  leddarUSBInterface.init();
 
   ros::Duration(0.1).sleep();
 
@@ -62,19 +62,19 @@ int main(int argc, char** argv)
   ros::Publisher leddarPub = nodeHandle.advertise<
     pandora_leddar_hardware_interface::LeddarMsg>("leddar", 100);
   // create the msg to be published
-  pandora_leddar_hardware_interface::LeddarMsg msg; 
-  
+  pandora_leddar_hardware_interface::LeddarMsg msg;
+
   while (ros::ok())
   {
     // If a live connection is active we need to ping it periodically.
     leddarUSBInterface.ping();
-    
+
     // clear the msg
     msg.leddar_distances.clear();
     msg.leddar_detection_count = 16;
-    
+
     // fill the msg with the detections
-    for (int ii=0; ii<LeddarUSBInterface::leddarDetectionCount_; ii++)
+    for (int ii = 0; ii < LeddarUSBInterface::leddarDetectionCount_; ii++)
     {
       msg.leddar_distances.push_back(LeddarUSBInterface::measurements_[ii].mDistance);
     }
@@ -82,9 +82,9 @@ int main(int argc, char** argv)
     // publish the msg
     leddarPub.publish(msg);
 
-    //sleep for 0.5 seconds
+    // sleep for 0.5 seconds
     ros::Duration(0.5).sleep();
   }
-  
+
   return 0;
 }

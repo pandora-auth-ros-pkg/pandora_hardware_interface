@@ -64,7 +64,7 @@ namespace leddar
       virtual void starting(const ros::Time& time);
       virtual void update(const ros::Time& time, const ros::Duration& period);
       virtual void stopping(const ros::Time& time);
-      
+
     private:
       std::vector<LeddarSensorHandle> sensorHandles_;
       std::vector<LeddarRealtimePublisher> realtimePublishers_;

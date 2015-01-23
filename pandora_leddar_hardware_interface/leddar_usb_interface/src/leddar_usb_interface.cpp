@@ -43,33 +43,33 @@ namespace pandora_hardware_interface
 namespace leddar
 {
   LeddarUSBInterface::LeddarUSBInterface(
-    std::string device, 
+    std::string device,
     std::string address)
-  : 
+  :
     device_(device),
     lAddress_(address)
   {
     measurements_ = new LdDetection[50];
   }
-  
+
   LeddarUSBInterface::~LeddarUSBInterface()
   {
-    LeddarStopDataTransfer( leddarHandle_ );
-    LeddarRemoveCallback( leddarHandle_, dataCallback, leddarHandle_ );
+    LeddarStopDataTransfer(leddarHandle_);
+    LeddarRemoveCallback(leddarHandle_, dataCallback, leddarHandle_);
 
     LeddarDisconnect(leddarHandle_);
     LeddarDestroy(leddarHandle_);
   }
-  
+
   void LeddarUSBInterface::init()
   {
     leddarHandle_ = LeddarCreate();
-    
+
     if (LeddarConnect(leddarHandle_, lAddress_.c_str()) == LD_SUCCESS)
     {
       // Spawn a worker thread that continuously reads the sensor
-      int status = LeddarStartDataTransfer( leddarHandle_, LDDL_DETECTIONS ); 
-      if( status == LD_SUCCESS)
+      int status = LeddarStartDataTransfer(leddarHandle_, LDDL_DETECTIONS);
+      if (status == LD_SUCCESS)
       {
         // spawn a worker thread that activates for receiving the measurements
         status = LeddarAddCallback(leddarHandle_, dataCallback, leddarHandle_);
@@ -77,10 +77,10 @@ namespace leddar
       if (status != LD_SUCCESS)
       {
         LtChar lMessage[200];
-        LeddarGetErrorMessage( status, lMessage, ARRAY_LEN( lMessage ) );
-        ROS_FATAL( LTS( "LeddarC error (%d): %s\n" ), status, lMessage );
+        LeddarGetErrorMessage(status, lMessage, ARRAY_LEN(lMessage));
+        ROS_FATAL(LTS("LeddarC error (%d): %s\n"), status, lMessage);
         exit(-1);
-      }  
+      }
     }
     else
     {
@@ -88,10 +88,10 @@ namespace leddar
       exit(-1);
     }
   }
-  
+
   void LeddarUSBInterface::ping()
   {
-    if (!LeddarGetConnected(leddarHandle_) && 
+    if (!LeddarGetConnected(leddarHandle_) &&
       LeddarPing(leddarHandle_) != LD_SUCCESS)
     {
       ROS_ERROR("[leddar] Communication Error");
@@ -104,22 +104,22 @@ namespace leddar
   {
     LdDetection lDetections[50];
 
-    leddarDetectionCount_ = LeddarGetDetectionCount( aHandle );
+    leddarDetectionCount_ = LeddarGetDetectionCount(aHandle);
 
-    if ( leddarDetectionCount_ > ARRAY_LEN( lDetections ) )
+    if (leddarDetectionCount_ > ARRAY_LEN(lDetections))
     {
-      leddarDetectionCount_ = ARRAY_LEN( lDetections );
+      leddarDetectionCount_ = ARRAY_LEN(lDetections);
     }
 
-    LeddarGetDetections( aHandle, lDetections, ARRAY_LEN( lDetections ) );
-    
-    for(int ii=0; ii<leddarDetectionCount_; ii++)
+    LeddarGetDetections(aHandle, lDetections, ARRAY_LEN(lDetections));
+
+    for (int ii = 0; ii < leddarDetectionCount_; ii++)
     {
       measurements_[ii] = lDetections[ii];
     }
-    
-    return 1; // 1->gets called again, 0->gets called only once
+
+    return 1;  // 1->gets called again, 0->gets called only once
   }
-  
-} // namespace leddar
-} // namespace pandora_hardware_interface
+
+}  // namespace leddar
+}  // namespace pandora_hardware_interface

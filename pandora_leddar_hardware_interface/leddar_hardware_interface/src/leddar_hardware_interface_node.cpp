@@ -41,10 +41,10 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "leddar_hardware_interface_node");
   ros::NodeHandle nodeHandle;
-  
+
   pandora_hardware_interface::leddar::LeddarHardwareInterface
     leddarHardwareInterface(nodeHandle);
-  
+
   controller_manager::ControllerManager controllerManager(
     &leddarHardwareInterface, nodeHandle);
 

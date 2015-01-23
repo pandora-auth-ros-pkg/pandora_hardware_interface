@@ -44,25 +44,25 @@ namespace leddar
   LeddarHardwareInterface::LeddarHardwareInterface(ros::NodeHandle nodeHandle)
   :
     nodeHandle_(nodeHandle),
-    leddarSerialInterface_( "leddar", "ttyS0", 1)
+    leddarSerialInterface_("leddar", "ttyS0", 1)
   {
     // initialize serial communication
     leddarSerialInterface_.init();
     // connect and register leddar interface
     registerLeddarSensorInterface();
   }
-  
+
   LeddarHardwareInterface::~LeddarHardwareInterface()
   {
   }
-  
+
   void LeddarHardwareInterface::read()
   {
-    leddarSerialInterface_.read();  
+    leddarSerialInterface_.read();
     // get the measurements from the serial interface object
     LtAcquisition* lAcquisition = leddarSerialInterface_.getLAcquisition();
     *leddarDetectionCount_ = lAcquisition->mDetectionCount;
-    for (int ii=0; ii<*leddarDetectionCount_; ii++)
+    for (int ii = 0; ii < *leddarDetectionCount_; ii++)
     {
       leddarDistances_[ii] = lAcquisition->mDetections[ii].mDistance;
       leddarAmplitudes_[ii] = lAcquisition->mDetections[ii].mAmplitude;
@@ -73,27 +73,27 @@ namespace leddar
   {
     XmlRpc::XmlRpcValue leddarSensorList;
     nodeHandle_.getParam("leddar_sensor", leddarSensorList);
-    ROS_ASSERT( leddarSensorList.getType() == XmlRpc::XmlRpcValue::TypeArray );
-    
+    ROS_ASSERT(leddarSensorList.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
     leddarDetectionCount_ = new int;
     leddarDistances_ = new float[LEDDAR_MAX_DETECTIONS];
     leddarAmplitudes_ = new float[LEDDAR_MAX_DETECTIONS];
-    
+
     ROS_ASSERT(
       leddarSensorList[0].getType() == XmlRpc::XmlRpcValue::TypeStruct);
-     
+
     std::string key;
-    
+
     key = "name";
     ROS_ASSERT(
       leddarSensorList[0][key].getType() == XmlRpc::XmlRpcValue::TypeString);
-    name_ = static_cast<std::string>( leddarSensorList[0][key] );
-    
+    name_ = static_cast<std::string>(leddarSensorList[0][key]);
+
     key = "frame_id";
     ROS_ASSERT(
-      leddarSensorList[0][key].getType() == XmlRpc::XmlRpcValue::TypeString); 
-    frameId_ = static_cast<std::string>( leddarSensorList[0][key] );
-    
+      leddarSensorList[0][key].getType() == XmlRpc::XmlRpcValue::TypeString);
+    frameId_ = static_cast<std::string>(leddarSensorList[0][key]);
+
     LeddarSensorHandle::Data data;
     data.name = name_;
     data.frameId = frameId_;
@@ -102,11 +102,11 @@ namespace leddar
     data.leddarAmplitudes = leddarAmplitudes_;
     // create leddar sensor handle
     leddarSensorData_ = data;
-    LeddarSensorHandle leddarSensorHandle( leddarSensorData_ );
+    LeddarSensorHandle leddarSensorHandle(leddarSensorData_);
     // register the handle on the leddar sensor interface
-    leddarSensorInterface_.registerHandle( leddarSensorHandle );
+    leddarSensorInterface_.registerHandle(leddarSensorHandle);
     // register the leddar sensor interface
-    registerInterface( &leddarSensorInterface_ );
+    registerInterface(&leddarSensorInterface_);
   }
-} // namespace leddar
-} // namespace pandora_hardware_interface
+}  // namespace leddar
+}  // namespace pandora_hardware_interface
