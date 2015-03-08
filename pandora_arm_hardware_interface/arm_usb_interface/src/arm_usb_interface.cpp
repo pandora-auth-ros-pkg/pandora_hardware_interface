@@ -42,37 +42,37 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
-//  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
-//  fcntl(fd, F_SETFL, 0);  //make read() blocking
-
-ArmUSBInterface::ArmUSBInterface()
+ArmUsbInterface::ArmUsbInterface()
 {
-  openUSBPort();
+  openUsbPort();
 }
 
-ArmUSBInterface::~ArmUSBInterface()
+
+ArmUsbInterface::~ArmUsbInterface()
 {
   close(fd);
-  ROS_INFO("[Head]: usb port closed because of program termination\n");
+  ROS_INFO("[Head]: USB port closed because of program termination\n");
 }
 
-void ArmUSBInterface::openUSBPort()
+//  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
+//  fcntl(fd, F_SETFL, 0);  //make read() blocking
+void ArmUsbInterface::openUsbPort()
 {
   int timeout = 0;
   // To make read non-blocking use the following:
   // fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
   while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
   {
-    ROS_ERROR("[Head]: cannot open usb port\n");
+    ROS_ERROR("[Head]: cannot open USB port\n");
     ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
 
     ros::Duration(0.5).sleep();
     timeout++;
     if (timeout > 100)
-      throw std::runtime_error("[Head]: cannot open usb port");
+      throw std::runtime_error("[Head]: cannot open USB port");
   }
 
-  ROS_INFO("[Head]: usb port successfully opened\n");
+  ROS_INFO("[Head]: USB port successfully opened\n");
 
   /*Needs some time to initialize, even though it opens succesfully.
    tcflush() didn't work without waiting at least 8 ms*/
@@ -100,10 +100,9 @@ void ArmUSBInterface::openUSBPort()
   }
 }
 
-//-----------------------THIS IS NEEDED ONLY FOR COMPILE-----------------------
 
-int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
-                                      uint8_t * values)
+int ArmUsbInterface::readGrideyeValues(
+  const char& grideyeSelect, uint8_t * values)
 {
   int nr;
   uint8_t bufOUT;
@@ -120,6 +119,8 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
       bufOUT = COMMAND_GEYE_RIGHT;
       break;
     default:
+      ROS_ERROR(
+        "Undefined Grideye Selection! Left Grideye selected by  default.");
       bufOUT = COMMAND_GEYE_CENTER;
       break;
   }
@@ -131,7 +132,7 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -1;
   }
 
@@ -139,18 +140,18 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -2;
   }
   else if (nr != GEYE_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUSB();
+    reconnectUsb();
     return -3;
   }
   else
   {
-    std::stringstream ss;  // TODO(orestis): slow ?
+    std::stringstream ss;
 
     ss << "[Head]: " << grideyeSelect << " GridEYE = ";
     for (int i = 0; i < GEYE_NBYTES; ++i)
@@ -163,16 +164,15 @@ int ArmUSBInterface::grideyeValuesGet(const char& grideyeSelect,
   }
 }
 
-//-----------------THE CODE ABOVE IS NEEDED ONLY FOR COMPILE-------------------
 
-uint16_t ArmUSBInterface::sonarValuesRead(const char& sonarSelect)
+uint16_t ArmUsbInterface::readSonarValues(const char& sonarSelect)
 {
   union
   {
     uint8_t sonarBufIN[SONAR_NBYTES];
     uint16_t sonarBufIN_uint16_t;
   };
-  
+
   int nr;
   uint8_t bufOUT;
 
@@ -185,7 +185,8 @@ uint16_t ArmUSBInterface::sonarValuesRead(const char& sonarSelect)
       bufOUT = COMMAND_SONAR_RIGHT;
       break;
     default:
-      bufOUT = COMMAND_SONAR_LEFT;  //shouldn't get in there
+      bufOUT = COMMAND_SONAR_LEFT;
+      ROS_ERROR("Undefined Sonar Selection! Left Sonar selected by default.");
       break;
   }
 
@@ -195,20 +196,20 @@ uint16_t ArmUSBInterface::sonarValuesRead(const char& sonarSelect)
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -1;
   }
   nr = read(fd, sonarBufIN, SONAR_NBYTES);  // blocking
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -2;
   }
   else if (nr != SONAR_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUSB();
+    reconnectUsb();
     return -3;
   }
   else
@@ -217,8 +218,9 @@ uint16_t ArmUSBInterface::sonarValuesRead(const char& sonarSelect)
     return sonarBufIN_uint16_t;
   }
 }
-//--------------------------------This function's name should be co2ValueRead()
-float ArmUSBInterface::co2ValueGet()
+
+
+float ArmUsbInterface::readCo2Value()
 {
   union
   {
@@ -237,7 +239,7 @@ float ArmUSBInterface::co2ValueGet()
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -1;
   }
 
@@ -245,13 +247,13 @@ float ArmUSBInterface::co2ValueGet()
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -2;
   }
   else if (nr != CO2_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUSB();
+    reconnectUsb();
     return -3;
   }
   else
@@ -261,7 +263,7 @@ float ArmUSBInterface::co2ValueGet()
   }
 }
 
-uint16_t ArmUSBInterface::encoderValueRead()
+uint16_t ArmUsbInterface::readEncoderValue()
 {
   union
   {
@@ -280,7 +282,7 @@ uint16_t ArmUSBInterface::encoderValueRead()
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -1;
   }
 
@@ -288,13 +290,13 @@ uint16_t ArmUSBInterface::encoderValueRead()
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -2;
   }
   else if (nr != ENCODER_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUSB();
+    reconnectUsb();
     return -3;
   }
   else
@@ -304,15 +306,14 @@ uint16_t ArmUSBInterface::encoderValueRead()
   }
 }
 
-uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
+uint16_t ArmUsbInterface::readBatteryValues(const char& batterySelect)
 {
-  
   union
   {
     uint8_t batteryBufIN[BATTERY_NBYTES];
     uint16_t batteryBufIN_uint16_t;
   };
-  
+
   int nr;
   uint8_t bufOUT;
 
@@ -325,7 +326,9 @@ uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
       bufOUT = COMMAND_BATTERY_SUPPLY;
       break;
     default:
-      bufOUT = COMMAND_BATTERY_MOTOR;  //shouldn't get in there
+      ROS_ERROR(
+        "Undefined Battery selection. Motor battery selected by default");
+      bufOUT = COMMAND_BATTERY_MOTOR;  // shouldn't get in there
       break;
   }
 
@@ -336,7 +339,7 @@ uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
   if (nr != 1)
   {
     ROS_ERROR("[Head]: Write Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -1;
   }
 
@@ -344,13 +347,13 @@ uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
   if (nr < 0)
   {
     ROS_ERROR("[Head]: Read Error\n");
-    reconnectUSB();
+    reconnectUsb();
     return -2;
   }
   else if (nr != BATTERY_NBYTES)
   {
     ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUSB();
+    reconnectUsb();
     return -3;
   }
   else
@@ -360,16 +363,16 @@ uint16_t ArmUSBInterface::batteryValuesRead(const char& batterySelect)
   }
 }
 
-void ArmUSBInterface::reconnectUSB()
+void ArmUsbInterface::reconnectUsb()
 {
-  // reconnectUSB() should be called until communication is restored.
+  // reconnectUsb() should be called until communication is restored.
   close(fd);
-  ROS_INFO("[Head]: usb port closed\n");
+  ROS_INFO("[Head]: USB port closed\n");
   ros::Duration(1.5).sleep();
 
-  openUSBPort();
+  openUsbPort();
 
-  ROS_INFO("[Head]: usb port reconnected successfully");
+  ROS_INFO("[Head]: USB port reconnected successfully");
 }
 
 }  // namespace arm

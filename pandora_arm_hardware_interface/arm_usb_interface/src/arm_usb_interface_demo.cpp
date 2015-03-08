@@ -40,32 +40,41 @@ int main(int argc, char** argv)
 {
   ros::Time::init();
 
-  pandora_hardware_interface::arm::ArmUSBInterface arm;
-  
-  double voltage=0;
+  pandora_hardware_interface::arm::ArmUsbInterface arm;
+
+  double voltage = 0;
 
   while (1)
   {
-    arm.sonarValuesRead('L');
+    ROS_INFO("Left Sonar measurement: %d", arm.readSonarValues('L'));
+    ROS_INFO("Riht Sonar measurement: %d", arm.readSonarValues('R'));
+    ROS_INFO("CO2 measurement: %f", arm.readCo2Value());
+    ROS_INFO("Encoder measurement: %d", arm.readEncoderValue());
 
-    arm.sonarValuesRead('R');
+    uint8_t temperature[64];
 
-    arm.co2ValueGet();
+    arm.readGrideyeValues('C', temperature);
+    for (int ii = 0; ii < 64; ii++)
+    {
+      if (temperature[ii] < 0 || temperature[ii] > 255)
+      {
+        ROS_INFO("GridEye values were not read correctly.");
+        break;
+      }
+      else if (ii=63)
+        ROS_INFO("GridEye values were read correctly.");
+    }
 
-    arm.encoderValueRead();
-
-    voltage = arm.batteryValuesRead('M');
+    voltage = arm.readBatteryValues('M');
     voltage = (voltage/4096.)*33;
-    ROS_INFO("MOTOR VOLTAGE = %f\n\r", voltage);
+    ROS_INFO("Motor Voltage measurement: %f", voltage);
 
-    voltage = arm.batteryValuesRead('S');
+    voltage = arm.readBatteryValues('S');
     voltage = (voltage/4096.)*33;
-    ROS_INFO("SUPPLY VOLTAGE = %f\n\r",voltage); 
+    ROS_INFO("Supply Voltage measurement %f", voltage);
 
     ros::Duration(0.5).sleep();
-
   }
-
   return 0;
 }
 

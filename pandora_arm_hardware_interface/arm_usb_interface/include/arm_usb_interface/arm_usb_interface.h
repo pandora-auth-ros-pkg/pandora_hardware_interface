@@ -32,6 +32,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
+ * Author: George Kouros
+ * Author: Nikos Taras
  * Author: Orestis Zachariadis
  *********************************************************************/
 
@@ -67,16 +69,6 @@ namespace arm
 #define COMMAND_BATTERY_MOTOR 5
 /**Command to send if you want supply battery data*/
 #define COMMAND_BATTERY_SUPPLY 6
-
-#define CO2_NBYTES 4         ///< Number of bytes of incoming CO2 data
-#define SONAR_NBYTES 2       ///< Number of bytes of incoming Sonar data
-#define ENCODER_NBYTES 2     ///< Number of bytes of incoming Encoder data
-#define BATTERY_NBYTES 2     ///< Number of bytes of incoming Battery data
-
-#define COMMAND_NBYTES 1     ///< Number of bytes of outgoing command
-
-//-----------------THE CODE BELOW IS USED ONLY FOR COMPILE--------------------
-
 /**Command to send if you want center grideye's data*/
 #define COMMAND_GEYE_CENTER 7
 /**Command to send if you want left grideye's data*/
@@ -84,22 +76,40 @@ namespace arm
 /**Command to send if you want right grideye's data*/
 #define COMMAND_GEYE_RIGHT 9
 
+
+#define CO2_NBYTES 4         ///< Number of bytes of incoming CO2 data
+#define SONAR_NBYTES 2       ///< Number of bytes of incoming Sonar data
+#define ENCODER_NBYTES 2     ///< Number of bytes of incoming Encoder data
+#define BATTERY_NBYTES 2     ///< Number of bytes of incoming Battery data
+#define COMMAND_NBYTES 1     ///< Number of bytes of outgoing command
 #define GEYE_NBYTES 64       ///< Number of bytes of incoming GridEYE data
 
 
-
-//-----------------THE CODE ABOVE IS USED ONLY FOR COMPILE-------------------
-
-class ArmUSBInterface : private boost::noncopyable
+/**
+ * @class ArmUSBInterface
+ * @brief Communicates with an arm uC board to get sensor measurements
+**/
+class ArmUsbInterface : private boost::noncopyable
 {
-public:
-  ArmUSBInterface();
-
-  ~ArmUSBInterface();
-
-  void openUSBPort();
+ public:
+  /**
+   * @brief Default constructor
+  **/
+  ArmUsbInterface();
 
   /**
+   * @brief Default Destructor
+   * @details Closes USB port
+  **/ 
+  ~ArmUsbInterface();
+
+  /**
+   * @brief Opens USB port  
+  **/
+  void openUsbPort();
+
+  /**
+   * @brief Reads 8x8 thermal image of the selected grideye
    * @attention If the uController detects a malfunction in a sensor it returns
    * zeros in place of its readings.
    * @note Although the uController can return the most recent reading whenever
@@ -108,15 +118,25 @@ public:
    * @param[in] grideyeSelect 'C' for Center GridEYE, 'L' for left,
    *  'R' for right
    * @param[in,out] values pointer to an uint8[64] array
-   * @returns 1 for a successful read, -1 for write error, -2 for read error,
-   *  -3 for incorrect number of bytes read
-   */
-   
-//-------THIS CODE IS NEEDED ONLY FOR COMPILE----------------------------
-  int grideyeValuesGet(const char& grideyeSelect, uint8_t * values);
-//--------------------------------------------------------------------------
+   * @returns int : 1 for a successful read, -1 for write error, -2 for read 
+   * error,-3 for incorrect number of bytes read
+  **/
+  int readGrideyeValues(const char& grideyeSelect, uint8_t * values);
 
-  uint16_t sonarValuesRead(const char& sonarSelect);
+  /**
+   * @brief Reads a distance measurement from the selected sonar sensor
+   * @param sonarSelect [const char&] : used to select which sensor
+   * measurement to read
+   * @returns uint16_t : 1 for a successful read, -1 for write error, -2 for
+   * read error,
+   * -3 for incorrect number of bytes read
+   * @attention If the uController detects a malfunction in a sensor it returns
+   * zeros in place of its readings.
+   * @note Although the uController can return the most recent reading whenever
+   * it is asked, there is no point asking for data much more frequently than
+   * two times the sensor speed. This sensor's frequency is 10 Hz.
+  **/
+  uint16_t readSonarValues(const char& sonarSelect);
 
   /**
    * @attention If the uController detects a malfunction in a sensor it returns
@@ -124,18 +144,46 @@ public:
    * @note Although the uController can return the most recent reading whenever
    * it is asked, there is no point asking for data much more frequently than
    * two times the sensor speed. This sensor's frequency is 2 Hz.
-   * @returns Gas reading in percent volume if read was successful,
+   * @returns float : Gas reading in percent volume if read was successful,
    *  -1 for write error, -2 for read error,
    *  -3 for incorrect number of bytes read
-   */
-  float co2ValueGet();     //Should be renamed to co2ValueRead();
+  **/
+  float readCo2Value();
 
-  uint16_t encoderValueRead();
+  /**
+   * @brief Reads a measurement from the encoder
+   * @returns uint16_t an encoder reading if read was successful,
+   * -1 for write error, -2 for read error,
+   * -3 for incorrect number of bytes read
+   * @attention If the uController detects a malfunction in a sensor it returns
+   * zeros in place of its readings.
+   * @note Although the uController can return the most recent reading whenever
+   * it is asked there is no point asking for data much more frequently than
+   * two times the sensor speed.
+  **/
+  uint16_t readEncoderValue();
 
-  uint16_t batteryValuesRead(const char& batterySelect);
+  /**
+   * @brief Reads a voltage measurement from the selected battery
+   * @param batterySelect [const char&] : used to select which battery's
+   * voltage to read
+   * @returns uint16_t a battery voltage reading if read was successful,
+   * -1 for write error, -2 for read error,
+   * -3 for incorrect number of bytes read
+   * @note Although the uController can return the most recent reading whenever
+   * it is asked there is no point asking for data much more frequently than
+   * two times the sensor speed.
+  **/
+  uint16_t readBatteryValues(const char& batterySelect);
 
-private:
-  void reconnectUSB();
+ private:
+  /**
+   * @brief Attempts to reconnect to the USB port in case of a disconnection
+   * @details inserts a 1.5 sec delay between the closing of the connection to
+   * the usb port and then attempts to reopen it.
+   * @return void
+  **/
+  void reconnectUsb();
   int fd;  ///< File Descriptor
 };
 
