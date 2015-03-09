@@ -48,9 +48,8 @@ catkin_package(
     urdf
     angles
     tf
-    nav_msgs
     message_runtime
-    message_generation
+    nav_msgs
     std_msgs
   LIBRARIES
     skid_steer_drive_controller
