@@ -12,11 +12,12 @@
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
   
   <author>Evangelos Apostolidis</author>
-
+  
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>roslint</build_depend>
+
   <depend>roscpp</depend>
-  <depend>roslint</depend>
   <depend>sensor_msgs</depend>
   <depend>dynamixel_msgs</depend>
   <depend>dynamixel_controllers</depend>

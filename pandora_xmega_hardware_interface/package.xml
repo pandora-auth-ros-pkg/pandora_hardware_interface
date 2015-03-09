@@ -10,14 +10,17 @@
 
   <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
-  
-  <author>Evangelos Apostolidis</author>
 
+  <author>Chris Zalidis</author>  
+  <author>Evangelos Apostolidis</author>
+  <author>Konstantinos Panayiotou</author>
+  
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslint</build_depend>
 
   <depend>message_generation</depend>
   <depend>roscpp</depend>
-  <depend>roslint</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
   <depend>serial</depend>

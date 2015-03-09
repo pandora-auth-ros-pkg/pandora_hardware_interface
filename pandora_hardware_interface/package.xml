@@ -12,7 +12,8 @@
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
   
   <author>Evangelos Apostolidis</author>
-
+  <author>Chris Zalidis</author>
+  
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>pandora_dynamixel_hardware_interface</exec_depend>

@@ -12,14 +12,17 @@
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>  
 
   <author>Chris Zalidis</author>
+  <author>Evangelos Apostolidis</author>
+  <author>George Kouros</author>
+  <author>Nikos Taras</author>
+  <author>Orestis Zachariadis</author>
 
+  
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
-    
+  <build_depend>roslint</build_depend>
+
   <depend>roscpp</depend>
-  <depend>roslint</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
   <depend>sensor_msgs</depend>
