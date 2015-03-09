@@ -55,10 +55,10 @@ namespace motor
   {
     private:
       AbstractEposHandler *motors_;
-     
+
       ros::NodeHandle nodeHandle_;
       ros::Publisher currentPub_;
-  
+
       MotorCurrentsMsg motorCurrentsMsg_;
 
       hardware_interface::JointStateInterface jointStateInterface_;

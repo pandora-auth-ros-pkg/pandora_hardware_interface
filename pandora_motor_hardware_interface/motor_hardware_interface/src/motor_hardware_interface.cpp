@@ -76,23 +76,18 @@ namespace motor
     registerInterface(&velocityJointInterface_);
 
     motorCurrentsMsg_.name.push_back(
-      "Axis0: Node 2, Right_Rear Wheel, EPOS communication controller"
-      );
+      "Axis0: Node 2, Right_Rear Wheel, EPOS communication controller");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis1: Node 1, Right_Front Wheel, EPOS-P controller"
-      );
+      "Axis1: Node 1, Right_Front Wheel, EPOS-P controller");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis2: Node 3, Left_Rear Wheel, EPOS controller"
-      );
+      "Axis2: Node 3, Left_Rear Wheel, EPOS controller");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis3: Node 4, Left_Front Wheel, EPOS controller."
-      );
+      "Axis3: Node 4, Left_Front Wheel, EPOS controller.");
     motorCurrentsMsg_.current.push_back(0);
-    currentPub_ = nodeHandle_.advertise<MotorCurrentsMsg>(
-      "/motors/current", 1);
+    currentPub_ = nodeHandle_.advertise<MotorCurrentsMsg>("/motors/current", 1);
   }
 
   MotorHardwareInterface::~MotorHardwareInterface()
@@ -109,8 +104,8 @@ namespace motor
     /*-------------------------------------------------------------*/
 
     /*--<Read motors actual current value from EPOS controllers>---*/
-    motors_->getCurrent(&currFeed[0], &currFeed[1], &currFeed[2], 
-      &currFeed[3]); 
+    motors_->getCurrent(&currFeed[0], &currFeed[1], &currFeed[2],
+      &currFeed[3]);
     /*-------------------------------------------------------------*/
 
     /*--<Update local velocity, current, and position values>--*/

@@ -31,16 +31,14 @@ namespace motor
     public:
       SerialEposHandler(const std::string& dev, const int& bauds, const int& time);
       virtual ~SerialEposHandler();
-      
+
       virtual void getRPM(
         int* leftRearRpm, int* leftFrontRpm,
-        int* rightRearRpm, int* rightFrontRpm
-        );
+        int* rightRearRpm, int* rightFrontRpm);
 
       virtual void getCurrent(
-        int* axis0, int* axis1, 
-        int* axis2, int* axis3
-        );
+        int* axis0, int* axis1,
+        int* axis2, int* axis3);
 
       virtual Error getError();
       virtual epos::CommandStatus writeRPM(const int& leftRpm, const int& rightRpm);

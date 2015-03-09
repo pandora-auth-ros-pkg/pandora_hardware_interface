@@ -38,7 +38,7 @@ void SerialEposHandler::getRPM(int* leftRearRpm, int* leftFrontRpm,
   int* rightRearRpm, int* rightFrontRpm)
 {
   epos::Word out[2];
-  
+
   /* Read EPOS-P velocity value stored in 
    *   comm_EPOS register 0x206B
    *-------------------------------------------------*/
@@ -46,19 +46,19 @@ void SerialEposHandler::getRPM(int* leftRearRpm, int* leftFrontRpm,
   if (out[1] > 10000)
   {
     /*--<Fix ST for values above 2^31>--*/
-    *rightFrontRpm = (int32_t)(20000-out[1]); 
+    *rightFrontRpm = (int32_t)(20000-out[1]);
   }
   else
   {
     //Minus because of motor reverse direction torsion
     *rightFrontRpm = -(int32_t)out[1];
-  } 
+  }
   /*-------------------------------------------------*/
 
   /*-----<Read Right-Rear Motor velocity>-----*/
   gatewayImpl_->readObject(2, 0x2028, 0, &out[0]);
   //Minus because of motor reverse direction torsion
-  *rightRearRpm = -(int16_t)out[1]; 
+  *rightRearRpm = -(int16_t)out[1];
   /*------------------------------------------*/
 
   /*-----<Read Left-Front Motor velocity>-----*/
@@ -91,7 +91,7 @@ void SerialEposHandler::getCurrent(int* axis0, int* axis1,
   gatewayImpl_->readObject(2, 0x2030, 0, &out[0]);
   axis1[0] = (int16_t)out[1];
   /*---------------------------------------------------*/
-  
+
   /*-----<Read Right-Rear Motor current>-----*/
   gatewayImpl_->readObject(2, 0x2027, 0, &out[0]);
   *axis0 = (int16_t)out[1];
