@@ -113,10 +113,10 @@ Error SerialEposHandler::getError()
   epos::Word out[2];
   Error error;
   gatewayImpl_->readObject(2, 0x1003, 1, &out[0]);
-  error.left = (int32_t)out[1];
+  error.leftRear = (int32_t)out[1];
 
   gatewayImpl_->readObject(2, 0x2081, 0, &out[0]);
-  error.right = (int32_t)out[1];
+  error.rightRear = (int32_t)out[1];
 
   return error;
 }
@@ -124,8 +124,8 @@ Error SerialEposHandler::getError()
 
 
 
-epos::CommandStatus SerialEposHandler::writeRPM(
-  const int& leftRpm, const int& rightRpm)
+unsigned short  SerialEposHandler::writeRPM(
+  const int leftRpm, const int rightRpm)
 {
   ROS_DEBUG("setting speed %d, %d", leftRpm, rightRpm);
   //Right motor rpm speed needs to be reversed because of its placement in the vehicle

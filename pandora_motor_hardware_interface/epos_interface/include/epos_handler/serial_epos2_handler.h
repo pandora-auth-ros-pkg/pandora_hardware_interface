@@ -17,43 +17,46 @@
 *   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  *
 *   MA 02110-1301, USA.                                                   *
 ***************************************************************************/
+#ifndef EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H
+#define EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H
+
 #include "epos_handler/abstract_epos_handler.h"
+#include "epos_handler/epos2_definitions.h"
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
+  struct comInterface
+  {
+    char* deviceName;
+    char* protocolStackName;
+    char* interfaceName;
+    char* portName;
+    void* comHandler;
+    unsigned int baudrate;
+    unsigned int timeout;
+  };
 
-Error::Error()
-{
-}
-Error::~Error()
-{
-}
+  class SerialEpos2Handler: public AbstractEposHandler
+  {
+    public:
+      SerialEpos2Handler( const std::string port, const unsigned int baudrate, const unsigned int timeout );
+      unsigned int openDevice();
+      virtual ~SerialEpos2Handler();
+      virtual void getRPM( int* leftRearRpm, int* leftFrontRpm,
+        int* rightRearRpm, int* rightFrontRpm );
+      virtual void getCurrent( int* leftRearCurrent, int* leftFrontRpm,
+        int* rightRearCurrent, int* rightFrontCurrent );
+      virtual Error getError();
+      virtual unsigned short writeRPM( const int leftRpm, const int rightRpm );
 
-AbstractEposHandler::AbstractEposHandler() : gatewayImpl_(NULL)
-{
-}
+    private:
+      comInterface com_;
 
-uint32_t AbstractEposHandler::encodeToControlWord(
-  const int& left, const int& right)
-{
-  int signLeft = left < 0 ? 1 : 0;
-  int signRight = right < 0 ? 1 : 0;
-
-  int leftSpeedAbsolute = std::abs(left);
-  int rightSpeedAbsolute = std::abs(right);
-
-  uint32_t controlWord = 0;
-
-  controlWord = (1 << 31) | (signRight << 30) | (rightSpeedAbsolute << 16) |
-    (signLeft << 14) | (leftSpeedAbsolute);
-  return controlWord;
-}
-
-AbstractEposHandler::~AbstractEposHandler()
-{
-}
-
+      
+  };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
+
+#endif  // EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H

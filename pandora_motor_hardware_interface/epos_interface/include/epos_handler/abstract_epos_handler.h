@@ -32,21 +32,13 @@ namespace motor
   class Error
   {
    public:
-    uint32_t left;
-    uint32_t right;
-    Error(const uint32_t left, const uint32_t right);
+    uint32_t leftRear;
+    uint32_t rightRear;
+    uint32_t leftFront;
+    uint32_t rightFront;
+
     Error();
     ~Error();
-  };
-
-  class Current
-  {
-   public:
-    uint32_t left;
-    uint32_t right;
-    Current(const uint32_t left, const uint32_t right);
-    Current();
-    ~Current();
   };
 
   class AbstractEposHandler
@@ -64,7 +56,7 @@ namespace motor
       int* rightRearCurrent, int* rightFrontCurrent) = 0;
 
     virtual Error getError() = 0;
-    virtual epos::CommandStatus writeRPM(const int& leftRpm, const int& rightRpm) = 0;
+    virtual unsigned short  writeRPM(const int leftRpm, const int rightRpm) = 0;
 
    protected:
     uint32_t encodeToControlWord(const int& left, const int& right);

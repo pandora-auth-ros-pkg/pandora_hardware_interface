@@ -17,43 +17,54 @@
 *   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  *
 *   MA 02110-1301, USA.                                                   *
 ***************************************************************************/
-#include "epos_handler/abstract_epos_handler.h"
+#include "epos_handler/serial_epos2_handler.h"
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
 
-Error::Error()
-{
-}
-Error::~Error()
-{
-}
+  SerialEpos2Handler::SerialEpos2Handler( const std::string port, const unsigned int baudrate, const unsigned int timeout )
+  {
+    com_.deviceName = "EPOS2";
+    com_.protocolStackName = "MAXON_RS232";
+    com_.interfaceName = "RS232";
+    strcpy( com_.portName, port.c_str() );
+    //com_.portName = port.c_str();
+    com_.baudrate = baudrate;
+    com_.timeout = timeout;
+    openDevice();
+  }
 
-AbstractEposHandler::AbstractEposHandler() : gatewayImpl_(NULL)
-{
-}
+  SerialEpos2Handler::~SerialEpos2Handler()
+  {
+  
+  }
 
-uint32_t AbstractEposHandler::encodeToControlWord(
-  const int& left, const int& right)
-{
-  int signLeft = left < 0 ? 1 : 0;
-  int signRight = right < 0 ? 1 : 0;
+  unsigned int SerialEpos2Handler::openDevice()
+  {
+    unsigned int* pErrorCode;
+    com_.comHandler = VCS_OpenDevice(com_.deviceName, com_.protocolStackName,
+      com_.interfaceName, com_.portName, pErrorCode);
+    return *pErrorCode;
+  }
 
-  int leftSpeedAbsolute = std::abs(left);
-  int rightSpeedAbsolute = std::abs(right);
+  void SerialEpos2Handler::getRPM(int* leftRearRpm, int* leftFrontRpm,
+    int* rightRearRpm, int* rightFrontRpm)
+  {
+  
+  }
+  void SerialEpos2Handler::getCurrent( int* leftRearCurrent, int* leftFrontRpm,
+    int* rightRearCurrent, int* rightFrontCurrent )
+  {
+  
+  }
 
-  uint32_t controlWord = 0;
+  Error SerialEpos2Handler::getError() {}
+  unsigned short SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm ) {}
 
-  controlWord = (1 << 31) | (signRight << 30) | (rightSpeedAbsolute << 16) |
-    (signLeft << 14) | (leftSpeedAbsolute);
-  return controlWord;
-}
 
-AbstractEposHandler::~AbstractEposHandler()
-{
-}
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface
+
