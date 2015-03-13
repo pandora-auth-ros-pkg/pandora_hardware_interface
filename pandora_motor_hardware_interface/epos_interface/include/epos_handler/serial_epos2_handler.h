@@ -33,16 +33,15 @@ namespace motor
     char* protocolStackName;
     char* interfaceName;
     char* portName;
-    void* comHandler;
     unsigned int baudrate;
     unsigned int timeout;
   };
+
 
   class SerialEpos2Handler: public AbstractEposHandler
   {
     public:
       SerialEpos2Handler( const std::string port, const unsigned int baudrate, const unsigned int timeout );
-      unsigned int openDevice();
       virtual ~SerialEpos2Handler();
       virtual void getRPM( int* leftRearRpm, int* leftFrontRpm,
         int* rightRearRpm, int* rightFrontRpm );
@@ -50,10 +49,15 @@ namespace motor
         int* rightRearCurrent, int* rightFrontCurrent );
       virtual Error getError();
       virtual unsigned short writeRPM( const int leftRpm, const int rightRpm );
-
+      bool eval_communicationInterface();
+      void openDevice();
+      void closeDevice();
+      void setEnableState(unsigned short nodeId);
+      bool isEnableState(unsigned short nodeId);
     private:
       comInterface com_;
-
+      void* comHandler_;
+      unsigned int* errorCode_;
       
   };
 }  // namespace motor

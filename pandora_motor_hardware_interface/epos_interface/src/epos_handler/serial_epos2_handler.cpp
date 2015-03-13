@@ -30,7 +30,6 @@ namespace motor
     com_.protocolStackName = "MAXON_RS232";
     com_.interfaceName = "RS232";
     strcpy( com_.portName, port.c_str() );
-    //com_.portName = port.c_str();
     com_.baudrate = baudrate;
     com_.timeout = timeout;
     openDevice();
@@ -38,15 +37,41 @@ namespace motor
 
   SerialEpos2Handler::~SerialEpos2Handler()
   {
-  
+    closeDevice();
+    delete comHandler_;
+    delete errorCode_;
   }
 
-  unsigned int SerialEpos2Handler::openDevice()
+  void SerialEpos2Handler::openDevice()
   {
-    unsigned int* pErrorCode;
-    com_.comHandler = VCS_OpenDevice(com_.deviceName, com_.protocolStackName,
-      com_.interfaceName, com_.portName, pErrorCode);
-    return *pErrorCode;
+    /*--<Open Device Serial Communication interface>--*/
+    comHandler_ = VCS_OpenDevice(com_.deviceName, com_.protocolStackName,
+      com_.interfaceName, com_.portName, errorCode_);
+    if ( comHandler_==0 || errorCode_!=0 )
+    {
+      ROS_FATAL("[Motors]: Error while opening serial communication port");
+      exit(-1);
+    }
+    /*--<Set and evaluate communication interface>--*/
+    if( eval_communicationInterface()==0 )
+    {
+      ROS_FATAL("[Motors]: Failed to evaluate communication parameters");
+      exit(-1);
+    }
+    
+  }
+
+  void SerialEpos2Handler::closeDevice()
+  {
+    if( VCS_CloseDevice(comHandler_, errorCode_)!=0 && *errorCode_ == 0 )
+    {
+      ROS_FATAL("[Motors]: Device communication port closed succesfully");
+    }
+    else
+    {
+      ROS_FATAL("[Motors]: Error closing device communication port...Investigate!!!"); 
+    }
+
   }
 
   void SerialEpos2Handler::getRPM(int* leftRearRpm, int* leftFrontRpm,
@@ -58,6 +83,62 @@ namespace motor
     int* rightRearCurrent, int* rightFrontCurrent )
   {
   
+  }
+
+  bool SerialEpos2Handler::eval_communicationInterface()
+  {
+    unsigned int _baudrate;
+    unsigned int _timeout;
+    if( VCS_GetProtocolStackSettings(comHandler_, &_baudrate, &_timeout, errorCode_ )!=0 )
+    {
+      if( VCS_SetProtocolStackSettings(comHandler_, com_.baudrate, com_.timeout, errorCode_)!=0 )
+      {
+        if( VCS_GetProtocolStackSettings(comHandler_, &_baudrate, &_timeout, errorCode_)!=0 )
+	{
+          if( com_.baudrate == _baudrate )
+          {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  void SerialEpos2Handler::setEnableState(unsigned short nodeId)
+  {
+    if( VCS_SetEnableState(comHandler_, nodeId, errorCode_)!=0 )
+    {
+      ROS_INFO("[Motors]: NodeId[%d] is set at Enable State", nodeId);
+    }
+    else
+    {
+     //TODO --- Resolve error setting enable state
+    }
+  } 
+
+  bool SerialEpos2Handler::isEnableState(unsigned short nodeId)
+  {
+    int isEnabled = 0;
+    //isEnabled => 1: Device Enabled, 0: Device NOT Enabled
+    if( VCS_GetEnableState(comHandler_, nodeId, &isEnabled, errorCode_)!=0 )
+    {
+      if( isEnabled )
+      {
+        //Device is at Enabled State
+        return true;
+      } 
+      else
+      {
+        //Device is NOT at Enabled State
+        return false;
+      }
+    }
+    else
+    {
+      //TODO --- Resolve errorCode for getEnableState function call 
+    }
+
   }
 
   Error SerialEpos2Handler::getError() {}
