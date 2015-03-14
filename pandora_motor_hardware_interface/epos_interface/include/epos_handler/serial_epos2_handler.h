@@ -52,12 +52,83 @@ namespace motor
       bool eval_communicationInterface();
       void openDevice();
       void closeDevice();
+      void resetDevice(unsigned short nodeId);
+
+      /*!
+       * @brief Changes the device's state to "Enable"
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
       void setEnableState(unsigned short nodeId);
+
+      /*!
+       * @brief Changes the device's state to "Enable"
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      void setDisableState(unsigned short nodeId);
+
+
+      /*!
+       * @brief Checks if the device is Enabled
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
       bool isEnableState(unsigned short nodeId);
+
+      /*!
+       * @brief Checks if the device is Disabled
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      bool isDisableState(unsigned short nodeId);
+
+      /*!
+       * @brief Changes the device state from "fault" to "disabled"
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      void clearFault(unsigned short nodeId);
+
+      /*!
+       * @brief Checks if the device is at "Fault" State
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       * @TODO return Fault State errorCode
+       */
+      bool isFaultState(unsigned short nodeId);
+
+      bool isQuickStopState(unsigned short nodeId);
+      
+      /*!
+       * @brief Reads the state of the state machine
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       * @TODO Implement and return state index handler
+       */
+      unsigned short getState(unsigned short nodeId);
+
+      //TODO --- Implement it to work with single nodeIds
+      //0: ALL
+      //1: nodeId#1
+      //2: nodeId#2
+      //...
+      void getState_all(void);
+
+      //TODO --- Implement it to work with single nodeIds
+      //0: ALL
+      //1: nodeId#1
+      //2: nodeId#2
+      //...
+      void printState_all(void);
+
+      /*!
+       * @brief Changes the operation mode of an epos2 controller
+       * to "Profile Velocity Mode"
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      void activate_profileVelocityMode(unsigned short nodeId);
+           
+      void moveWithVelocity(unsigned short nodeId, int vel);
     private:
       comInterface com_;
       void* comHandler_;
       unsigned int* errorCode_;
+      unsigned short* nodeState_;
       
   };
 }  // namespace motor
