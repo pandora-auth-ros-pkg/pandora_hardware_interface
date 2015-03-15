@@ -76,16 +76,16 @@ namespace motor
     registerInterface(&velocityJointInterface_);
 
     motorCurrentsMsg_.name.push_back(
-      "Axis0: Node 2, Right_Rear Wheel, EPOS communication controller");
+      "Node 1, Left_Front Motor, EPOS2 Gateway");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis1: Node 1, Right_Front Wheel, EPOS-P controller");
+      "Node 2, Left_Rear Motor, EPOS2 controller");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis2: Node 3, Left_Rear Wheel, EPOS controller");
+      "Node 3, Right_Front Motor, EPOS2 controller");
     motorCurrentsMsg_.current.push_back(0);
     motorCurrentsMsg_.name.push_back(
-      "Axis3: Node 4, Left_Front Wheel, EPOS controller.");
+      "Node 4, Right_Rear Motor, EPOS2 controller.");
     motorCurrentsMsg_.current.push_back(0);
     currentPub_ = nodeHandle_.advertise<MotorCurrentsMsg>("/motors/current", 1);
   }
