@@ -42,7 +42,7 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include "epos_handler/serial_epos_handler.h"
+#include "epos_handler/serial_epos2_handler.h"
 #include <pandora_motor_hardware_interface/MotorCurrents.h>
 
 typedef pandora_motor_hardware_interface::MotorCurrents MotorCurrentsMsg;

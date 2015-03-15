@@ -5,4 +5,5 @@ add_executable(
 target_link_libraries(
   motor_hardware_interface_node
   serial_epos_handler
+  serial_epos2_handler
   ${catkin_LIBRARIES})
