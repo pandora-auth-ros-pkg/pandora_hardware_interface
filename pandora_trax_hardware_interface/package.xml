@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pandora_trax_hardware_interface</name>
+  <version>0.0.0</version>
+  <description>Contains pandora trax hardware interface.</description>
+
+  <maintainer email="gkourosg@yahoo.gr">George Kouros</maintainer>
+
+  <license>BSD</license>
+
+  <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
+  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
+
+  <author>Chris Zalidis</author>  
+  <author>Evangelos Apostolidis</author>
+  <author>George Kouros</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>roslint</build_depend>
+
+  <depend>roscpp</depend>
+  <depend>tf</depend>
+  <depend>controller_manager</depend>
+  <depend>serial</depend>
+
+  <exec_depend>ros_controllers</exec_depend>
+
+  <export>
+  </export>
+</package>

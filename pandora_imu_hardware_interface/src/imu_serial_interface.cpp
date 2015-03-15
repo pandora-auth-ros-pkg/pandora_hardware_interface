@@ -148,6 +148,7 @@ namespace imu
       pitch_ = boost::lexical_cast<float> (data[2]);
       roll_ = boost::lexical_cast<float> (data[3]);
     }
+    ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface

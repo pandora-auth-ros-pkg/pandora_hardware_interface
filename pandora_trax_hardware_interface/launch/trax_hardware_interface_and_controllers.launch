@@ -1,0 +1,9 @@
+<launch>
+  <!-- Launch controller manager with pandora hardware interface-->
+  <include
+    file="$(find pandora_trax_hardware_interface)/launch/trax_hardware_interface.launch" />
+
+  <!-- spawn controllers -->
+  <include
+    file="$(find pandora_trax_hardware_interface)/launch/trax_controller.launch" />
+</launch>
