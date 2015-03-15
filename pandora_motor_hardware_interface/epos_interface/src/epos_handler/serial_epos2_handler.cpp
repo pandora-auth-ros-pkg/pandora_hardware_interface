@@ -24,7 +24,7 @@ namespace pandora_hardware_interface
 namespace motor
 {
 
-  SerialEpos2Handler::SerialEpos2Handler( const std::string port, const unsigned int baudrate, const unsigned int timeout )
+  SerialEpos2Handler::SerialEpos2Handler( const std::string port, const uint32_t baudrate, const uint32_t timeout)
   {
     com_.deviceName = new char[32];
     com_.protocolStackName = new char[32];
@@ -33,10 +33,10 @@ namespace motor
     com_.deviceName = "EPOS2";
     com_.protocolStackName = "MAXON_RS232";
     com_.interfaceName = "RS232";
-    strcpy( com_.portName, port.c_str() );
+    strcpy( com_.portName, port.c_str());
     com_.baudrate = baudrate;
     com_.timeout = timeout;
-    nodeState_ = new unsigned short[4];
+    nodeState_ = new uint16_t[4];
     openDevice();
     //resetDevice(1);
     //setEnableState(1);
@@ -62,13 +62,13 @@ namespace motor
     /*--<Open Device Serial Communication interface>--*/
     comHandler_ = VCS_OpenDevice("EPOS2", "MAXON_RS232",
       "RS232", "/dev/ttyS0", errorCode_);
-    if ( comHandler_==0 || *errorCode_!=0 )
+    if ( comHandler_==0 || *errorCode_!=0)
     {
       ROS_FATAL("[Motors]: Error while opening serial communication port");
       exit(-1);
     }
     /*--<Set and evaluate communication interface>--*/
-    if( eval_communicationInterface()==0 )
+    if( eval_communicationInterface()==0)
     {
       ROS_FATAL("[Motors]: Failed to evaluate communication parameters");
       exit(-1);
@@ -78,7 +78,7 @@ namespace motor
 
   void SerialEpos2Handler::closeDevice()
   {
-    if( VCS_CloseDevice(comHandler_, errorCode_)!=0 && *errorCode_ == 0 )
+    if(VCS_CloseDevice(comHandler_, errorCode_)!=0 && *errorCode_ == 0)
     {
       ROS_FATAL("[Motors]: Device communication port closed succesfully");
     }
@@ -89,9 +89,9 @@ namespace motor
 
   }
 
-  void SerialEpos2Handler::resetDevice(unsigned short nodeId)
+  void SerialEpos2Handler::resetDevice(uint16_t nodeId)
   {
-    if( VCS_ResetDevice(comHandler_, nodeId, errorCode_)!=0 )
+    if(VCS_ResetDevice(comHandler_, nodeId, errorCode_)!=0)
     {
       ROS_INFO("[Motors]: Reset NodeId[%d]", nodeId);
     }
@@ -105,28 +105,42 @@ namespace motor
   void SerialEpos2Handler::getRPM(int* leftRearRpm, int* leftFrontRpm,
     int* rightRearRpm, int* rightFrontRpm)
   {
-  
+    //int32_t* nodeRpm = new int32_t[4];
+    //read_velocityActual(0, &nodeRpm[0]);
+    read_velocityActual(RIGHT_FRONT_MOTOR, rightFrontRpm);  
+    read_velocityActual(RIGHT_REAR_MOTOR, rightRearRpm);  
+    read_velocityActual(LEFT_FRONT_MOTOR, leftFrontRpm);  
+    read_velocityActual(LEFT_REAR_MOTOR, leftRearRpm);  
   }
-  void SerialEpos2Handler::getCurrent( int* leftRearCurrent, int* leftFrontRpm,
-    int* rightRearCurrent, int* rightFrontCurrent )
+  void SerialEpos2Handler::getCurrent( int* leftRearCurrent, int* leftFrontCurrent,
+    int* rightRearCurrent, int* rightFrontCurrent)
   {
-  
+    int16_t* nodeCurrent = new int16_t[4];
+    //read_currentActual(0, &nodeCurrent[0]);
+    read_currentActual(RIGHT_FRONT_MOTOR, &nodeCurrent[RIGHT_FRONT_MOTOR]);
+    read_currentActual(RIGHT_REAR_MOTOR, &nodeCurrent[RIGHT_REAR_MOTOR]);
+    read_currentActual(LEFT_FRONT_MOTOR, &nodeCurrent[LEFT_FRONT_MOTOR]);
+    read_currentActual(LEFT_REAR_MOTOR, &nodeCurrent[LEFT_REAR_MOTOR]);
+    *rightFrontCurrent = static_cast<int>(nodeCurrent[RIGHT_FRONT_MOTOR]);
+    *rightRearCurrent = static_cast<int>(nodeCurrent[RIGHT_REAR_MOTOR]);
+    *leftFrontCurrent = static_cast<int>(nodeCurrent[LEFT_FRONT_MOTOR]);
+    *leftRearCurrent = static_cast<int>(nodeCurrent[LEFT_REAR_MOTOR]);
   }
 
   bool SerialEpos2Handler::eval_communicationInterface()
   {
-    unsigned int _baudrate;
-    unsigned int _timeout;
-    if( VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-        &_timeout, errorCode_ )!=0 )
+    uint32_t _baudrate;
+    uint32_t _timeout;
+    if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
+        &_timeout, errorCode_)!=0)
     {
-      if( VCS_SetProtocolStackSettings(comHandler_, com_.baudrate, 
-          com_.timeout, errorCode_)!=0 )
+      if(VCS_SetProtocolStackSettings(comHandler_, com_.baudrate, 
+          com_.timeout, errorCode_)!=0)
       {
-        if( VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-            &_timeout, errorCode_)!=0 )
+        if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
+            &_timeout, errorCode_)!=0)
 	{
-          if( com_.baudrate == _baudrate )
+          if( com_.baudrate == _baudrate)
           {
             return true;
           }
@@ -136,9 +150,9 @@ namespace motor
     return false;
   }
 
-  void SerialEpos2Handler::setEnableState(unsigned short nodeId)
+  void SerialEpos2Handler::setEnableState(uint16_t nodeId)
   {
-    if( VCS_SetEnableState(comHandler_, nodeId, errorCode_)!=0 )
+    if(VCS_SetEnableState(comHandler_, nodeId, errorCode_)!=0)
     {
       ROS_INFO("[Motors]: NodeId[%d] is set at Enable State", nodeId);
     }
@@ -148,13 +162,13 @@ namespace motor
     }
   } 
 
-  bool SerialEpos2Handler::isEnableState(unsigned short nodeId)
+  bool SerialEpos2Handler::isEnableState(uint16_t nodeId)
   {
     int isEnabled = 0;
     //isEnabled => 1: Device Enabled, 0: Device NOT Enabled
-    if( VCS_GetEnableState(comHandler_, nodeId, &isEnabled, errorCode_)!=0 )
+    if(VCS_GetEnableState(comHandler_, nodeId, &isEnabled, errorCode_)!=0)
     {
-      if( isEnabled )
+      if( isEnabled)
       {
         //Device is at Enabled State
         return true;
@@ -172,9 +186,9 @@ namespace motor
 
   }
 
-  void SerialEpos2Handler::setDisableState(unsigned short nodeId)
+  void SerialEpos2Handler::setDisableState(uint16_t nodeId)
   {
-    if( VCS_SetDisableState(comHandler_, nodeId, errorCode_)!=0 )
+    if(VCS_SetDisableState(comHandler_, nodeId, errorCode_)!=0)
     {
       ROS_INFO("[Motors]: NodeId[%d] is set at Disable State", nodeId);
     }
@@ -184,12 +198,12 @@ namespace motor
     }
   } 
 
-  bool SerialEpos2Handler::isDisableState(unsigned short nodeId)
+  bool SerialEpos2Handler::isDisableState(uint16_t nodeId)
   {
     int isDisabled = 0;
-    if( VCS_GetDisableState(comHandler_, nodeId, &isDisabled, errorCode_)!=0 )
+    if(VCS_GetDisableState(comHandler_, nodeId, &isDisabled, errorCode_)!=0)
     {
-      if( isDisabled )
+      if( isDisabled)
       {
         //Device is at Disabled State
         return true;
@@ -206,9 +220,9 @@ namespace motor
     }
   }
 
-  void SerialEpos2Handler::clearFault(unsigned short nodeId)
+  void SerialEpos2Handler::clearFault(uint16_t nodeId)
   {
-    if( VCS_ClearFault(comHandler_, nodeId, errorCode_)!=0 )
+    if(VCS_ClearFault(comHandler_, nodeId, errorCode_)!=0)
     {
       ROS_INFO("[Motors]: Cleared Fault State for NodeId[%d]", nodeId);
     }
@@ -218,12 +232,12 @@ namespace motor
     }
   }
 
-  bool SerialEpos2Handler::isFaultState(unsigned short nodeId)
+  bool SerialEpos2Handler::isFaultState(uint16_t nodeId)
   {
     int isFault = 0;
-    if( VCS_GetFaultState(comHandler_, nodeId, &isFault, errorCode_)!=0 )
+    if(VCS_GetFaultState(comHandler_, nodeId, &isFault, errorCode_)!=0)
     {
-      if( isFault )
+      if( isFault)
       {
         //Device is at Fault State
         return true;
@@ -239,13 +253,13 @@ namespace motor
     }
   }
 
-  bool SerialEpos2Handler::isQuickStopState(unsigned short nodeId)
+  bool SerialEpos2Handler::isQuickStopState(uint16_t nodeId)
   {
     int isQuickStopped = 0;
-    if( VCS_GetQuickStopState(comHandler_, nodeId, &isQuickStopped, 
-        errorCode_)!=0 )
+    if(VCS_GetQuickStopState(comHandler_, nodeId, &isQuickStopped, 
+        errorCode_)!=0)
     {
-      if( isQuickStopped )
+      if( isQuickStopped)
       {
         //Device is at "QuickStop" State
         return true;
@@ -261,10 +275,10 @@ namespace motor
     }
   }
 
-  unsigned short SerialEpos2Handler::getState(unsigned short nodeId)
+  uint16_t SerialEpos2Handler::getState(uint16_t nodeId)
   {
-    unsigned short _state = NULL;
-    if( VCS_GetState(comHandler_, nodeId, &_state, errorCode_) )
+    uint16_t _state = NULL;
+    if(VCS_GetState(comHandler_, nodeId, &_state, errorCode_))
     {
       return _state;
     } 
@@ -276,7 +290,22 @@ namespace motor
 
 
   Error SerialEpos2Handler::getError() {}
-  unsigned short SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm ) {}
+  uint16_t SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm) 
+  {
+    ROS_DEBUG("[Motors]: Setting speed %d, %d", leftRpm, rightRpm);
+    if(leftRpm==rightRpm)
+    {
+      moveWithVelocity(0, leftRpm);
+    }
+    else
+    {
+      moveWithVelocity(1, rightRpm);
+      moveWithVelocity(2, rightRpm);
+      moveWithVelocity(3, leftRpm);
+      moveWithVelocity(4, leftRpm);
+    }
+    return 1; //
+  }
 
   void SerialEpos2Handler::printState_all(void)
   {
@@ -311,14 +340,14 @@ namespace motor
     }
   }
 
-  void SerialEpos2Handler::activate_profileVelocityMode(unsigned short nodeId)
+  void SerialEpos2Handler::activate_profileVelocityMode(uint16_t nodeId)
   {
-    if( nodeId==0 )
+    if( nodeId==0)
     {
-      unsigned short _ii;
+      uint16_t _ii;
       for(_ii=1;_ii<5;_ii++)
       {
-        if( VCS_ActivateProfileVelocityMode(comHandler_, _ii, errorCode_)!=0 )
+        if(VCS_ActivateProfileVelocityMode(comHandler_, _ii, errorCode_)!=0)
         {
           ROS_INFO("[Motors]: NodeId[%d] is set at ProfileVelocity Mode", 
             _ii);
@@ -343,15 +372,14 @@ namespace motor
     }
   }
 
-  void SerialEpos2Handler::moveWithVelocity(unsigned short nodeId, int vel)
+  void SerialEpos2Handler::moveWithVelocity(uint16_t nodeId, int vel)
   {
-    int _velocity = 0;
-    if( nodeId==0 )
+    if( nodeId==0)
     {
-      unsigned short _ii;
+      uint16_t _ii;
       for(_ii=1;_ii<5;_ii++)
       {
-        if( VCS_MoveWithVelocity(comHandler_, _ii, vel, errorCode_)!=0 )
+        if(VCS_MoveWithVelocity(comHandler_, _ii, vel, errorCode_)!=0)
         {
           //Nothing?!!!!
         } 
@@ -363,7 +391,7 @@ namespace motor
     }
     else
     {
-      if( VCS_MoveWithVelocity(comHandler_, nodeId, vel, errorCode_)!=0 )
+      if(VCS_MoveWithVelocity(comHandler_, nodeId, vel, errorCode_)!=0)
       {
         //Nothing?!!!!
       } 
@@ -373,6 +401,130 @@ namespace motor
       }
     }
   }
+
+  void SerialEpos2Handler::read_velocityActual(uint16_t nodeId, int32_t* velActual)
+  {
+    if( nodeId==0)
+    {
+      uint16_t _ii;
+      for(_ii=1;_ii<5;_ii++)
+      {
+        if(VCS_GetVelocityIs(comHandler_, _ii, &velActual[_ii-1], errorCode_)!=0)
+        {
+          //Nothing?!!!!
+        } 
+        else
+        {
+          //TODO --- resolve error
+        }
+      }
+    }
+    else
+    {
+      if(VCS_GetVelocityIs(comHandler_, nodeId, velActual, errorCode_)!=0)
+      {
+        //Nothing?!!!!
+      } 
+      else
+      {
+        //TODO --- resolve error
+      }
+    }
+  }
+
+  void SerialEpos2Handler::read_velocityAvg(uint16_t nodeId, int32_t* velAvg)
+  {
+    if( nodeId==0)
+    {
+      uint16_t _ii;
+      for(_ii=1;_ii<5;_ii++)
+      {
+        if(VCS_GetVelocityIsAveraged(comHandler_, _ii, &velAvg[_ii-1], errorCode_)!=0)
+        {
+          //Nothing?!!!!
+        } 
+        else
+        {
+          //TODO --- resolve error
+        }
+      }
+    }
+    else
+    {
+      if(VCS_GetVelocityIsAveraged(comHandler_, nodeId, velAvg, errorCode_)!=0)
+      {
+        //Nothing?!!!!
+      } 
+      else
+      {
+        //TODO --- resolve error
+      }
+    }
+  }
+  
+  void SerialEpos2Handler::read_currentActual(uint16_t nodeId, int16_t* currentActual)
+  {
+    if( nodeId==0)
+    {
+      uint16_t _ii;
+      for(_ii=1;_ii<5;_ii++)
+      {
+        if(VCS_GetCurrentIs(comHandler_, _ii, &currentActual[_ii-1], errorCode_)!=0)
+        {
+          //Nothing?!!!!
+        } 
+        else
+        {
+          //TODO --- resolve error
+        }
+      }
+    }
+    else
+    {
+      if(VCS_GetCurrentIs(comHandler_, nodeId, currentActual, errorCode_)!=0)
+      {
+        //Nothing?!!!!
+      } 
+      else
+      {
+        //TODO --- resolve error
+      }
+    }
+  }
+  
+  void  SerialEpos2Handler::read_currentAvg(uint16_t nodeId, int16_t* currentAvg)
+  {
+    if( nodeId==0)
+    {
+      uint16_t _ii;
+      for(_ii=1;_ii<5;_ii++)
+      {
+        if(VCS_GetCurrentIsAveraged(comHandler_, _ii, &currentAvg[_ii-1], errorCode_)!=0)
+        {
+          //Nothing?!!!!
+        }
+        else
+        {
+          //TODO --- resolve error
+        }
+      }
+    }
+    else
+    {
+      if(VCS_GetCurrentIsAveraged(comHandler_, nodeId, currentAvg, errorCode_)!=0)
+      {
+        //Nothing?!!!!
+      } 
+      else
+      {
+        //TODO --- resolve error
+      }
+    }
+  }
+
+
+
+
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface

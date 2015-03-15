@@ -27,63 +27,74 @@ namespace pandora_hardware_interface
 {
 namespace motor
 {
+
+  #define RIGHT_FRONT_MOTOR 1
+  #define RIGHT_REAR_MOTOR  2
+  #define LEFT_FRONT_MOTOR  3 
+  #define LEFT_REAR_MOTOR   4 
+  
   struct comInterface
   {
     char* deviceName;
     char* protocolStackName;
     char* interfaceName;
     char* portName;
-    unsigned int baudrate;
-    unsigned int timeout;
+    uint32_t baudrate;
+    uint32_t timeout;
   };
 
 
   class SerialEpos2Handler: public AbstractEposHandler
   {
+    private:
+      comInterface com_;
+      void* comHandler_;
+      uint32_t* errorCode_;
+      uint16_t* nodeState_;
     public:
-      SerialEpos2Handler( const std::string port, const unsigned int baudrate, const unsigned int timeout );
+      SerialEpos2Handler(const std::string port, const uint32_t baudrate, const uint32_t timeout);
       virtual ~SerialEpos2Handler();
-      virtual void getRPM( int* leftRearRpm, int* leftFrontRpm,
-        int* rightRearRpm, int* rightFrontRpm );
-      virtual void getCurrent( int* leftRearCurrent, int* leftFrontRpm,
-        int* rightRearCurrent, int* rightFrontCurrent );
+      virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
+        int* rightRearRpm, int* rightFrontRpm);
+      virtual void getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
+        int* rightRearCurrent, int* rightFrontCurrent);
       virtual Error getError();
-      virtual unsigned short writeRPM( const int leftRpm, const int rightRpm );
+      virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
       bool eval_communicationInterface();
       void openDevice();
       void closeDevice();
-      void resetDevice(unsigned short nodeId);
+      void resetDevice(uint16_t nodeId);
 
       /*!
        * @brief Changes the device's state to "Enable"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void setEnableState(unsigned short nodeId);
+      void setEnableState(uint16_t nodeId);
 
       /*!
        * @brief Changes the device's state to "Enable"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void setDisableState(unsigned short nodeId);
+      void setDisableState(uint16_t nodeId);
 
 
       /*!
        * @brief Checks if the device is Enabled
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      bool isEnableState(unsigned short nodeId);
+      bool isEnableState(uint16_t nodeId);
 
       /*!
        * @brief Checks if the device is Disabled
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      bool isDisableState(unsigned short nodeId);
+      bool isDisableState(uint16_t nodeId);
 
       /*!
        * @brief Changes the device state from "fault" to "disabled"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void clearFault(unsigned short nodeId);
+      void clearFault(uint16_t nodeId);
 
       /*!
        * @brief Checks if the device is at "Fault" State
@@ -91,16 +102,16 @@ namespace motor
        *
        * @TODO return Fault State errorCode
        */
-      bool isFaultState(unsigned short nodeId);
+      bool isFaultState(uint16_t nodeId);
 
-      bool isQuickStopState(unsigned short nodeId);
+      bool isQuickStopState(uint16_t nodeId);
       
       /*!
        * @brief Reads the state of the state machine
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        * @TODO Implement and return state index handler
        */
-      unsigned short getState(unsigned short nodeId);
+      uint16_t getState(uint16_t nodeId);
 
       //TODO --- Implement it to work with single nodeIds
       //0: ALL
@@ -120,16 +131,51 @@ namespace motor
        * @brief Changes the operation mode of an epos2 controller
        * to "Profile Velocity Mode"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
        */
-      void activate_profileVelocityMode(unsigned short nodeId);
+      void activate_profileVelocityMode(uint16_t nodeId);
            
-      void moveWithVelocity(unsigned short nodeId, int vel);
-    private:
-      comInterface com_;
-      void* comHandler_;
-      unsigned int* errorCode_;
-      unsigned short* nodeState_;
-      
+      /*!
+       * @brief Commands target velocity
+       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
+       */
+      void moveWithVelocity(uint16_t nodeId, int vel);
+
+      /*!
+       * @brief Reads the velocity actual value 
+       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
+       */
+      void read_velocityActual(uint16_t nodeId, int32_t* velActual);
+
+      /*!
+       * @brief Reads the velocity average value 
+       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
+       */
+      void read_velocityAvg(uint16_t nodeId, int32_t* velAvg);
+
+      /*!
+       * @brief Reads the current actual value 
+       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
+       */
+      void read_currentActual(uint16_t nodeId, int16_t* currentActual); 
+
+      /*!
+       * @brief Reads the current average value 
+       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       *
+       *  If nodeId = 0 then command trasmits to everyone.
+       */
+      void read_currentAvg(uint16_t nodeId, int16_t* currentAvg); 
+
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
