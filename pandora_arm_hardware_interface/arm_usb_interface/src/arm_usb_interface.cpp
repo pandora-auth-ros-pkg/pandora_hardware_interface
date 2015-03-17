@@ -151,6 +151,7 @@ int ArmUsbInterface::readGrideyeValues(
   }
   else
   {
+    /*
     std::stringstream ss;
 
     ss << "[Head]: " << grideyeSelect << " GridEYE = ";
@@ -159,7 +160,7 @@ int ArmUsbInterface::readGrideyeValues(
       ss << static_cast<int>(values[i]) << " ";
     }
     ROS_INFO("%s", ss.str().c_str());
-
+    */
     return 1;
   }
 }
@@ -214,7 +215,7 @@ uint16_t ArmUsbInterface::readSonarValues(const char& sonarSelect)
   }
   else
   {
-    ROS_INFO("[Head]: Sonar (%c) = %u\n", sonarSelect, sonarBufIN_uint16_t);
+    // ROS_INFO("[Head]: Sonar (%c) = %u\n", sonarSelect, sonarBufIN_uint16_t);
     return sonarBufIN_uint16_t;
   }
 }
@@ -258,7 +259,7 @@ float ArmUsbInterface::readCo2Value()
   }
   else
   {
-    ROS_INFO("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
+    // ROS_INFO("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
     return CO2bufIN_float;
   }
 }
@@ -301,7 +302,7 @@ uint16_t ArmUsbInterface::readEncoderValue()
   }
   else
   {
-    ROS_INFO("[Head]: Encoder Reading = %u\n", encoderBufIN_uint16_t);
+    // ROS_INFO("[Head]: Encoder Reading = %u\n", encoderBufIN_uint16_t);
     return encoderBufIN_uint16_t;
   }
 }
@@ -358,7 +359,7 @@ uint16_t ArmUsbInterface::readBatteryValues(const char& batterySelect)
   }
   else
   {
-    ROS_INFO("[Head]: Battery (%c) = %u\n", batterySelect, batteryBufIN_uint16_t);
+    // ROS_INFO("[Head]: Battery (%c) = %u\n", batterySelect, batteryBufIN_uint16_t);
     return batteryBufIN_uint16_t;
   }
 }
