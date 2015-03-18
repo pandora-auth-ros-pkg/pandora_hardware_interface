@@ -1,4 +1,4 @@
-<library path="lib/librange_sensor_controller">
+<library path="lib/libarm_range_sensor_controller">
   <class
     name="pandora_arm/RangeSensorController"
     type="pandora_hardware_interface::arm::RangeSensorController"

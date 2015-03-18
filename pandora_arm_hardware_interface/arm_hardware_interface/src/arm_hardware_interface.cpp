@@ -319,6 +319,7 @@ namespace arm
     ROS_ASSERT(
       batteryList.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+    batteryCode_ = new char[batteryList.size()];
     voltage_ = new double[batteryList.size()];
 
     std::vector<BatteryHandle>
@@ -332,9 +333,13 @@ namespace arm
       key = "name";
       ROS_ASSERT(
         batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
-      batteryName_.push_back(
-        static_cast<std::string>(batteryList[ii][key]));
-
+      batteryName_.push_back(static_cast<std::string>(batteryList[ii][key]));
+      
+      key = "battery_code";
+      ROS_ASSERT(
+        batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
+      batteryCode_[ii] = (static_cast<std::string>(batteryList[ii][key])).at(0);
+      
       key = "max_voltage";
       ROS_ASSERT(
         batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);

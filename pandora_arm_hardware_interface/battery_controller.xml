@@ -1,4 +1,4 @@
-<library path="lib/libbattery_controller">
+<library path="lib/libarm_battery_controller">
   <class
     name="pandora_arm/BatteryController"
     type="pandora_hardware_interface::arm::BatteryController"
