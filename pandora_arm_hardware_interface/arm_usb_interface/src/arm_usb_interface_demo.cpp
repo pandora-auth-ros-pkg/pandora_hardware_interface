@@ -32,8 +32,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * Author: Orestis Zachariadis
+ * Author: George Kouros
  *********************************************************************/
+
 #include "arm_usb_interface/arm_usb_interface.h"
 
 int main(int argc, char** argv)
@@ -42,38 +43,59 @@ int main(int argc, char** argv)
 
   pandora_hardware_interface::arm::ArmUsbInterface arm;
 
-  double voltage = 0;
+  uint16_t range[2];
+  float co2Percentage;
+  uint16_t encoderDegrees;
+  uint16_t tempVoltage[2];
+  double voltage[2];
+  uint8_t temperature[64];
+  std::stringstream ss;
 
-  while (1)
+  while (ros::ok())
   {
-    ROS_INFO("Left Sonar measurement: %d", arm.readSonarValues('L'));
-    ROS_INFO("Riht Sonar measurement: %d", arm.readSonarValues('R'));
-    ROS_INFO("CO2 measurement: %f", arm.readCo2Value());
-    ROS_INFO("Encoder measurement: %d", arm.readEncoderValue());
-
-    uint8_t temperature[64];
-
+    arm.readSonarValues('L', range);
+    arm.readSonarValues('R', range + 1);
+    arm.readCo2Value(&co2Percentage);
+    arm.readEncoderValue(&encoderDegrees);
+    arm.readBatteryValues('M', tempVoltage);
+    arm.readBatteryValues('S', tempVoltage + 1);
     arm.readGrideyeValues('C', temperature);
-    for (int ii = 0; ii < 64; ii++)
+
+    for (int ii = 0; ii < 2; ii++)
+      voltage[ii] = (tempVoltage[ii]/4096.)*33;
+
+    ROS_INFO("============================================");
+    ROS_INFO("Left Sonar measurement: %d", range[0]);
+    ROS_INFO("Right Sonar measurement: %d", range[1]);
+    ROS_INFO("CO2 measurement: %f", co2Percentage);
+    ROS_INFO("Encoder measurement: %d", encoderDegrees);
+    ROS_INFO("Motor Battery Voltage measurement: %f", voltage[0]);
+    ROS_INFO("Supply Batter Voltage measurement: %f", voltage[1]);
+    ROS_INFO("============================================");
+
+
+
+    for (int ii = 0; ii < 8; ii++)
     {
-      if (temperature[ii] < 0 || temperature[ii] > 255)
+      for (int jj = 0; jj < 8; jj++)
       {
-        ROS_INFO("GridEye values were not read correctly.");
-        break;
+        ss << " " << temperature[ii * 8 + jj];
       }
-      else if (ii=63)
-        ROS_INFO("GridEye values were read correctly.");
+      ss << "\n";
     }
 
-    voltage = arm.readBatteryValues('M');
-    voltage = (voltage/4096.)*33;
-    ROS_INFO("Motor Voltage measurement: %f", voltage);
+    ROS_INFO("============== Thermal Image ===============");
+//    ROS_INFO("%s", ss);
+    ROS_INFO("============================================");
 
-    voltage = arm.readBatteryValues('S');
-    voltage = (voltage/4096.)*33;
-    ROS_INFO("Supply Voltage measurement %f", voltage);
-
-    ros::Duration(0.5).sleep();
+    for (int ii = 0; ii < 64; ii++){
+      if (temperature[ii] < 0 || temperature[ii] > 255)
+        {
+          ROS_INFO("GridEye values were not read correctly.");
+          break;
+        }
+    }
+    ros::Duration(1.0).sleep();
   }
   return 0;
 }

@@ -46,7 +46,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sstream>
 #include <iostream>
 #include <termios.h>
 
@@ -57,32 +56,27 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
-/**Command to send if you want encoder data*/
-#define COMMAND_ENCODER 1
-/**Command to send if you want left sonar's data*/
-#define COMMAND_SONAR_LEFT 2
-/**Command to send if you want right sonar's data*/
-#define COMMAND_SONAR_RIGHT 3
-/**Command to send if you want CO2 data*/
-#define COMMAND_CO2 4
-/**Command to send if you want motor battery data*/
-#define COMMAND_BATTERY_MOTOR 5
-/**Command to send if you want supply battery data*/
-#define COMMAND_BATTERY_SUPPLY 6
-/**Command to send if you want center grideye's data*/
-#define COMMAND_GEYE_CENTER 7
-/**Command to send if you want left grideye's data*/
-#define COMMAND_GEYE_LEFT 8
-/**Command to send if you want right grideye's data*/
-#define COMMAND_GEYE_RIGHT 9
+#define COMMAND_ENCODER 1         //!< encoder ead command code
+#define COMMAND_SONAR_LEFT 2      //!< Left Sonar read command code
+#define COMMAND_SONAR_RIGHT 3     //!< Right Sonar read command code
+#define COMMAND_CO2 4             //!< CO2 read command code
+#define COMMAND_BATTERY_MOTOR 5   //!< Motor Battery read command code
+#define COMMAND_BATTERY_SUPPLY 6  //!< Supply Battery read command code
+#define COMMAND_GEYE_CENTER 7     //!< Center Grideye read command
+#define COMMAND_GEYE_LEFT 8       //!< Left Grideye read command
+#define COMMAND_GEYE_RIGHT 9      //!< Right Grideye read command
 
+#define NO_ERROR 1                 //!< no-error code
+#define WRITE_ERROR -1             //!< write error code
+#define READ_ERROR -2              //!< read error code
+#define INCORRECT_NUM_OF_BYTES -3  //!< incorrect number of bytes error code
 
-#define CO2_NBYTES 4         ///< Number of bytes of incoming CO2 data
-#define SONAR_NBYTES 2       ///< Number of bytes of incoming Sonar data
-#define ENCODER_NBYTES 2     ///< Number of bytes of incoming Encoder data
-#define BATTERY_NBYTES 2     ///< Number of bytes of incoming Battery data
-#define COMMAND_NBYTES 1     ///< Number of bytes of outgoing command
-#define GEYE_NBYTES 64       ///< Number of bytes of incoming GridEYE data
+#define CO2_NBYTES 4         //!< Number of bytes of incoming CO2 data
+#define SONAR_NBYTES 2       //!< Number of bytes of incoming Sonar data
+#define ENCODER_NBYTES 2     //!< Number of bytes of incoming Encoder data
+#define BATTERY_NBYTES 2     //!< Number of bytes of incoming Battery data
+#define COMMAND_NBYTES 1     //!< Number of bytes of outgoing command
+#define GEYE_NBYTES 64       //!< Number of bytes of incoming GridEYE data
 
 
 /**
@@ -115,28 +109,28 @@ class ArmUsbInterface : private boost::noncopyable
    * @note Although the uController can return the most recent reading whenever
    * it is asked, there is no point asking for data much more frequently than
    * two times the sensor speed. This sensor's frequency is 10 Hz.
-   * @param[in] grideyeSelect 'C' for Center GridEYE, 'L' for left,
+   * @param grideyeSelect [const char&] : 'C' for Center GridEYE, 'L' for left,
    *  'R' for right
-   * @param[in,out] values pointer to an uint8[64] array
-   * @returns int : 1 for a successful read, -1 for write error, -2 for read 
+   * @param values [uint8_t*] : pointer to first byte of result
+   * @return int : 1 for a successful read, -1 for write error, -2 for read 
    * error,-3 for incorrect number of bytes read
   **/
-  int readGrideyeValues(const char& grideyeSelect, uint8_t * values);
+  int readGrideyeValues(const char& grideyeSelect, uint8_t* values);
 
   /**
    * @brief Reads a distance measurement from the selected sonar sensor
    * @param sonarSelect [const char&] : used to select which sensor
    * measurement to read
-   * @returns uint16_t : 1 for a successful read, -1 for write error, -2 for
-   * read error,
-   * -3 for incorrect number of bytes read
+   * @param values [uint16_t*] : pointer to result
+   * @return int : 1 for a successful read, -1 for write error, -2 for
+   * read error, -3 for incorrect number of bytes read
    * @attention If the uController detects a malfunction in a sensor it returns
    * zeros in place of its readings.
    * @note Although the uController can return the most recent reading whenever
    * it is asked, there is no point asking for data much more frequently than
    * two times the sensor speed. This sensor's frequency is 10 Hz.
   **/
-  uint16_t readSonarValues(const char& sonarSelect);
+  int readSonarValues(const char& sonarSelect, uint16_t* value);
 
   /**
    * @attention If the uController detects a malfunction in a sensor it returns
@@ -144,37 +138,38 @@ class ArmUsbInterface : private boost::noncopyable
    * @note Although the uController can return the most recent reading whenever
    * it is asked, there is no point asking for data much more frequently than
    * two times the sensor speed. This sensor's frequency is 2 Hz.
-   * @returns float : Gas reading in percent volume if read was successful,
-   *  -1 for write error, -2 for read error,
-   *  -3 for incorrect number of bytes read
+   * @param values [float*] : pointer to result
+   * @return int: 1 for successfull read, -1 for write error, -2 for read error,
+   * -3 for incorrect number of bytes read
   **/
-  float readCo2Value();
+  int readCo2Value(float* value);
 
   /**
    * @brief Reads a measurement from the encoder
-   * @returns uint16_t an encoder reading if read was successful,
-   * -1 for write error, -2 for read error,
-   * -3 for incorrect number of bytes read
+   * @param value [uint16_t] : pointer to result
+   * @return int : 1 if read was successful, -1 for write error, -2 for read 
+   * error, -3 for incorrect number of bytes read
    * @attention If the uController detects a malfunction in a sensor it returns
    * zeros in place of its readings.
    * @note Although the uController can return the most recent reading whenever
    * it is asked there is no point asking for data much more frequently than
    * two times the sensor speed.
   **/
-  uint16_t readEncoderValue();
+  int readEncoderValue(uint16_t* value);
 
   /**
    * @brief Reads a voltage measurement from the selected battery
    * @param batterySelect [const char&] : used to select which battery's
    * voltage to read
-   * @returns uint16_t a battery voltage reading if read was successful,
+   * @param values [uint16_t*] : pointer to result
+   * @return int : 1 if read was successful,
    * -1 for write error, -2 for read error,
    * -3 for incorrect number of bytes read
    * @note Although the uController can return the most recent reading whenever
    * it is asked there is no point asking for data much more frequently than
    * two times the sensor speed.
   **/
-  uint16_t readBatteryValues(const char& batterySelect);
+  int readBatteryValues(const char& batterySelect, uint16_t* value);
 
  private:
   /**

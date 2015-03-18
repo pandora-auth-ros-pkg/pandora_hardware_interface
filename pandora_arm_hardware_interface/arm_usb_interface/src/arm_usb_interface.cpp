@@ -42,339 +42,334 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
-ArmUsbInterface::ArmUsbInterface()
-{
-  openUsbPort();
-}
-
-
-ArmUsbInterface::~ArmUsbInterface()
-{
-  close(fd);
-  ROS_INFO("[Head]: USB port closed because of program termination\n");
-}
-
-//  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
-//  fcntl(fd, F_SETFL, 0);  //make read() blocking
-void ArmUsbInterface::openUsbPort()
-{
-  int timeout = 0;
-  // To make read non-blocking use the following:
-  // fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
-  while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
+  ArmUsbInterface::ArmUsbInterface()
   {
-    ROS_ERROR("[Head]: cannot open USB port\n");
-    ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
-
-    ros::Duration(0.5).sleep();
-    timeout++;
-    if (timeout > 100)
-      throw std::runtime_error("[Head]: cannot open USB port");
+    openUsbPort();
   }
 
-  ROS_INFO("[Head]: USB port successfully opened\n");
 
-  /*Needs some time to initialize, even though it opens succesfully.
-   tcflush() didn't work without waiting at least 8 ms*/
-  ros::Duration(0.03).sleep();
-
-  // To save time you can see and change terminal settings in command line with stty command,
-  // before implementing in software. Note: stty prefixes disabled flags with a dash.
-  // See:  http://man7.org/linux/man-pages/man3/termios.3.html
-  struct termios tios;
-
-  if (tcgetattr(fd, &tios) < 0)
+  ArmUsbInterface::~ArmUsbInterface()
   {
-    ROS_ERROR("init_serialport: Couldn't get term attributes\n");
+    close(fd);
+    ROS_INFO("[Head]: USB port closed because of program termination\n");
   }
 
-  tios.c_lflag &= ~(ICANON | ISIG | ECHO |  IEXTEN | ECHOE | ECHOK);
 
-  tios.c_iflag &= ~(ICRNL | IXON);
-
-  tios.c_oflag &= ~(OPOST);
-
-  if (tcsetattr(fd, TCSANOW, &tios) < 0)
+  //  fcntl(fd, F_SETFL, FNDELAY);    //make read() non-blocking
+  //  fcntl(fd, F_SETFL, 0);  //make read() blocking
+  void ArmUsbInterface::openUsbPort()
   {
-    ROS_ERROR("init_serialport: Couldn't set term attributes\n");
-  }
-}
-
-
-int ArmUsbInterface::readGrideyeValues(
-  const char& grideyeSelect, uint8_t * values)
-{
-  int nr;
-  uint8_t bufOUT;
-
-  switch (grideyeSelect)
-  {
-    case 'C':
-      bufOUT = COMMAND_GEYE_CENTER;
-      break;
-    case 'L':
-      bufOUT = COMMAND_GEYE_LEFT;
-      break;
-    case 'R':
-      bufOUT = COMMAND_GEYE_RIGHT;
-      break;
-    default:
-      ROS_ERROR(
-        "Undefined Grideye Selection! Left Grideye selected by  default.");
-      bufOUT = COMMAND_GEYE_CENTER;
-      break;
-  }
-
-  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                           // -> and data written but not transmitted
-
-  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  if (nr != 1)
-  {
-    ROS_ERROR("[Head]: Write Error\n");
-    reconnectUsb();
-    return -1;
-  }
-
-  nr = read(fd, values, GEYE_NBYTES);  // blocking
-  if (nr < 0)
-  {
-    ROS_ERROR("[Head]: Read Error\n");
-    reconnectUsb();
-    return -2;
-  }
-  else if (nr != GEYE_NBYTES)
-  {
-    ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUsb();
-    return -3;
-  }
-  else
-  {
-    /*
-    std::stringstream ss;
-
-    ss << "[Head]: " << grideyeSelect << " GridEYE = ";
-    for (int i = 0; i < GEYE_NBYTES; ++i)
+    int timeout = 0;
+    // To make read non-blocking use the following:
+    // fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
+    while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
     {
-      ss << static_cast<int>(values[i]) << " ";
+      ROS_ERROR("[Head]: cannot open USB port\n");
+      ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
+
+      ros::Duration(0.5).sleep();
+      timeout++;
+      if (timeout > 100)
+        throw std::runtime_error("[Head]: cannot open USB port");
     }
-    ROS_INFO("%s", ss.str().c_str());
-    */
-    return 1;
-  }
-}
 
+    ROS_INFO("[Head]: USB port successfully opened\n");
 
-uint16_t ArmUsbInterface::readSonarValues(const char& sonarSelect)
-{
-  union
-  {
-    uint8_t sonarBufIN[SONAR_NBYTES];
-    uint16_t sonarBufIN_uint16_t;
-  };
+    /*Needs some time to initialize, even though it opens succesfully.
+     tcflush() didn't work without waiting at least 8 ms*/
+    ros::Duration(0.03).sleep();
 
-  int nr;
-  uint8_t bufOUT;
+    // To save time you can see and change terminal settings in command line with stty command,
+    // before implementing in software. Note: stty prefixes disabled flags with a dash.
+    // See:  http://man7.org/linux/man-pages/man3/termios.3.html
+    struct termios tios;
 
-  switch (sonarSelect)
-  {
-    case 'L':
-      bufOUT = COMMAND_SONAR_LEFT;
-      break;
-    case 'R':
-      bufOUT = COMMAND_SONAR_RIGHT;
-      break;
-    default:
-      bufOUT = COMMAND_SONAR_LEFT;
-      ROS_ERROR("Undefined Sonar Selection! Left Sonar selected by default.");
-      break;
+    if (tcgetattr(fd, &tios) < 0)
+    {
+      ROS_ERROR("init_serialport: Couldn't get term attributes\n");
+    }
+
+    tios.c_lflag &= ~(ICANON | ISIG | ECHO |  IEXTEN | ECHOE | ECHOK);
+
+    tios.c_iflag &= ~(ICRNL | IXON);
+
+    tios.c_oflag &= ~(OPOST);
+
+    if (tcsetattr(fd, TCSANOW, &tios) < 0)
+    {
+      ROS_ERROR("init_serialport: Couldn't set term attributes\n");
+    }
   }
 
-  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                           // -> and data written but not transmitted
-  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  if (nr != 1)
-  {
-    ROS_ERROR("[Head]: Write Error\n");
-    reconnectUsb();
-    return -1;
-  }
-  nr = read(fd, sonarBufIN, SONAR_NBYTES);  // blocking
-  if (nr < 0)
-  {
-    ROS_ERROR("[Head]: Read Error\n");
-    reconnectUsb();
-    return -2;
-  }
-  else if (nr != SONAR_NBYTES)
-  {
-    ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUsb();
-    return -3;
-  }
-  else
-  {
-    // ROS_INFO("[Head]: Sonar (%c) = %u\n", sonarSelect, sonarBufIN_uint16_t);
-    return sonarBufIN_uint16_t;
-  }
-}
 
-
-float ArmUsbInterface::readCo2Value()
-{
-  union
+  int ArmUsbInterface::readGrideyeValues(
+    const char& grideyeSelect, uint8_t* values)
   {
-    uint8_t CO2bufIN[CO2_NBYTES];
-    float CO2bufIN_float;
-  };
+    int nr;
+    uint8_t bufOut;
 
-  int nr;
-  uint8_t bufOUT;
+    switch (grideyeSelect)
+    {
+      case 'C':
+        bufOut = COMMAND_GEYE_CENTER;
+        break;
+      case 'L':
+        bufOut = COMMAND_GEYE_LEFT;
+        break;
+      case 'R':
+        bufOut = COMMAND_GEYE_RIGHT;
+        break;
+      default:
+        ROS_ERROR(
+          "Undefined Grideye Selection! Left Grideye selected by  default.");
+        bufOut = COMMAND_GEYE_CENTER;
+        break;
+    }
 
-  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                           // -> and data written but not transmitted
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
 
-  bufOUT = COMMAND_CO2;
-  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  if (nr != 1)
-  {
-    ROS_ERROR("[Head]: Write Error\n");
-    reconnectUsb();
-    return -1;
-  }
+    nr = write(fd, (const void*)&bufOut, COMMAND_NBYTES);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
 
-  nr = read(fd, CO2bufIN, CO2_NBYTES);  // blocking
-  if (nr < 0)
-  {
-    ROS_ERROR("[Head]: Read Error\n");
-    reconnectUsb();
-    return -2;
-  }
-  else if (nr != CO2_NBYTES)
-  {
-    ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUsb();
-    return -3;
-  }
-  else
-  {
-    // ROS_INFO("[Head]: CO2 Gas Reading = %f\n", CO2bufIN_float);
-    return CO2bufIN_float;
-  }
-}
-
-uint16_t ArmUsbInterface::readEncoderValue()
-{
-  union
-  {
-    uint8_t encoderBufIN[ENCODER_NBYTES];
-    uint16_t encoderBufIN_uint16_t;
-  };
-
-  int nr;
-  uint8_t bufOUT;
-
-  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                           // -> and data written but not transmitted
-
-  bufOUT = COMMAND_ENCODER;
-  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  if (nr != 1)
-  {
-    ROS_ERROR("[Head]: Write Error\n");
-    reconnectUsb();
-    return -1;
+    nr = read(fd, reinterpret_cast<void*>(values), GEYE_NBYTES);  // blocking
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != GEYE_NBYTES)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      return NO_ERROR;
+    }
   }
 
-  nr = read(fd, encoderBufIN, ENCODER_NBYTES);  // blocking
-  if (nr < 0)
+
+  int ArmUsbInterface::readSonarValues(
+    const char& sonarSelect, uint16_t* value)
   {
-    ROS_ERROR("[Head]: Read Error\n");
-    reconnectUsb();
-    return -2;
+    union
+    {
+      uint8_t sonarBufIn_uint8[SONAR_NBYTES];
+      uint16_t sonarBufIn_uint16;
+    };
+
+    int nr;
+    uint8_t bufOut;
+
+    switch (sonarSelect)
+    {
+      case 'L':
+        bufOut = COMMAND_SONAR_LEFT;
+        break;
+      case 'R':
+        bufOut = COMMAND_SONAR_RIGHT;
+        break;
+      default:
+        bufOut = COMMAND_SONAR_LEFT;
+        ROS_ERROR("Undefined Sonar Selection! Left Sonar selected by default.");
+        break;
+    }
+
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
+    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
+    nr = read(fd, sonarBufIn_uint8, SONAR_NBYTES);  // blocking
+    *value = sonarBufIn_uint16;
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != SONAR_NBYTES)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      return NO_ERROR;
+    }
   }
-  else if (nr != ENCODER_NBYTES)
-  {
-    ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUsb();
-    return -3;
-  }
-  else
-  {
-    // ROS_INFO("[Head]: Encoder Reading = %u\n", encoderBufIN_uint16_t);
-    return encoderBufIN_uint16_t;
-  }
-}
 
-uint16_t ArmUsbInterface::readBatteryValues(const char& batterySelect)
-{
-  union
+
+  int ArmUsbInterface::readCo2Value(float* value)
   {
-    uint8_t batteryBufIN[BATTERY_NBYTES];
-    uint16_t batteryBufIN_uint16_t;
-  };
+    union
+    {
+      uint8_t CO2BufInUint8[CO2_NBYTES];
+      float CO2BufInFloat;
+    };
 
-  int nr;
-  uint8_t bufOUT;
+    int nr;
+    uint8_t bufOut;
 
-  switch (batterySelect)
-  {
-    case 'M':
-      bufOUT = COMMAND_BATTERY_MOTOR;
-      break;
-    case 'S':
-      bufOUT = COMMAND_BATTERY_SUPPLY;
-      break;
-    default:
-      ROS_ERROR(
-        "Undefined Battery selection. Motor battery selected by default");
-      bufOUT = COMMAND_BATTERY_MOTOR;  // shouldn't get in there
-      break;
-  }
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
 
-  tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                           // -> and data written but not transmitted
+    bufOut = COMMAND_CO2;
+    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
 
-  nr = write(fd, (const void *)&bufOUT, COMMAND_NBYTES);
-  if (nr != 1)
-  {
-    ROS_ERROR("[Head]: Write Error\n");
-    reconnectUsb();
-    return -1;
+    nr = read(fd, CO2BufInUint8, CO2_NBYTES);  // blocking
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != CO2_NBYTES)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      *value = CO2BufInFloat;
+      return NO_ERROR;
+    }
   }
 
-  nr = read(fd, batteryBufIN, BATTERY_NBYTES);  // blocking
-  if (nr < 0)
+  int ArmUsbInterface::readEncoderValue(uint16_t* value)
   {
-    ROS_ERROR("[Head]: Read Error\n");
-    reconnectUsb();
-    return -2;
+    union
+    {
+      uint8_t encoderBufInUint8[ENCODER_NBYTES];
+      uint16_t encoderBufInUint16;
+    };
+
+    int nr;
+    uint8_t bufOut;
+
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
+
+    bufOut = COMMAND_ENCODER;
+    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
+
+    nr = read(fd, encoderBufInUint8, ENCODER_NBYTES);  // blocking
+    *value = encoderBufInUint16;
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != ENCODER_NBYTES)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      *value = encoderBufInUint16;
+      return NO_ERROR;
+    }
   }
-  else if (nr != BATTERY_NBYTES)
+
+
+  int ArmUsbInterface::readBatteryValues(
+    const char& batterySelect, uint16_t* value)
   {
-    ROS_ERROR("[Head]: Wrong number of bytes read\n");
-    reconnectUsb();
-    return -3;
+    union
+    {
+      uint8_t batteryBufInUint8[BATTERY_NBYTES];
+      uint16_t batteryBufInUint16;
+    };
+
+    int nr;
+    uint8_t bufOut;
+
+    switch (batterySelect)
+    {
+      case 'M':
+        bufOut = COMMAND_BATTERY_MOTOR;
+        break;
+      case 'S':
+        bufOut = COMMAND_BATTERY_SUPPLY;
+        break;
+      default:
+        ROS_ERROR(
+          "Undefined Battery selection. Motor battery selected by default");
+        bufOut = COMMAND_BATTERY_MOTOR;  // shouldn't get in there
+        break;
+    }
+
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
+
+    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
+
+    nr = read(fd, batteryBufInUint8, BATTERY_NBYTES);  // blocking
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != BATTERY_NBYTES)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      *value = batteryBufInUint16;
+      return NO_ERROR;
+    }
   }
-  else
+
+  void ArmUsbInterface::reconnectUsb()
   {
-    // ROS_INFO("[Head]: Battery (%c) = %u\n", batterySelect, batteryBufIN_uint16_t);
-    return batteryBufIN_uint16_t;
+    // reconnectUsb() should be called until communication is restored.
+    close(fd);
+    ROS_INFO("[Head]: USB port closed\n");
+    ros::Duration(1.5).sleep();
+
+    openUsbPort();
+
+    ROS_INFO("[Head]: USB port reconnected successfully");
   }
-}
-
-void ArmUsbInterface::reconnectUsb()
-{
-  // reconnectUsb() should be called until communication is restored.
-  close(fd);
-  ROS_INFO("[Head]: USB port closed\n");
-  ros::Duration(1.5).sleep();
-
-  openUsbPort();
-
-  ROS_INFO("[Head]: USB port reconnected successfully");
-}
 
 }  // namespace arm
 }  // namespace pandora_hardware_interface

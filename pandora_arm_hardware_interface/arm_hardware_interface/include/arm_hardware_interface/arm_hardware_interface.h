@@ -137,27 +137,27 @@ namespace arm
      int* width_;
      int* step_;
      uint8_t** thermalData_;
-     std::vector<std::string> address_;  // {L,C,R} not stored in handle
+     char* thermalSensorCode_;  // not stored in handle
 
      /* range sensors */
      RangeSensorInterface rangeSensorInterface_;
      std::vector<RangeSensorHandle::Data> rangeSensorData_;
      std::vector<std::string> rangeSensorName_;
      std::vector<std::string> rangeSensorFrameId_;
-     char* rangeSensorCode_;  // not stored in handle
      int* radiationType_;
      double* fieldOfView_;
      double* minRange_;
      double* maxRange_;
      double* range_;
      int* bufferCounter_;
+     char* rangeSensorCode_;  // not stored in handle
 
      /* battery interface */
      BatteryInterface batteryInterface_;
      std::vector<BatteryHandle::Data> batteryData_;
      std::vector<std::string> batteryName_;
-     char* batteryCode_;
      double* voltage_;
+     char* batteryCode_;  // not stored in handle
 
      /* encoder interface */
      hardware_interface::JointStateInterface jointStateInterface_;

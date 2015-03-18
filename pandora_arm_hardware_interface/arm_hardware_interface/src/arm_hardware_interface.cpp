@@ -78,46 +78,42 @@ namespace arm
 
   void ArmHardwareInterface::read()
   {
+    uint16_t value;
+
     // read CO2 percentage from CO2 sensors
     for (int ii = 0; ii < co2SensorName_.size(); ii++)
     {
-      co2Percentage_[ii] = arm_->readCo2Value();
+      arm_->readCo2Value(co2Percentage_ + ii);
     }
 
-    // read thermal image of thermal sensors
+    // read thermal image from grideye sensors
     for (int ii = 0; ii < thermalSensorName_.size(); ii++)
     {
-      arm_->readGrideyeValues(*address_[ii].c_str(), thermalData_[ii]);
+      arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
     }
 
-    // read distances of range sensors
+    // read distances from range sensors
     for (int ii = 0; ii < rangeSensorName_.size(); ii++)
     {
-      double temp_range = arm_->readSonarValues(rangeSensorCode_[ii]);
-      if (temp_range >= minRange_[ii] && temp_range <= maxRange_[ii])
-      {
-        range_[ii] = temp_range;
-      }
+      arm_->readSonarValues(rangeSensorCode_[ii], &value);
+      range_[ii] = value / 100;
     }
 
     // read voltage of batteries
     for (int ii = 0; ii < batteryName_.size(); ii++)
     {
-        double temp_voltage = arm_->readBatteryValues(batteryCode_[ii]);
-        if (temp_voltage > 0)
-        {
-          voltage_[ii] = temp_voltage;
-        }
+        arm_->readBatteryValues(batteryCode_[ii], &value);
+        voltage_[ii] = value / 4096.0 * 33.0;
     }
 
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
-    double radians = arm_->readEncoderValue() / 180 * pi;
+    double radians = arm_->readEncoderValue(&value) / 180 * pi;
+
     // make radians value between [-pi, pi]
     if (radians > pi)
-    {
       radians = radians - 2 * pi;
-    }
+
     position_[0] = radians;
     position_[1] = -radians;
   }
@@ -175,6 +171,7 @@ namespace arm
     width_ = new int[thermalSensorList.size()];
     step_ = new int[thermalSensorList.size()];
     thermalData_ = new uint8_t*[thermalSensorList.size()];
+    thermalSensorCode_ = new char[thermalSensorList.size()];
 
     std::string key;
     for (int ii = 0; ii < thermalSensorList.size(); ii++)
@@ -195,6 +192,13 @@ namespace arm
           XmlRpc::XmlRpcValue::TypeString);
       thermalFrameId_.push_back(
         static_cast<std::string>(thermalSensorList[ii][key]));
+
+      key = "code";
+      ROS_ASSERT(
+        thermalSensorList[ii][key].getType() ==
+          XmlRpc::XmlRpcValue::TypeString);
+      thermalSensorCode_[ii] =
+        static_cast<std::string>(thermalSensorList[ii][key]).at(0);
 
       key = "height";
       ROS_ASSERT(
@@ -217,12 +221,6 @@ namespace arm
         thermalData_[ii][jj] = 0;
       }
 
-      key = "address";
-      ROS_ASSERT(
-        thermalSensorList[ii][key].getType() ==
-          XmlRpc::XmlRpcValue::TypeString);
-      address_.push_back(
-        static_cast<std::string>(thermalSensorList[ii][key]));
       ThermalSensorHandle::Data data;
       data.name = thermalSensorName_[ii];
       data.frameId = thermalFrameId_[ii];
@@ -273,9 +271,8 @@ namespace arm
       key = "code";
       ROS_ASSERT(
         rangeSensorList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
-      std::string temp_string = static_cast<std::string>(
-        rangeSensorList[ii][key]);
-      rangeSensorCode_[ii] = temp_string[0];
+      rangeSensorCode_[ii] =
+        static_cast<std::string>(rangeSensorList[ii][key]).at(0);
 
       key = "radiation_type";
       ROS_ASSERT(
@@ -334,12 +331,12 @@ namespace arm
       ROS_ASSERT(
         batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
       batteryName_.push_back(static_cast<std::string>(batteryList[ii][key]));
-      
-      key = "battery_code";
+
+      key = "code";
       ROS_ASSERT(
         batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeString);
       batteryCode_[ii] = (static_cast<std::string>(batteryList[ii][key])).at(0);
-      
+
       key = "max_voltage";
       ROS_ASSERT(
         batteryList[ii][key].getType() == XmlRpc::XmlRpcValue::TypeDouble);
