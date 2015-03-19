@@ -35,34 +35,28 @@
 * Author: Chris Zalidis
 *********************************************************************/
 
-#include <pandora_trax_hardware_interface/trax_serial_interface.h>
+#include <pandora_imu_hardware_interface/ahrs_serial_interface.h>
 
 namespace pandora_hardware_interface
 {
-namespace trax
+namespace imu
 {
-  TraxSerialInterface::TraxSerialInterface(
+  AhrsSerialInterface::AhrsSerialInterface(
     const std::string& device,
     int speed,
     int timeout)
   :
-    serialPtr_(NULL),
-    yaw_(0),
-    pitch_(0),
-    roll_(0),
-    device_(device),
-    speed_(speed),
-    timeout_(timeout)
+    AbstractImuSerialInterface(device, speed, timeout)
   {
   }
 
-  void TraxSerialInterface::init()
+  void AhrsSerialInterface::init()
   {
     if (serialPtr_ == NULL)
     {
       try
       {
-        serialPtr_.reset( 
+        serialPtr_.reset(
           new serial::Serial(
             device_,
             speed_,
@@ -81,25 +75,25 @@ namespace trax
     }
   }
 
-  void TraxSerialInterface::read()
+  void AhrsSerialInterface::read()
   {
     if (serialPtr_ == NULL)
       ROS_ERROR("read() called before init()!");
     else if (!serialPtr_->isOpen())
       ROS_ERROR("Port not open");
 
-    // command: numBytes(2 bytes), command(1 byte), crc(2 byte)
+    // command: numBytes, command, crc
     unsigned char command[] = {0x00, 0x05, kGetData, 0x00, 0x00};
     // calculate crc of command and store it in the 4th & 5th byte of command
-    uint16_t crc_code = calcCrc((unsigned char*)command, 
+    uint16_t crc_code = calcCrc((unsigned char*)command,
       sizeof(command)/sizeof(unsigned char));
     // write command kGetData to receive yaw,pitc,roll measurements
     serialPtr_->write(command, 5);
 
     std::string buffer;
     // read data packet
-    serialPtr_->readline(buffer);    
-    
+    serialPtr_->readline(buffer);
+
     /*
     for (int ii = 0; ii < buffer.size(); ii++)
     {
@@ -108,9 +102,9 @@ namespace trax
     }
     */
     // extract size of packet from packet
-    uint16_t bufferSize =   
+    uint16_t bufferSize =
       static_cast<uint16_t>(buffer.at(0) << 8 | buffer.at(1));
-        
+
     // calculate CRC of data packet
     crc_code = calcCrc((unsigned char*) buffer.c_str(), buffer.size());
 
@@ -119,21 +113,21 @@ namespace trax
       if (check(buffer, crc_code))
         parse(buffer);  // parse data packet
   }
- 
 
-  bool TraxSerialInterface::check(const std::string packet, int crc)
+
+  bool AhrsSerialInterface::check(const std::string& packet, int crc)
   {
     int end = packet.size();
     char packetCrc[2] = {packet.at(end-1), packet.at(end-2)};
 
-    if (*((uint16_t*)packetCrc) == crc)
+    if (*reinterpret_cast<uint16_t*>(packetCrc) == crc)
       return true;
     else
       return false;
   }
 
 
-  uint16_t TraxSerialInterface::calcCrc(unsigned char* data, size_t data_size)
+  uint16_t AhrsSerialInterface::calcCrc(unsigned char* data, size_t data_size)
   {
     uint16_t crc = 0;
     for (int ii = 0; ii < data_size-2; ii++)
@@ -152,15 +146,15 @@ namespace trax
 
     return crc;
   }
-  
-  
-  void TraxSerialInterface::parse(const std::string& packet)
-  { 
+
+
+  void AhrsSerialInterface::parse(const std::string& packet)
+  {
     char codes[3] = {YAW_CODE, PITCH_CODE, ROLL_CODE};
     size_t start = std::string::npos;
     bool found = true;
 
-    start = packet.find_first_of(YAW_CODE, 0) + 2;    
+    start = packet.find_first_of(YAW_CODE, 0) + 2;
     std::string subPacket = packet.substr(start, 15);
 
     for (int ii = 0; ii < 3; ii++)
@@ -190,5 +184,5 @@ namespace trax
 //      ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
     }
   }
-}  // namespace trax
+}  // namespace imu
 }  // namespace pandora_hardware_interface

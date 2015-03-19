@@ -32,21 +32,17 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Chris Zalidis
+* Author: George Kouros
 *********************************************************************/
 
-#ifndef PANDORA_TRAX_HARDWARE_INTERFACE_TRAX_SERIAL_INTERFACE_H
-#define PANDORA_TRAX_HARDWARE_INTERFACE_TRAX_SERIAL_INTERFACE_H
+#ifndef PANDORA_IMU_HARDWARE_INTERFACE_AHRS_SERIAL_INTERFACE_H
+#define PANDORA_IMU_HARDWARE_INTERFACE_AHRS_SERIAL_INTERFACE_H
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
-#include <limits.h>
-#include <stdexcept>
-#include <string>
-#include <ros/ros.h>
-#include <serial/serial.h>
+
+#include "pandora_imu_hardware_interface/abstract_imu_serial_interface.h"
 
 #define kGetData 0x04
 #define YAW_CODE 0x05
@@ -55,22 +51,22 @@
 
 namespace pandora_hardware_interface
 {
-namespace trax
+namespace imu
 {
   /**
-   @class TraxSerialInterface
-   @brief Class used for serial communication with Compass Trax-AHRS
+   @class AhrsSerialInterface
+   @brief Class used for serial communication with a Trax AHRS
   **/
-  class TraxSerialInterface : private boost::noncopyable
+  class AhrsSerialInterface : public AbstractImuSerialInterface
   {
    public:
     /**
      @brief Default Constructor
-     @param device [std::string &] : IMU device com port name
+     @param device [std::string &] : AHRS device com port name
      @param speed [int] : Serial communication speed (baud rate)
      @param timeout [int] : Connection response timeout
     **/
-    TraxSerialInterface(
+    AhrsSerialInterface(
       const std::string& device,
       int speed,
       int timeout);
@@ -82,56 +78,12 @@ namespace trax
     void init();
 
     /**
-     @brief Reads raw data from the IMU and calculates yaw, pitch and roll 
+     @brief Reads yaw, pitch and roll from the Trax AHRS
      @details Init must be called first to establish serial communication
      @return void
     **/
     void read();
 
-    /**
-     @brief Get roll value
-     @return float roll
-    **/
-    inline float getRoll() const
-    {
-      return roll_;
-    }
-
-    /**
-     @brief Get pitch latest meausurement
-     @return float pitch
-    **/
-    inline float getPitch() const
-    {
-      return pitch_;
-    }
-
-    /**
-     @brief Get yaw latest measurement
-     @return float yaw
-    **/
-    inline float getYaw() const
-    {
-      return yaw_;
-    }
-
-    /**
-     @brief Get yaw, pitch and roll
-     @param yaw [float*] : used to return latest yaw measurement
-     @param pitch [float*] : used to return latest pitch measurement
-     @param roll [float*] : used to return latest roll measurement
-     @return void 
-    **/
-    inline void getData(
-      float* yaw,
-      float* pitch,
-      float* roll) const
-    {
-      *yaw = yaw_;
-      *pitch = pitch_;
-      *roll = roll_;
-    }
-    
     union Rotations
     {
       char charBuffer[12];
@@ -140,40 +92,30 @@ namespace trax
 
    private:
     /**
-     @brief Transform raw IMU data to yaw, pitch and roll meausurements
-     @param packet [std::string&] : packet containing the raw trax data
+     @brief Extract yaw, pitch, roll from packet
+     @param packet [std::string&] : packet containing the raw ahrs data
      @return void
     **/
-    void parse(const std::string& buffer);
+    void parse(const std::string& packet);
 
     /**
-     @brief Check size of latest received IMU data packet
+     @brief Check size of latest received data packet
      @return bool
     **/
-    bool check(const std::string packet, int crc);
-    
+    bool check(const std::string& packet, int crc);
+
     /**
      @brief Returns the crc of a byte stream using the xmodem crc algorithm
      @details The data_size must equal data.size-2
      @return uint16_t crc
     **/
     uint16_t calcCrc(unsigned char* data, size_t data_size);
-    
+
    private:
-    float yaw_;  //!< latest yaw measurement
-    float pitch_;  //!< latest pitch measurement
-    float roll_;  //!< latest roll measurement
     Rotations rotations;
-    
-    const std::string device_;  //!< IMU device com port name
-    const int speed_;  //!< serial communication speed (baud rate)
-    const int timeout_;  //!< Connection response timeout
-
     const boost::regex regex_;  //!< expression used to calculate yaw,pitch,roll
-
-    boost::scoped_ptr<serial::Serial> serialPtr_;  //!< serial communication class instance
   };
-}  // namespace trax
+}  // namespace imu
 }  // namespace pandora_hardware_interface
 
-#endif  // PANDORA_TRAX_HARDWARE_INTERFACE_TRAX_SERIAL_INTERFACE_H
+#endif  // PANDORA_IMU_HARDWARE_INTERFACE_AHRS_SERIAL_INTERFACE_H

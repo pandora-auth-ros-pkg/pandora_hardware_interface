@@ -42,17 +42,11 @@ namespace pandora_hardware_interface
 namespace imu
 {
   ImuSerialInterface::ImuSerialInterface(
-    const std::string& device,
-    int speed,
-    int timeout)
+      const std::string& device,
+      int speed,
+      int timeout)
   :
-    serialPtr_(NULL),
-    yaw_(0),
-    pitch_(0),
-    roll_(0),
-    device_(device),
-    speed_(speed),
-    timeout_(timeout),
+    AbstractImuSerialInterface(device, speed, timeout),
     // TODO(czalidis): add accel
     regex_("C([0-9]+\\.[0-9])P([-]*[0-9]+\\.[0-9])R([-]*[0-9]+\\.[0-9]).*")
   {
@@ -148,7 +142,7 @@ namespace imu
       pitch_ = boost::lexical_cast<float> (data[2]);
       roll_ = boost::lexical_cast<float> (data[3]);
     }
-    ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
+    // ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface

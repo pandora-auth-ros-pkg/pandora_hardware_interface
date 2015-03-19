@@ -33,6 +33,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *
 * Author:  Evangelos Apostolidis
+* Author:  George Kouros
 *********************************************************************/
 #include "pandora_imu_hardware_interface/imu_hardware_interface.h"
 
@@ -44,16 +45,31 @@ namespace imu
     ros::NodeHandle nodeHandle)
   :
     nodeHandle_(nodeHandle),
-    imuSerialInterface(
-      "/dev/imu",
-      38400,
-      100)
-
+    imuSerialInterface("/dev/imu", 38400, 100),
+    ahrsSerialInterface("/dev/imu", 38400, 100)
   {
-    imuSerialInterface.init();
-
     nodeHandle_.param("roll_offset", rollOffset_, 0.0);
     nodeHandle_.param("pitch_offset", pitchOffset_, 0.0);
+
+    std::string device_type;
+    if (nodeHandle_.getParam("device_type", device_type))
+    {
+      if (device_type == "imu")
+      {
+        imuSerialInterface.init();
+        serialInterface = &imuSerialInterface;
+      }
+      else if (device_type == "ahrs")
+      {
+        ahrsSerialInterface.init();
+        serialInterface = &ahrsSerialInterface;
+      }
+      else
+      {
+        ROS_FATAL("[ERROR]: device_type not set in parameter server.");
+        exit(-1);
+      }
+    }
 
     // connect and register imu sensor interface
     imuOrientation_[0] = 0;
@@ -75,8 +91,8 @@ namespace imu
   void ImuHardwareInterface::read()
   {
     float yaw, pitch, roll;
-    imuSerialInterface.read();
-    imuSerialInterface.getData(&yaw, &pitch, &roll);
+    serialInterface->read();
+    serialInterface->getData(&yaw, &pitch, &roll);
 
     yaw = (yaw - 180) * (2*boost::math::constants::pi<double>()) / 360;
     pitch = -pitch * (2*boost::math::constants::pi<double>()) / 360;

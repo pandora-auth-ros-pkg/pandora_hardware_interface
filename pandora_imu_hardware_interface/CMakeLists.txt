@@ -29,6 +29,7 @@ include_directories(
 add_executable(
   imu_hardware_interface_node
   src/imu_serial_interface.cpp
+  src/ahrs_serial_interface.cpp
   src/imu_hardware_interface.cpp
   src/imu_hardware_interface_node.cpp)
 target_link_libraries(
@@ -42,10 +43,10 @@ set(ROSLINT_CPP_OPTS
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
 
-  include/pandora_imu_hardware_interface/imu_serial_interface.h
-  include/pandora_imu_hardware_interface/imu_hardware_interface.h
-  src/imu_serial_interface.cpp
-  src/imu_hardware_interface.cpp
-  src/imu_hardware_interface_node.cpp
+  include/*.h
+  include/*.h
+  src/*.cpp
+  src/*.cpp
+  src/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})
