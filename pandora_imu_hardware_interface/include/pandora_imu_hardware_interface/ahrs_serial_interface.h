@@ -41,10 +41,15 @@
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#include <endian.h>
 
 #include "pandora_imu_hardware_interface/abstract_imu_serial_interface.h"
 
 #define kGetData 0x04
+#define kSetConfig 0x06
+#define kBigEndian 0x06
+#define BIG_ENDIAN_CODE 0x01
+#define LITTLE_ENDIAN_CODE 0x00
 #define YAW_CODE 0x05
 #define PITCH_CODE 0x18
 #define ROLL_CODE 0x19
@@ -73,6 +78,8 @@ namespace imu
 
     /**
      @brief Establishes serial communication
+     @details Also sends a command to the device to send the data in little 
+     endian format (big endian format is default)
      @return void
     **/
     void init();
@@ -84,12 +91,6 @@ namespace imu
     **/
     void read();
 
-    union Rotations
-    {
-      char charBuffer[12];
-      float data[3];  // rotationData = {yaw,pitch,roll}
-    };
-
    private:
     /**
      @brief Extract yaw, pitch, roll from packet
@@ -99,21 +100,26 @@ namespace imu
     void parse(const std::string& packet);
 
     /**
-     @brief Check size of latest received data packet
+     @brief Checks if the calculated crc matches the one in the received packet
+     @param packet [const std::string&] : reference to the received data packet
+     @param crc [int] : the calculated crc of the packet
      @return bool
     **/
     bool check(const std::string& packet, int crc);
 
     /**
      @brief Returns the crc of a byte stream using the xmodem crc algorithm
-     @details The data_size must equal data.size-2
+     @param data [unsigned char*] : data packet as char array
+     @param dataSize [size_t] : size of packet char array
+     @param storeCrcInData [bool] : true, to store the crc code in the last two 
+     bytes of the packet, else false
      @return uint16_t crc
     **/
-    uint16_t calcCrc(unsigned char* data, size_t data_size);
+    uint16_t calcCrc(unsigned char* data, size_t dataSize, bool storeCrcInData);
 
    private:
-    Rotations rotations;
-    const boost::regex regex_;  //!< expression used to calculate yaw,pitch,roll
+    //!< expression used to extract yaw, pitch, roll from packet
+    const boost::regex regex_;
   };
 }  // namespace imu
 }  // namespace pandora_hardware_interface

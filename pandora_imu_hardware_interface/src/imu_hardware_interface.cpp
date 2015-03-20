@@ -48,19 +48,22 @@ namespace imu
     imuSerialInterface("/dev/imu", 38400, 100),
     ahrsSerialInterface("/dev/imu", 38400, 100)
   {
-    nodeHandle_.param("roll_offset", rollOffset_, 0.0);
-    nodeHandle_.param("pitch_offset", pitchOffset_, 0.0);
-
     std::string device_type;
     if (nodeHandle_.getParam("device_type", device_type))
     {
       if (device_type == "imu")
       {
+        nodeHandle_.param("imu_roll_offset", rollOffset_, 0.0);
+        nodeHandle_.param("imu_pitch_offset", pitchOffset_, 0.0);
+
         imuSerialInterface.init();
         serialInterface = &imuSerialInterface;
       }
       else if (device_type == "ahrs")
       {
+        nodeHandle_.param("ahrs_roll_offset", rollOffset_, 0.0);
+        nodeHandle_.param("ahrs_pitch_offset", pitchOffset_, 0.0);
+
         ahrsSerialInterface.init();
         serialInterface = &ahrsSerialInterface;
       }
