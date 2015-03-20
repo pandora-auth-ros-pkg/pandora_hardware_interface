@@ -36,8 +36,9 @@
 *********************************************************************/
 
 #include "leddar_usb_interface/leddar_usb_interface.h"
-#include "pandora_leddar_hardware_interface/LeddarMsg.h"
+#include <sensor_msgs/LaserScan.h>
 #include <iostream>
+#include <math.h>
 
 using pandora_hardware_interface::leddar::LeddarUSBInterface;
 
@@ -60,23 +61,32 @@ int main(int argc, char** argv)
 
   // create publisher to publish all the readings from the leddar
   ros::Publisher leddarPub = nodeHandle.advertise<
-    pandora_leddar_hardware_interface::LeddarMsg>("leddar", 100);
+    sensor_msgs::LaserScan>("leddar", 100);
+
   // create the msg to be published
-  pandora_leddar_hardware_interface::LeddarMsg msg;
+  sensor_msgs::LaserScan msg;
+  msg.angle_min = -M_PI/8;
+  msg.angle_max = M_PI/8;
+  msg.angle_increment = M_PI / 4 / 16;
+  msg.time_increment = 1 / 10;  // TODO(gKouros): reexamine
+  msg.scan_time = 0;  // TODO(gKouros): reexamine
+  msg.range_min = 0.2;  // TODO(gKouros): reexamine
+  msg.range_max = 50;
+
 
   while (ros::ok())
   {
+    msg.ranges.clear();
+    msg.intensities.clear();
+
     // If a live connection is active we need to ping it periodically.
     leddarUSBInterface.ping();
-
-    // clear the msg
-    msg.leddar_distances.clear();
-    msg.leddar_detection_count = 16;
 
     // fill the msg with the detections
     for (int ii = 0; ii < LeddarUSBInterface::leddarDetectionCount_; ii++)
     {
-      msg.leddar_distances.push_back(LeddarUSBInterface::measurements_[ii].mDistance);
+      msg.ranges.push_back(LeddarUSBInterface::measurements_[ii].mDistance);
+      msg.ranges.push_back(LeddarUSBInterface::measurements_[ii].mAmplitude);
     }
 
     // publish the msg

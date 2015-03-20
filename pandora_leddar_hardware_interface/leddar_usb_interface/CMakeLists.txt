@@ -16,6 +16,6 @@ add_executable(
 target_link_libraries(
   leddar_usb_interface_demo
   leddar_usb_interface
-  /opt/ros/hydro/lib/libLeddarC.so
+  libLeddarC.so  # shared libraries are located in /usr/lib
   ${catkin_LIBRARIES}
   )

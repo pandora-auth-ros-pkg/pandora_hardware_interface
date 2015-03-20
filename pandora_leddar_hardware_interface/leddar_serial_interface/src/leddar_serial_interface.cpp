@@ -65,7 +65,7 @@ namespace leddar
     strncpy(pn, port_name_.c_str(), sizeof(port_name_.c_str()));
 
     ROS_INFO("[leddar] Attempting to establish serial communication...");
-    int connection_attempts = 5;
+    int connection_attempts = 10;
     while (LeddarConnect(pn, address_) != LT_SUCCESS)
     {
       connection_attempts--;

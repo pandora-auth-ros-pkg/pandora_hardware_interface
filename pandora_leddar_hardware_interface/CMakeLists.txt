@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 set(THIS_PACKAGE_INCLUDE_DIRS
   leddar_serial_interface/include
-#  leddar_usb_interface/include
+  leddar_usb_interface/include
   leddar_hardware_interface/include
   leddar_controllers/include
   )
@@ -37,7 +37,7 @@ include_directories(
   )
 
 add_subdirectory(leddar_serial_interface)
-#add_subdirectory(leddar_usb_interface)
+add_subdirectory(leddar_usb_interface)
 add_subdirectory(leddar_hardware_interface)
 add_subdirectory(leddar_controllers)
 

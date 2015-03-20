@@ -47,26 +47,58 @@ namespace pandora_hardware_interface
 {
 namespace leddar
 {
+  /**
+   @class LeddarSerialInterface
+   @brief Interface for communication with the leddar sensor
+  **/
   class LeddarSerialInterface : private boost::noncopyable
   {
     public:
+      /**
+       @brief Default Constructor
+       @param device [std::string] : name of device
+       @param port_number [std::string] : name of port the device is connected 
+       to
+       @param address [int] : address of sensor (in case of more than one).
+       By defailt should be 1
+      **/
       LeddarSerialInterface(
         std::string device,
         std::string port_number,
         int address);
+
+      /**
+       @brief Default Destructor
+      **/
       ~LeddarSerialInterface();
+
+      /**
+       @brief Initializes the communication and the class variables
+       @return void
+      **/
       void init();
+
+      /**
+       @brief Requests a reading from the sensor
+       @details The reading gets stored in lAcquisition class variable
+       @return void
+      **/
       void read();
+
+      /**
+       @brief Getter for pointer to the LtAcquisition class object
+       @return LtAcquisition* : Returns the pointer to an LtAcquision object
+      **/
       LtAcquisition* getLAcquisition()
       {
         return lAcquisition_;
       }
 
     private:
-      std::string device_;
-      std::string port_name_;  // ttyUSB*
-      int address_;  // 1-255
-      LtAcquisition *lAcquisition_;
+      std::string device_;  //!< device name
+      std::string port_name_;  //!< port name the device is connected to
+      int address_;  //!< serial number of connected leddar sensors
+      LtAcquisition *lAcquisition_;  //!< a leddar acquisition object
   };
 }  // namespace leddar
 }  // namespace pandora_hardware_interface

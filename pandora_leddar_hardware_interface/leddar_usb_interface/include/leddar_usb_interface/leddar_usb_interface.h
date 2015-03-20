@@ -50,24 +50,50 @@ namespace pandora_hardware_interface
 {
 namespace leddar
 {
+  /**
+   @class LeddarUsbInterface
+   @brief Interface for communication with the leddar sensor
+  **/
   class LeddarUSBInterface : private boost::noncopyable
   {
     public:
+      /**
+       @brief Default Constructor
+      **/
       LeddarUSBInterface(
         std::string device,
         std::string lAddress);
+
+      /**
+       @brief Default Destructor
+      **/
       ~LeddarUSBInterface();
+
+      /**
+       @brief Initializes the communication parameters and class variables
+       @return void
+      **/
       void init();
+
+      /**
+       @brief Pings the leddar sensor
+       @return void
+      **/
       void ping();
+
+      /**
+       @brief
+       @return unsigned char : 1 to get called again or zero otherwise
+      **/
       static unsigned char dataCallback(void* aHandle, unsigned int aLevels);
 
     private:
-      std::string device_;
-      std::string lAddress_;
+      std::string device_;  //!< port name the device is connected to
+      std::string lAddress_;  //!< serial number of the sensor
     public:
-      static LeddarHandle leddarHandle_;
-      static LdDetection* measurements_;
-      static int leddarDetectionCount_;
+      static LeddarHandle leddarHandle_;  //!< leddar handle
+      static LdDetection* measurements_;  //!< leddar measurements struct
+      static int leddarDetectionCount_;  //!< number of detections of sensor
   };
 }  // namespace leddar
 }  // namespace pandora_hardware_interface

@@ -48,28 +48,49 @@ namespace pandora_hardware_interface
 {
 namespace leddar
 {
+  /**
+   @class LeddarHardwareInterface
+   @brief Allows the controller manager to communicate with the leddar sensor
+  **/
   class LeddarHardwareInterface : public hardware_interface::RobotHW
   {
     public:
+      /**
+       @brief Default Constructor
+       @param nodeHandle [ros::NodeHandle] : ros node handle
+      **/
       explicit LeddarHardwareInterface(ros::NodeHandle nodeHandle);
+
+      /**
+       @brief Default Destructor
+      **/
       ~LeddarHardwareInterface();
+
+      /**
+       @brief Requests a reading from the leddar sensors via the serial interface
+       @return void
+      **/
       void read();
 
     private:
+      /**
+       @brief Registers Leddar Sensor Interface
+       @return void
+      **/
       void registerLeddarSensorInterface();
 
     private:
-      ros::NodeHandle nodeHandle_;
-      LeddarSerialInterface leddarSerialInterface_;
-      LeddarSensorInterface leddarSensorInterface_;
-      LeddarSensorHandle::Data leddarSensorData_;
-      LtAcquisition* lAcquisition_;
+      ros::NodeHandle nodeHandle_;  //!< ros node handle
+      LeddarSerialInterface leddarSerialInterface_;  //!< leddar serial interface
+      LeddarSensorInterface leddarSensorInterface_;  //!< leddar sensor interface
+      LeddarSensorHandle::Data leddarSensorData_;  //!< leddar sensor data
+      LtAcquisition* lAcquisition_;  //!< leddar measurements object
 
-      std::string name_;
-      std::string frameId_;
-      int* leddarDetectionCount_;
-      float* leddarDistances_;
-      float* leddarAmplitudes_;
+      std::string name_;  //!< name of sensor (leddar)
+      std::string frameId_;  //!< frame id of sensor data
+      int* leddarDetectionCount_;  //!< number of segments of distance detection
+      float* leddarDistances_;  //!< stores the distance measurements
+      float* leddarAmplitudes_;  //!< stores the amplitude measurements
   };
 }  // namespace leddar
 }  // namespace pandora_hardware_interface

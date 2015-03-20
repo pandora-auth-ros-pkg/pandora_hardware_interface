@@ -51,25 +51,63 @@ namespace pandora_hardware_interface
 {
 namespace leddar
 {
+  /**
+   @class LeddarSensorController
+   @brief Controller used to publish leddar sensor measurements
+  **/
   class LeddarSensorController :
     public controller_interface::Controller<LeddarSensorInterface>
   {
     public:
+      /**
+       @brief Default Constructor
+      **/
       LeddarSensorController();
+
+      /**
+       @brief Default Destructor
+      **/
       ~LeddarSensorController();
+
+      /**
+       @brief Initializes the leddar controller
+       @param leddarSensorInterface [LeddarSensorInterface*] : Leddar Sensor Interface
+       @param rootNodeHandle [ros::NodeHandle&] : root node ros node handle
+       @param controllerNodeHandle [ros::NodeHandle] : controller node handle
+       @return void
+      **/
       virtual bool init(
         LeddarSensorInterface* leddarSensorInterface,
         ros::NodeHandle& rootNodeHandle,
         ros::NodeHandle& controllerNodeHandle);
+
+      /**
+       @brief Starts the leddar controller
+       @param time [const ros::Time&] : current time
+       @return void
+      **/
       virtual void starting(const ros::Time& time);
+
+      /**
+       @brief Updates the leddar controller and publishes the new measurements
+       @param time [const ros::Time&] : current time
+       @param period [const ros::Duration&] : time since last update
+       @return void
+      **/
       virtual void update(const ros::Time& time, const ros::Duration& period);
+
+      /**
+       @brief Stops the controller
+       @param time [const ros::Time& time] : current time
+       @return void
+      **/
       virtual void stopping(const ros::Time& time);
 
     private:
-      std::vector<LeddarSensorHandle> sensorHandles_;
-      std::vector<LeddarRealtimePublisher> realtimePublishers_;
-      std::vector<ros::Time> lastTimePublished_;
-      double publishRate_;
+      std::vector<LeddarSensorHandle> sensorHandles_;  //!< leddar sensor handles' vector
+      std::vector<LeddarRealtimePublisher> realtimePublishers_;  //!< leddar publisher
+      std::vector<ros::Time> lastTimePublished_;  //!< time since last publishing
+      double publishRate_;  //!< publishing frequency
   };
 }  // namespace leddar
 }  // namespace pandora_hardware_interface
