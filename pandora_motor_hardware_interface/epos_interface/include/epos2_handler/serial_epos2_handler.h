@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,55 +32,48 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author:     Konstantinos Panayiotou   <klpanagi@gmail.com>
+* Maintainer: Konstantinos Panayiotou   <klpanagi@gmail.com>
 *********************************************************************/
-#ifndef MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
-#define MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
+#ifndef EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H
+#define EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H
 
-#include "ros/ros.h"
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-#include "epos2_handler/serial_epos2_handler.h"
-#include <pandora_motor_hardware_interface/MotorCurrents.h>
-
-typedef pandora_motor_hardware_interface::MotorCurrents MotorCurrentsMsg;
+#include "epos_handler/abstract_epos_handler.h"
+#include "epos2_gateway/epos2_gateway.h"
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
-  class MotorHardwareInterface : public hardware_interface::RobotHW
+
+  #define EPOS2_GATEWAY_ID  1
+  #define RIGHT_FRONT_MOTOR 1
+  #define RIGHT_REAR_MOTOR  2
+  #define LEFT_FRONT_MOTOR  3 
+  #define LEFT_REAR_MOTOR   4 
+  #define NUM_NODES         4
+  
+
+  class SerialEpos2Handler: public AbstractEposHandler
   {
     private:
-      AbstractEposHandler *motors_;
-
-      ros::NodeHandle nodeHandle_;
-      ros::Publisher currentPub_;
-
-      MotorCurrentsMsg motorCurrentsMsg_;
-
-      hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::VelocityJointInterface velocityJointInterface_;
-      std::vector<std::string> jointNames_;
-      double command_[4];
-      double position_[4];
-      double velocity_[4];
-      double effort_[4];
-      double current_[4];
-      double maxRPM_;
-      double gearboxRatio_;
-
-      void readJointNameFromParamServer();
-
+      boost::scoped_ptr<Epos2Gateway> epos2Gateway;
+      uint16_t* nodeState_;
     public:
-      explicit MotorHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~MotorHardwareInterface();
-      void read(const ros::Duration& period);
-      void write();
+      SerialEpos2Handler(const std::string port, 
+        const uint32_t baudrate, const uint32_t timeout);
+      virtual ~SerialEpos2Handler();
+      virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
+        int* rightRearRpm, int* rightFrontRpm);
+      virtual void getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
+        int* rightRearCurrent, int* rightFrontCurrent);
+      virtual Error getError();
+      virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
+      void readStates(void);
+      void stateHandle(void);
+     
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-#endif  // MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
+
+#endif  // EPOS_HANDLER_SERIAL_EPOS2_HANDLER_H
