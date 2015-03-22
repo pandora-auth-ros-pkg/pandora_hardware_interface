@@ -92,6 +92,7 @@ namespace motor
 
   MotorHardwareInterface::~MotorHardwareInterface()
   {
+    delete motors_;
   }
 
   void MotorHardwareInterface::read(const ros::Duration& period)

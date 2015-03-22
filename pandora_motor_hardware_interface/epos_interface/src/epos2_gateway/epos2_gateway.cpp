@@ -389,6 +389,9 @@ namespace motor
     else
     {
       //TODO --- resolve errorCode
+      ROS_FATAL("[Motors]: Error while trying to read NodeId[%d]  State",
+        nodeId);
+      *nodeState = 9;
     }
   }
 

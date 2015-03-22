@@ -46,12 +46,16 @@ namespace pandora_hardware_interface
 namespace motor
 {
 
-  #define EPOS2_GATEWAY_ID  1
-  #define RIGHT_FRONT_MOTOR 1
-  #define RIGHT_REAR_MOTOR  2
-  #define LEFT_FRONT_MOTOR  3 
-  #define LEFT_REAR_MOTOR   4 
-  #define NUM_NODES         4
+  #define EPOS2_GATEWAY_ID          1
+  #define RIGHT_FRONT_MOTOR_ID      1
+  #define RIGHT_REAR_MOTOR_ID       2
+  #define LEFT_FRONT_MOTOR_ID       3 
+  #define LEFT_REAR_MOTOR_ID        4 
+  #define RIGHT_FRONT_MOTOR_INDEX   0
+  #define RIGHT_REAR_MOTOR_INDEX    1
+  #define LEFT_FRONT_MOTOR_INDEX    2 
+  #define LEFT_REAR_MOTOR_INDEX     3 
+  #define NUM_NODES                 4
   
 
   class SerialEpos2Handler: public AbstractEposHandler

@@ -77,8 +77,8 @@ add_subdirectory(epos_interface)
   #RELATIVE ${PROJECT_SOURCE_DIR}
   #motor_hardware_interface/*.h
   #motor_hardware_interface/*.cpp
-  ~ motor_controllers/*.h
-  ~ motor_controllers/*.cpp
+  # motor_controllers/*.h
+  # motor_controllers/*.cpp
   #orangutan_interface/*.h
   #orangutan_interface/*.cpp
   #epos_interface/*.h
