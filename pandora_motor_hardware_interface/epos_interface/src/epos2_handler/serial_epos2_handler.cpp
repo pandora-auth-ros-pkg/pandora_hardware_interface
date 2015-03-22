@@ -49,12 +49,16 @@ namespace motor
         NUM_NODES));
     rightFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightFrontMotor_);
+    rightFrontMotor_->nodeId_ = RIGHT_FRONT_MOTOR_ID;
     rightRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightRearMotor_);
+    rightRearMotor_->nodeId_ = RIGHT_REAR_MOTOR_ID;
     leftFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftFrontMotor_);
+    leftFrontMotor_->nodeId_ = LEFT_FRONT_MOTOR_ID;
     leftRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftRearMotor_);
+    leftRearMotor_->nodeId_ = LEFT_REAR_MOTOR_ID;
 
     rightFrontMotor_->state_ = 0;
     rightRearMotor_->state_ = 0;
@@ -99,6 +103,11 @@ namespace motor
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
         case 9://CANNOT COMMUNICATE
+          if(epos2Controllers_.at(_ii)->nodeId_==EPOS2_GATEWAY_ID)
+          {
+            //Cannot communicate with epos2-Gateway
+            ROS_FATAL("[Motors]: Cannot communicate with epos2-Gateway.");
+          }
           epos2Gateway_->resetNode(epos2Controllers_.at(_ii)->nodeId_);
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
@@ -172,19 +181,19 @@ namespace motor
   {
     epos2Gateway_->readState(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State == %d", rightFrontMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", rightFrontMotor_->nodeId_, 
       rightFrontMotor_->state_);
     epos2Gateway_->readState(rightRearMotor_->nodeId_,
       &rightRearMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State == %d", rightRearMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", rightRearMotor_->nodeId_, 
       rightRearMotor_->state_);
     epos2Gateway_->readState(leftFrontMotor_->nodeId_,
       &leftFrontMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State == %d", leftFrontMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", leftFrontMotor_->nodeId_, 
       leftFrontMotor_->state_);
     epos2Gateway_->readState(leftRearMotor_->nodeId_,
      &leftRearMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State == %d", leftRearMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", leftRearMotor_->nodeId_, 
       leftRearMotor_->state_);
   }
 
