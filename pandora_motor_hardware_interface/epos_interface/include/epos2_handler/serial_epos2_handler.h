@@ -57,12 +57,27 @@ namespace motor
   #define LEFT_REAR_MOTOR_INDEX     3 
   #define NUM_NODES                 4
   
+  struct Epos2Controller
+  {
+    uint16_t nodeId_;
+    uint32_t errorCode_;
+    std::string motorId_;
+    uint16_t state_;
+    int32_t rpm_;
+    int16_t current_;
+  };
+
+  //=========================================================================
 
   class SerialEpos2Handler: public AbstractEposHandler
   {
     private:
-      boost::scoped_ptr<Epos2Gateway> epos2Gateway;
-      uint16_t* nodeState_;
+      boost::scoped_ptr<Epos2Gateway> epos2Gateway_;
+      std::vector<Epos2Controller*> epos2Controllers_;
+      Epos2Controller* rightFrontMotor_;
+      Epos2Controller* rightRearMotor_;
+      Epos2Controller* leftFrontMotor_;
+      Epos2Controller* leftRearMotor_;
     public:
       SerialEpos2Handler(const std::string port, 
         const uint32_t baudrate, const uint32_t timeout);
