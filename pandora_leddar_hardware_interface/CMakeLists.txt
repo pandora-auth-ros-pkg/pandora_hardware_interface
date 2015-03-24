@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_interface
   roslint
   pluginlib
+  pandora_cmake_tools
   )
 
 set(THIS_PACKAGE_INCLUDE_DIRS

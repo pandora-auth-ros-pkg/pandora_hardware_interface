@@ -10,6 +10,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
+  <build_depend>pandora_cmake_tools</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>roslint</build_depend>
   <build_depend>controller_manager</build_depend>
