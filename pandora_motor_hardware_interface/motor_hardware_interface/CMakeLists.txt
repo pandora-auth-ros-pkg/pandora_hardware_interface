@@ -1,3 +1,5 @@
+link_directories(${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION})
+
 add_executable(
   motor_hardware_interface_node
   src/motor_hardware_interface.cpp

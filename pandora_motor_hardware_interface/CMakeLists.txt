@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   std_msgs
   sensor_msgs
+  pandora_cmake_tools
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
@@ -59,20 +60,20 @@ catkin_package(
 #~ set(CMAKE_BUILD_TYPE Debug)
 
 include_directories(
-  ${THIS_PACKAGE_INCLUDE_DIRS} 
+  ${THIS_PACKAGE_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
 add_subdirectory(orangutan_interface)
+add_subdirectory(epos_interface)
 add_subdirectory(motor_controllers)
 add_subdirectory(motor_hardware_interface)
-add_subdirectory(epos_interface)
 
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 #set(ROSLINT_CPP_OPTS
   #"--filter=-build/include_what_you_use, -whitespace/comments, -runtime/references, -runtime/arrays, -whitespace/empty_loop_body")
-  
+
 #FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   #RELATIVE ${PROJECT_SOURCE_DIR}
   #motor_hardware_interface/*.h
