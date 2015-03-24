@@ -71,18 +71,18 @@ add_subdirectory(motor_hardware_interface)
 
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
-#set(ROSLINT_CPP_OPTS
-  #"--filter=-build/include_what_you_use, -whitespace/comments, -runtime/references, -runtime/arrays, -whitespace/empty_loop_body")
+set(ROSLINT_CPP_OPTS
+  "--filter=-build/include_what_you_use, -whitespace/comments, -runtime/references, -runtime/arrays, -whitespace/empty_loop_body")
 
-#FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
-  #RELATIVE ${PROJECT_SOURCE_DIR}
+file(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
+  RELATIVE ${PROJECT_SOURCE_DIR}
   #motor_hardware_interface/*.h
   #motor_hardware_interface/*.cpp
-  # motor_controllers/*.h
-  # motor_controllers/*.cpp
-  #orangutan_interface/*.h
-  #orangutan_interface/*.cpp
+  #motor_controllers/*.h
+  #motor_controllers/*.cpp
+  orangutan_interface/*.h
+  orangutan_interface/*.cpp
   #epos_interface/*.h
   #epos_interface/*.cpp
-#)
-#roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})
+)
+roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})
