@@ -45,8 +45,7 @@ namespace motor
 
   SerialEpos2Handler::SerialEpos2Handler(const std::string port, const uint32_t baudrate, const uint32_t timeout)
   {
-    epos2Gateway_.reset(new Epos2Gateway(port, baudrate, timeout, 
-        NUM_NODES));
+    epos2Gateway_.reset(new Epos2Gateway(port, baudrate, timeout));
     rightFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightFrontMotor_);
     rightFrontMotor_->nodeId_ = RIGHT_FRONT_MOTOR_ID;
@@ -70,16 +69,18 @@ namespace motor
     stateHandle();
     /*----------------------------------------------------*/
     //Set every epos2 controller at profileVelocityMode on startup 
-    epos2Gateway_->activate_profileVelocityMode(0);
-    //epos2Gateway_->activate_profileVelocityMode(RIGHT_FRONT_MOTOR_ID);
-    //epos2Gateway_->activate_profileVelocityMode(RIGHT_REAR_MOTOR_ID);
-    //epos2Gateway_->activate_profileVelocityMode(LEFT_FRONT_MOTOR_ID);
-    //epos2Gateway_->activate_profileVelocityMode(LEFT_REAR_MOTOR_ID);
+    epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
+    epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
+    epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
+    epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
   }
 
   SerialEpos2Handler::~SerialEpos2Handler()
   {
-    epos2Gateway_->moveWithVelocity(0,0);
+    epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, 0);
+    epos2Gateway_->set_targetVelocity(rightRearMotor_->nodeId_, 0);
+    epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_,0);
+    epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, 0);
     epos2Gateway_->closeDevice();
   }
 
@@ -170,10 +171,10 @@ namespace motor
   uint16_t SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm) 
   {
     ROS_DEBUG("[Motors]: Setting speed %d, %d", leftRpm, rightRpm);
-    epos2Gateway_->moveWithVelocity(rightFrontMotor_->nodeId_, -rightRpm);
-    epos2Gateway_->moveWithVelocity(rightRearMotor_->nodeId_, -rightRpm);
-    epos2Gateway_->moveWithVelocity(leftFrontMotor_->nodeId_, leftRpm);
-    epos2Gateway_->moveWithVelocity(leftRearMotor_->nodeId_, leftRpm);
+    epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, -rightRpm);
+    epos2Gateway_->set_targetVelocity(rightRearMotor_->nodeId_, -rightRpm);
+    epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_, leftRpm);
+    epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, leftRpm);
     return 1; //
   }
 
