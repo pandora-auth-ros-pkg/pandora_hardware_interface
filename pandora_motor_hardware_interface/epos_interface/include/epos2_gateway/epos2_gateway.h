@@ -64,11 +64,9 @@ namespace motor
     private:
       boost::scoped_ptr<Interface> comInterface_;
       void* comHandler_;
-      uint32_t* nodeError_;
-      uint16_t numOfNodes_;
     public:
       Epos2Gateway(const std::string port, const uint32_t baudrate, 
-        const uint32_t timeout, const uint16_t numOfNodes);
+        const uint32_t timeout);
       ~Epos2Gateway();
 
   //=================GATEWAY COMMUNICATION Methods=========================
@@ -76,13 +74,14 @@ namespace motor
       /*!
        * @brief Opens the port to sent and receive commands
        */
-      void openDevice();
+      void openDevice(void);
 
       /*!
        * @brief Closes the communication port
        */
-      void closeDevice();
+      void closeDevice(void);
 
+      bool eval_communicationParameters(void);
 
   //=======================STATE MACHINE Methods===========================
 
@@ -91,31 +90,31 @@ namespace motor
        * Command is without acknowledge
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void resetNode(uint16_t nodeId);
+      uint32_t resetNode(uint16_t nodeId);
 
       /*!
        * @brief Changes the device's state to "Enable"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void setEnableState(uint16_t nodeId);
+      uint32_t setEnableState(uint16_t nodeId);
 
       /*!
        * @brief Changes the device's state to "Enable"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void setDisableState(uint16_t nodeId);
+      uint32_t setDisableState(uint16_t nodeId);
 
       /*!
        * @brief Changes the Epos2 Node state to "Quick Stop"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void setQuickStopState(uint16_t nodeId);
+      uint32_t setQuickStopState(uint16_t nodeId);
 
       /*!
        * @brief Changes the device state from "fault" to "disabled"
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
        */
-      void clearFaultState(uint16_t nodeId);
+      uint32_t clearFaultState(uint16_t nodeId);
 
       /*!
        * @brief Checks if the device is Enabled
@@ -138,17 +137,14 @@ namespace motor
       /*!
        * @brief Checks if the device is at "Fault" State
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
-       *
-       * @TODO return Fault State errorCode
        */
       bool isFaultState(uint16_t nodeId);
 
       /*!
        * @brief Reads the state of the state machine
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
-       * @TODO Implement and return state index handler
        */
-      void readState(uint16_t nodeId, uint16_t* nodeState);
+      uint32_t readState(uint16_t nodeId, uint16_t* nodeState);
 
 
   //=======================PROFILE VELOCITY MODE Methods===================
@@ -160,17 +156,85 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      void activate_profileVelocityMode(uint16_t nodeId);
+      uint32_t activate_profileVelocityMode(uint16_t nodeId);
+
+      /*!
+       * @brief Sets the velocity profile parameters.
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus.
+       * @param acceleration Velocity profile acceleration.
+       * @param deceleration Velocity profile deceleration.
+       */
+      uint32_t set_profileVelocityParameters(uint16_t nodeId, 
+        uint16_t acceleration, uint16_t deceleration);
+
+      /*!
+       * @brief Returns the velocity profile parameters.
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus.
+       * @param acceleration Velocity profile acceleration.
+       * @param deceleration Velocity profile deceleration.
+       * @return Error code for executing the command.
+       *  If no errors recorded it returns zero 0.
+       */
+      uint32_t get_profileVelocityParameters(uint16_t nodeId, 
+        uint16_t* acceleration, uint16_t* deceleration);
            
       /*!
        * @brief Commands target velocity
-       * param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       * @param vel Target velocity (RPM).
        *
-       *  If nodeId = 0 then command trasmits to everyone.
        */
-      void moveWithVelocity(uint16_t nodeId, int vel);
+      uint32_t set_targetVelocity(uint16_t nodeId, int32_t vel);
 
+      /*!
+       * @brief Stops the movement with profile deceleration
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      uint32_t haltMovement(uint16_t nodeId);
 
+      /*!
+       * @brief Activates the velocity window.
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       * @param velWindow Velocity window value.
+       * @param velWindowTime Velocity window time value.
+       */
+      uint32_t enableVelocityWindow(uint16_t nodeId, uint32_t velWindow,
+        uint16_t velWindowTime);
+
+      /*!
+       * @brief Deactivates the velocity window.
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      uint32_t disableVelocityWindow(uint16_t nodeId);
+
+      /*!
+       * @brief Reads the commaned target Velocity under profile
+       * velocity mode.
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       * @param targetVel
+       */
+      uint32_t read_targetVelocity(uint16_t nodeId, int32_t* targetVel);
+
+  //=======================CURRENT MODE Methods============================
+
+      /*!
+       * @brief Changes the operation mode of an epos2 controller
+       * to "Profile Velocity Mode"
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      uint32_t activate_currentMode(uint16_t nodeId);
+
+      /*!
+       * @brief Writes current mode setting value;
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      uint32_t set_targetCurrent(uint16_t nodeId, int16_t currentMust);
+
+      /*!
+       * @brief Writes current mode setting value;
+       * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
+       */
+      uint32_t read_targetCurrent(uint16_t nodeId, int16_t* currentMust);
   //======================MOTION INFO Methods==============================
 
       /*!
@@ -179,7 +243,7 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      void read_velocityActual(uint16_t nodeId, int32_t* velActual);
+      uint32_t read_velocityActual(uint16_t nodeId, int32_t* velActual);
 
       /*!
        * @brief Reads the velocity average value 
@@ -187,7 +251,7 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      void read_velocityAvg(uint16_t nodeId, int32_t* velAvg);
+      uint32_t read_velocityAvg(uint16_t nodeId, int32_t* velAvg);
 
       /*!
        * @brief Reads the current actual value 
@@ -195,7 +259,7 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      void read_currentActual(uint16_t nodeId, int16_t* currentActual); 
+      uint32_t read_currentActual(uint16_t nodeId, int16_t* currentActual); 
 
       /*!
        * @brief Reads the current average value 
@@ -203,9 +267,8 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      void read_currentAvg(uint16_t nodeId, int16_t* currentAvg); 
+      uint32_t read_currentAvg(uint16_t nodeId, int16_t* currentAvg); 
 
-      bool eval_communicationInterface();
 
   };
 }  // namespace motor
