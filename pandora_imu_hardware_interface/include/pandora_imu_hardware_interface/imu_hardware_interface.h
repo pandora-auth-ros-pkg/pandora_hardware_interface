@@ -90,6 +90,8 @@ namespace imu
       hardware_interface::ImuSensorHandle::Data
         imuData_;  //!< imu sensor handle
       double imuOrientation_[4];  //!< quaternion orientaion
+      double imuAngularVelocity_[3];  //!< angular velocity
+      double imuLinearAcceleration_[3];  //!< linear acceleration
       double rollOffset_;  //!< offset to be applied to roll measurements
       double pitchOffset_;  //!< offset to be applied to pitch measurements
   };

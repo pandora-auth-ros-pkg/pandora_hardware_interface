@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -41,18 +41,30 @@
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
-#include <endian.h>
+#include <stdlib.h>
 
 #include "pandora_imu_hardware_interface/abstract_imu_serial_interface.h"
 
-#define kGetData 0x04
-#define kSetConfig 0x06
-#define kBigEndian 0x06
-#define BIG_ENDIAN_CODE 0x01
-#define LITTLE_ENDIAN_CODE 0x00
-#define YAW_CODE 0x05
-#define PITCH_CODE 0x18
-#define ROLL_CODE 0x19
+#define K_SET_DATA_COMPONENTS 0x03
+#define K_GET_DATA 0x04
+#define K_GET_DATA_RESP 0x05
+#define K_SET_CONFIG 0x06
+#define K_BIG_ENDIAN 0x06
+#define K_SAVE 0x09
+#define K_START_CONTINUOUS_MODE 0x15
+#define K_STOP_CONTINUOUS_MODE 0x16
+#define K_HEADING 0x05
+#define K_PITCH 0x18
+#define K_ROLL 0x19
+#define K_ACCEL_X 0x15
+#define K_ACCEL_Y 0x16
+#define K_ACCEL_Z 0x17
+#define K_GYRO_X 0x4A
+#define K_GYRO_Y 0x4B
+#define K_GYRO_Z 0x4C
+
+#define K_TRUE 0x01
+#define K_FALSE 0x00
 
 namespace pandora_hardware_interface
 {
@@ -91,6 +103,14 @@ namespace imu
     **/
     void read();
 
+    /**
+     @brief Writes command to trax ahrs
+     @param commandCode [char*] : command code bytes 
+     @param length [size_t] : number of bytes of command code
+     @return void
+    **/
+    void write(char* commandCode, size_t length);
+
    private:
     /**
      @brief Extract yaw, pitch, roll from packet
@@ -111,7 +131,7 @@ namespace imu
      @brief Returns the crc of a byte stream using the xmodem crc algorithm
      @param data [unsigned char*] : data packet as char array
      @param dataSize [size_t] : size of packet char array
-     @param storeCrcInData [bool] : true, to store the crc code in the last two 
+     @param storeCrcInData [bool] : true -> store the crc code in the last two 
      bytes of the packet, else false
      @return uint16_t crc
     **/

@@ -93,8 +93,8 @@ namespace imu
     **/
     bool check(const std::string& packet, int crc);
 
-
-    const boost::regex regex_;  //!< expression used to calculate yaw,pitch,roll
+    //!< expression used to extract data from imu packet
+    const boost::regex regex_;
   };
 }  // namespace imu
 }  // namespace pandora_hardware_interface

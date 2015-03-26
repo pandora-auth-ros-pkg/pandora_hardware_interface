@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,11 @@ namespace imu
     int timeout)
   :
     AbstractImuSerialInterface(device, speed, timeout),
-    regex_("^.+\x05(.{4})\x18(.{4})\x19(.{4}).+$", boost::regex::extended)
+    regex_(
+      ".*\x05(.{4})\x18(.{4})\x19(.{4})"
+      "\x15(.{4})\x16(.{4})\x17(.{4})"
+      "\x4a(.{4})\x4b(.{4})\x4c(.{4}).*",
+      boost::regex::extended)
   {
   }
 
@@ -76,16 +80,35 @@ namespace imu
       ROS_ERROR("Init called twice!!");
     }
 
-    // compose set_endianness command
-    unsigned char command[7] =
-      {0x00, 0x07, kSetConfig, kBigEndian, LITTLE_ENDIAN_CODE, 0x00, 0x00};
+    // configure endianess of data in ahrs packet
+    char endianessCmd[3] = {
+      K_SET_CONFIG,
+      K_BIG_ENDIAN,
+      K_FALSE};
+    write(endianessCmd, 3);
 
-    // calculate crc of command and store it in 5th and 6th bytes
-    uint16_t crcCode = calcCrc(
-      (unsigned char*) command, sizeof(command)/sizeof(unsigned char), true);
+    // configure packet composition of ahrs
+    char pkgCompositionCmd[11] = {
+      K_SET_DATA_COMPONENTS,
+      0x09,
+      K_HEADING,
+      K_PITCH,
+      K_ROLL,
+      K_ACCEL_X,
+      K_ACCEL_Y,
+      K_ACCEL_Z,
+      K_GYRO_X,
+      K_GYRO_Y,
+      K_GYRO_Z};
+    write(pkgCompositionCmd, 11);
 
-    // write set_endianness to little command to device
-    serialPtr_->write(command, sizeof(command)/sizeof(unsigned char));
+    // configure ahrs for continuous mode
+    char setNonContinuousModeCmd = K_STOP_CONTINUOUS_MODE;
+    write(&setNonContinuousModeCmd, 1);
+
+    // tell ahrs to save the configurations
+    // char saveConfigurationsCmd = K_SAVE;
+    // write(&saveConfigurationsCmd, 1);
   }
 
 
@@ -96,34 +119,42 @@ namespace imu
       init();
     }
 
-    uint16_t crcCode;
+    // write getData command
+    char getDataCmd = K_GET_DATA;
+    write(&getDataCmd, 1);
+
+    // read data from serial port
     std::string buffer;
-
-    serialPtr_->flush();  // flush IO buffer
-
-    // Get yawm, pitch, roll measurements
-    // command: numBytes(uint16), write command(uint8), crc(uint16)
-    unsigned char command[5] = {0x00, 0x05, kGetData, 0x00, 0x00};
-    // calculate crc of command and store it in the 4th & 5th byte of command
-    crcCode = calcCrc(
-      (unsigned char*)command, sizeof(command)/sizeof(unsigned char), true);
-    // write command kGetData to receive yaw,pitc,roll measurements
-    serialPtr_->write(command, sizeof(command)/sizeof(unsigned char));
-
-    // read data packet
     serialPtr_->readline(buffer);
-
-    // extract size of packet from packet
-    uint16_t bufferSize =
-      static_cast<uint16_t>(buffer.at(0) << 8 | buffer.at(1));
-
-    // calculate CRC of data packet
-    crcCode = calcCrc((unsigned char*) buffer.c_str(), buffer.size(), false);
-
+/*
+    // print the bytes of the buffer
+    for(int ii = 0; ii < buffer.size(); ii++)
+      ROS_INFO("packet[%d]: %02x", ii, (unsigned char)buffer.at(ii));
+*/
     // check data packet
-    if (bufferSize == buffer.size())
-      if ( check(buffer, crcCode) )
-        parse(buffer);  // parse data packet
+    if (
+      check(buffer,
+      calcCrc((unsigned char*) buffer.c_str(), buffer.size(), false)) )
+    {
+      parse(buffer);  // parse data packet
+    }
+  }
+
+
+  void AhrsSerialInterface::write(char* commandCode, size_t length)
+  {
+    unsigned char command[4+length];
+    command[0] = (4 + length) & 0xFF00;
+    command[1] = (4 + length) & 0x00FF;
+
+    for (int ii = 0; ii < length; ii++)
+    {
+      command[2 + ii] = commandCode[ii];
+    }
+    calcCrc(command, 4 + length, true);
+
+    // write command to ahrs
+    serialPtr_->write(command, 4 + length);
   }
 
 
@@ -169,12 +200,40 @@ namespace imu
 
     if (boost::regex_match(packet, data, regex_))
     {
-      yaw_ = *reinterpret_cast<float*>(&data[1].str().at(0));
-      pitch_ = *reinterpret_cast<float*>(&data[2].str().at(0));
-      roll_ = *reinterpret_cast<float*>(&data[3].str().at(0));
+      memcpy(
+        &yaw_,
+        data[1].str().c_str(),
+        sizeof(float));
+      memcpy(
+        &pitch_,
+        data[2].str().c_str(),
+        sizeof(float));
+      memcpy(
+        &roll_,
+        data[3].str().c_str(),
+        sizeof(float));
+      for (int ii = 0; ii < 3; ii++)
+      {
+        memcpy(
+          angularVelocity_ + ii,
+          data[ii + 4].str().c_str(),
+          sizeof(float));
+        memcpy(
+          linearAcceleration_ + ii,
+          data[ii + 7].str().c_str(),
+          sizeof(float));
+      }
 
-      // ROS_INFO("yaw[%x], pitch[%x], roll[%x]", *(int *)&yaw_, *(int *)&pitch_, *(int *)&roll_);
-      // ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
+      ROS_INFO(" yaw: %f   pitch: %f   roll: %f", yaw_, pitch_, roll_);
+/*
+      ROS_INFO(
+        "yaw[%f], pitch[%f], roll[%f], "
+        "Ax[%f], Ay[%x], Az[%f], "
+        "Gx[%f], Gy[%x], Gz[%f]",
+        yaw_, pitch_, roll_,
+        linearAcceleration_[0], linearAcceleration_[1], linearAcceleration_[0],
+        angularVelocity_[0], angularVelocity_[1], angularVelocity_[2]);
+*/
     }
     else
       ROS_ERROR("Did not match received packet to desirable pattern");

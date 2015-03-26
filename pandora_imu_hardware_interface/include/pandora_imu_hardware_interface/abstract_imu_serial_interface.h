@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,11 @@ namespace imu
       roll_(0),
       serialPtr_(NULL)
     {
+      for (int ii = 0; ii < 3; ii++)
+      {
+        angularVelocity_[ii] = 0;
+        linearAcceleration_[ii] = 0;
+      }
     }
 
 
@@ -93,7 +98,7 @@ namespace imu
     virtual void read() = 0;
 
     /**
-     @brief Get roll value
+     @brief Get roll
      @return float roll
     **/
     inline float getRoll() const
@@ -102,7 +107,7 @@ namespace imu
     }
 
     /**
-     @brief Get pitch latest meausurement
+     @brief Get pitch
      @return float pitch
     **/
     inline float getPitch() const
@@ -111,12 +116,30 @@ namespace imu
     }
 
     /**
-     @brief Get yaw latest measurement
+     @brief Get yaw
      @return float yaw
     **/
     inline float getYaw() const
     {
       return yaw_;
+    }
+
+    /**
+     @brief Get linear acceleration array ptr
+     @return float* linear acceleration ptr
+    **/
+    inline float* getLinearAcceleration()
+    {
+      return linearAcceleration_;
+    }
+
+    /**
+     @brief Get angular velocity array ptr
+     @return float* angular acceleration ptr
+    **/
+    inline float* getAngularVelocity()
+    {
+      return angularVelocity_;
     }
 
     /**
@@ -129,11 +152,18 @@ namespace imu
     inline void getData(
       float* yaw,
       float* pitch,
-      float* roll) const
+      float* roll,
+      float* angularVelocity,
+      float* linearAcceleration) const
     {
       *yaw = yaw_;
       *pitch = pitch_;
       *roll = roll_;
+      for (int ii = 0 ; ii < 3; ii++)
+      {
+        angularVelocity[ii] = angularVelocity_[ii];
+        linearAcceleration[ii] = linearAcceleration_[ii];
+      }
     }
 
    protected:
@@ -154,6 +184,8 @@ namespace imu
     float yaw_;  //!< latest yaw measurement
     float pitch_;  //!< latest pitch measurement
     float roll_;  //!< latest roll measurement
+    float angularVelocity_[3];  //!< angularVelocity X,Y,Z array
+    float linearAcceleration_[3];  //!< linear acceleration X,Y,Z array
 
     const std::string device_;  //!< IMU device com port name
     const int speed_;  //!< serial communication speed (baud rate)

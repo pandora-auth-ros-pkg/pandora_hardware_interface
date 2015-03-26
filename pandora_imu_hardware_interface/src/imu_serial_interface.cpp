@@ -48,7 +48,9 @@ namespace imu
   :
     AbstractImuSerialInterface(device, speed, timeout),
     // TODO(czalidis): add accel
-    regex_("C([0-9]+\\.[0-9])P([-]*[0-9]+\\.[0-9])R([-]*[0-9]+\\.[0-9]).*")
+    regex_(
+      "C([0-9]+\\.[0-9]+)P([-]*[0-9]+\\.[0-9]+)R([-]*[0-9]+\\.[0-9]+)"
+      "Ax([-]*[0-9]+\\.[0-9]+)Ay([-]*[0-9]+\\.[0-9]+)Az([-]*[0-9]+\\.[0-9]+).*")
   {
   }
 
@@ -141,8 +143,17 @@ namespace imu
       yaw_ = boost::lexical_cast<float> (data[1]);
       pitch_ = boost::lexical_cast<float> (data[2]);
       roll_ = boost::lexical_cast<float> (data[3]);
+      for (int ii = 0; ii < 3; ii++)
+      {
+        linearAcceleration_[ii] =
+          9.81 * boost::lexical_cast<float>(data[ii + 4]);
+      }
     }
-    // ROS_INFO("yaw[%f], pitch[%f], roll[%f]", yaw_, pitch_, roll_);
+/*
+    ROS_INFO("yaw[%f], pitch[%f], roll[%f], Ax[%f], Ay[%f], Az[%f]", 
+      yaw_, pitch_, roll_, linearAcceleration_[0], linearAcceleration_[1], 
+      linearAcceleration_[2]);
+*/
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface
