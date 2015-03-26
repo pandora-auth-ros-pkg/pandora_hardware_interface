@@ -12,11 +12,13 @@
         --manager=dxl_manager
         --port dynamixel_port
         laser_pitch_controller
-        laser_roll_controller
+        laser_roll_controller"/>
+        <!--
         kinect_pitch_controller
         kinect_yaw_controller
         linear_head_pitch_controller
-        linear_head_yaw_controller"/>
+        linear_head_yaw_controller
+        -->
 
     <!--Start wrapper to sensor_msgs/JointState-->
     <include
