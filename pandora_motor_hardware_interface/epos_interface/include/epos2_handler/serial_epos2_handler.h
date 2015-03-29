@@ -46,17 +46,6 @@ namespace pandora_hardware_interface
 namespace motor
 {
 
-  #define EPOS2_GATEWAY_ID          1
-  #define RIGHT_FRONT_MOTOR_ID      1
-  #define RIGHT_REAR_MOTOR_ID       2
-  #define LEFT_FRONT_MOTOR_ID       3 
-  #define LEFT_REAR_MOTOR_ID        4 
-  #define RIGHT_FRONT_MOTOR_INDEX   0
-  #define RIGHT_REAR_MOTOR_INDEX    1
-  #define LEFT_FRONT_MOTOR_INDEX    2 
-  #define LEFT_REAR_MOTOR_INDEX     3 
-  #define NUM_NODES                 4
-  
   struct Epos2Controller
   {
     uint16_t nodeId_;
@@ -76,6 +65,7 @@ namespace motor
     int baudrate;
     int timeout;
     int numControllers;
+    int epos2GatewayId;
     int nodeId[4];
     std::string motorIndex[4]; 
   };
@@ -90,6 +80,7 @@ namespace motor
       Epos2Controller* rightRearMotor_;
       Epos2Controller* leftFrontMotor_;
       Epos2Controller* leftRearMotor_;
+      uint16_t gatewayId_;
     public:
       SerialEpos2Handler(Params& params);
       virtual ~SerialEpos2Handler();

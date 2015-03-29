@@ -51,21 +51,26 @@ namespace motor
 
     rightFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightFrontMotor_);
-    rightFrontMotor_->nodeId_ = params.nodeId[0];
+    rightFrontMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[0]);
+    rightFrontMotor_->motorId_ = params.motorIndex[0];
+
     rightRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightRearMotor_);
-    rightRearMotor_->nodeId_ = params.nodeId[1];
+    rightRearMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[1]);
+    rightRearMotor_->motorId_ = params.motorIndex[1];
+
     leftFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftFrontMotor_);
-    leftFrontMotor_->nodeId_ = params.nodeId[2];
+    leftFrontMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[2]);
+    leftFrontMotor_->motorId_ = params.motorIndex[2];
+
     leftRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftRearMotor_);
-    leftRearMotor_->nodeId_ = params.nodeId[3];
+    leftRearMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[3]);
+    leftRearMotor_->motorId_ = params.motorIndex[3];
 
-    rightFrontMotor_->state_ = 0;
-    rightRearMotor_->state_ = 0;
-    leftFrontMotor_->state_ = 0;
-    leftRearMotor_->state_ = 0;
+    gatewayId_ = static_cast<uint16_t>(params.epos2GatewayId);
+
     epos2Gateway_->openDevice();
     /*--<Initialize motor controller states {Enabled}>---*/
     readStates();
@@ -78,6 +83,7 @@ namespace motor
     epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
   }
 
+
   SerialEpos2Handler::~SerialEpos2Handler()
   {
     epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, 0);
@@ -86,6 +92,7 @@ namespace motor
     epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, 0);
     epos2Gateway_->closeDevice();
   }
+
 
   void SerialEpos2Handler::stateHandle(void)
   {
@@ -107,7 +114,7 @@ namespace motor
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
         case 9://CANNOT COMMUNICATE
-          if(epos2Controllers_.at(_ii)->nodeId_==EPOS2_GATEWAY_ID)
+          if(epos2Controllers_.at(_ii)->nodeId_ == gatewayId_)
           {
             //Cannot communicate with epos2-Gateway
             ROS_FATAL("[Motors]: Cannot communicate with epos2-Gateway.");
