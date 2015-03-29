@@ -90,6 +90,10 @@ namespace motor
     epos2Gateway_->set_targetVelocity(rightRearMotor_->nodeId_, 0);
     epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_,0);
     epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, 0);
+    epos2Gateway_->setDisableState(rightFrontMotor_->nodeId_);
+    epos2Gateway_->setDisableState(rightRearMotor_->nodeId_);
+    epos2Gateway_->setDisableState(leftFrontMotor_->nodeId_);
+    epos2Gateway_->setDisableState(leftRearMotor_->nodeId_);
     epos2Gateway_->closeDevice();
   }
 
@@ -101,7 +105,6 @@ namespace motor
       switch(epos2Controllers_.at(_ii)->state_)
       {
         case 0://DISABLE STATE
-          epos2Gateway_->resetNode(epos2Controllers_.at(_ii)->nodeId_);
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
         case 1://ENABLE STATE
