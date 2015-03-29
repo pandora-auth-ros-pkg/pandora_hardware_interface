@@ -64,9 +64,11 @@ namespace motor
     private:
       boost::scoped_ptr<Interface> comInterface_;
       void* comHandler_;
+      uint32_t error_;
     public:
       Epos2Gateway(const std::string port, const uint32_t baudrate, 
-        const uint32_t timeout);
+        const uint32_t timeout, const std::string deviceName, 
+        const std::string protocolStackName, const std::string interfaceName);
       ~Epos2Gateway();
 
   //=================GATEWAY COMMUNICATION Methods=========================
@@ -211,7 +213,8 @@ namespace motor
        * @brief Reads the commaned target Velocity under profile
        * velocity mode.
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
-       * @param targetVel
+       * @param targetVel Commanded target velocity, given in rolls per
+       * minute aka RPM.
        */
       uint32_t read_targetVelocity(uint16_t nodeId, int32_t* targetVel);
 

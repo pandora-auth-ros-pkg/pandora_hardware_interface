@@ -5,6 +5,7 @@
   <rosparam
     command="load"
     file="$(find pandora_motor_hardware_interface)/motor_hardware_interface/config/motor_hardware_interface.yaml"
+    file="$(find pandora_motor_hardware_interface)/epos_interface/config/epo      s2_gateway.yaml"
     ns="$(arg namespace)"/>
 
   <!-- Launch controller manager with pandora hardware interface-->

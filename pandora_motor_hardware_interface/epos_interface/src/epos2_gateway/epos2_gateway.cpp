@@ -42,16 +42,19 @@ namespace pandora_hardware_interface
 {
 namespace motor
 {
-  Epos2Gateway::Epos2Gateway(const std::string port, const uint32_t baudrate, const uint32_t timeout)
+  Epos2Gateway::Epos2Gateway(const std::string port, 
+    const uint32_t baudrate, const uint32_t timeout, 
+    const std::string deviceName, const std::string protocolStackName, 
+    const std::string interfaceName)
   {
     comInterface_.reset(new Interface());
     comInterface_->deviceName = new char[32];
     comInterface_->protocolStackName = new char[32];
     comInterface_->interfaceName = new char[32];
     comInterface_->portName = new char[32];
-    strcpy(comInterface_->deviceName, "EPOS2");
-    strcpy(comInterface_->protocolStackName, "MAXON_RS232");
-    strcpy(comInterface_->interfaceName, "RS232");
+    strcpy(comInterface_->deviceName, deviceName.c_str());
+    strcpy(comInterface_->protocolStackName, protocolStackName.c_str());
+    strcpy(comInterface_->interfaceName, interfaceName.c_str());
     strcpy(comInterface_->portName, port.c_str());
     comInterface_->baudrate = baudrate;
     comInterface_->timeout = timeout;
@@ -72,8 +75,8 @@ namespace motor
     /*--<Open Device Serial Communication interface>--*/
     comHandler_ = VCS_OpenDevice(comInterface_->deviceName,
       comInterface_->protocolStackName, comInterface_->interfaceName, 
-      comInterface_->portName, &comInterface_->error);
-    if (comHandler_==0 || comInterface_->error!=0)
+      comInterface_->portName, &error_);
+    if (comHandler_==0 || error_!=0)
     {
       ROS_FATAL("[Motors]: Error while opening serial \
         communication port");
@@ -96,8 +99,8 @@ namespace motor
 
   void Epos2Gateway::closeDevice(void)
   {
-    if(VCS_CloseDevice(comHandler_, &comInterface_->error)!=0 &&
-      comInterface_->error == 0)
+    if(VCS_CloseDevice(comHandler_, &error_)!=0 &&
+      error_ == 0)
     {
       ROS_FATAL("[Motors]: Device communication port closed succesfully");
     }
@@ -114,13 +117,13 @@ namespace motor
     uint32_t _baudrate;
     uint32_t _timeout;
     if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-        &_timeout, &comInterface_->error)!=0)
+        &_timeout, &error_)!=0)
     {
       if(VCS_SetProtocolStackSettings(comHandler_, comInterface_->baudrate, 
-          comInterface_->timeout, &comInterface_->error)!=0)
+          comInterface_->timeout, &error_)!=0)
       {
         if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-            &_timeout, &comInterface_->error)!=0)
+            &_timeout, &error_)!=0)
         {
           if(comInterface_->baudrate == _baudrate)
           {

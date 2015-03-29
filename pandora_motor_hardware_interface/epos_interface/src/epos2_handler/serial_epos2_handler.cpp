@@ -43,21 +43,24 @@ namespace pandora_hardware_interface
 namespace motor
 {
 
-  SerialEpos2Handler::SerialEpos2Handler(const std::string port, const uint32_t baudrate, const uint32_t timeout)
+  SerialEpos2Handler::SerialEpos2Handler(Params& params)
   {
-    epos2Gateway_.reset(new Epos2Gateway(port, baudrate, timeout));
+    epos2Gateway_.reset(new Epos2Gateway(params.portName, params.baudrate, 
+        params.timeout, params.deviceName, params.protocolStackName, 
+        params.interfaceName));
+
     rightFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightFrontMotor_);
-    rightFrontMotor_->nodeId_ = RIGHT_FRONT_MOTOR_ID;
+    rightFrontMotor_->nodeId_ = params.nodeId[0];
     rightRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightRearMotor_);
-    rightRearMotor_->nodeId_ = RIGHT_REAR_MOTOR_ID;
+    rightRearMotor_->nodeId_ = params.nodeId[1];
     leftFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftFrontMotor_);
-    leftFrontMotor_->nodeId_ = LEFT_FRONT_MOTOR_ID;
+    leftFrontMotor_->nodeId_ = params.nodeId[2];
     leftRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftRearMotor_);
-    leftRearMotor_->nodeId_ = LEFT_REAR_MOTOR_ID;
+    leftRearMotor_->nodeId_ = params.nodeId[3];
 
     rightFrontMotor_->state_ = 0;
     rightRearMotor_->state_ = 0;

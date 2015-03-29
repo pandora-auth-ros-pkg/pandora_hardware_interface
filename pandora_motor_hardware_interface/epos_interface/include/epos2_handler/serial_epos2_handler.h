@@ -67,6 +67,18 @@ namespace motor
     int16_t current_;
   };
 
+  struct Params
+  {
+    std::string deviceName;
+    std::string protocolStackName;
+    std::string interfaceName;
+    std::string portName;
+    int baudrate;
+    int timeout;
+    int numControllers;
+    int nodeId[4];
+    std::string motorIndex[4]; 
+  };
   //=========================================================================
 
   class SerialEpos2Handler: public AbstractEposHandler
@@ -79,8 +91,7 @@ namespace motor
       Epos2Controller* leftFrontMotor_;
       Epos2Controller* leftRearMotor_;
     public:
-      SerialEpos2Handler(const std::string port, 
-        const uint32_t baudrate, const uint32_t timeout);
+      SerialEpos2Handler(Params& params);
       virtual ~SerialEpos2Handler();
       virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
         int* rightRearRpm, int* rightFrontRpm);
