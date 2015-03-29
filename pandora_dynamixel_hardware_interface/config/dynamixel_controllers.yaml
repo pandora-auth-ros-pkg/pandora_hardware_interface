@@ -7,9 +7,9 @@ laser_roll_controller:
     joint_speed: 0.5
     motor:
         id: 2
-        init: 0
-        min: -1000
-        max: 1000
+        init: 210
+        min: -790
+        max: 1210
 
 laser_pitch_controller:
     controller:
@@ -21,8 +21,8 @@ laser_pitch_controller:
     motor:
         id: 1
         init: 512
-        min: 445
-        max: 610
+        min: -1445
+        max: 1610
 
 kinect_pitch_controller:
     controller:
