@@ -79,64 +79,39 @@ namespace imu
     {
       ROS_ERROR("Init called twice!!");
     }
-
-    // configure endianess of data in ahrs packet
-    char endianessCmd[3] = {
-      K_SET_CONFIG,
-      K_BIG_ENDIAN,
-      K_FALSE};
-    write(endianessCmd, 3);
-
-    // configure packet composition of ahrs
-    char pkgCompositionCmd[11] = {
-      K_SET_DATA_COMPONENTS,
-      0x09,
-      K_HEADING,
-      K_PITCH,
-      K_ROLL,
-      K_ACCEL_X,
-      K_ACCEL_Y,
-      K_ACCEL_Z,
-      K_GYRO_X,
-      K_GYRO_Y,
-      K_GYRO_Z};
-    write(pkgCompositionCmd, 11);
-
-    // configure ahrs for continuous mode
-    char setNonContinuousModeCmd = K_STOP_CONTINUOUS_MODE;
-    write(&setNonContinuousModeCmd, 1);
-
-    // tell ahrs to save the configurations
-    // char saveConfigurationsCmd = K_SAVE;
-    // write(&saveConfigurationsCmd, 1);
   }
 
 
   void AhrsSerialInterface::read()
   {
     if (serialPtr_ == NULL){
-      ROS_ERROR("read() called before init().  Calling init() now...");
+      ROS_ERROR("read() called before init(). Calling init() now...");
       init();
     }
+
+    // flush input buffer from remainder packets
+    serialPtr_->flushInput();
 
     // write getData command
     char getDataCmd = K_GET_DATA;
     write(&getDataCmd, 1);
-
+    
     // read data from serial port
     std::string buffer;
-    serialPtr_->readline(buffer);
-/*
-    // print the bytes of the buffer
-    for(int ii = 0; ii < buffer.size(); ii++)
-      ROS_INFO("packet[%d]: %02x", ii, (unsigned char)buffer.at(ii));
-*/
+    serialPtr_->read(buffer, 51);
+
     // check data packet
-    if (
-      check(buffer,
-      calcCrc((unsigned char*) buffer.c_str(), buffer.size(), false)) )
+    char charBuffer[51];
+    strncpy(charBuffer, buffer.c_str(), 51);
+
+    if ( 
+      check(buffer, calcCrc((unsigned char*)buffer.c_str(), 51, false)))
     {
       parse(buffer);  // parse data packet
+    }
+    else
+    {
+      ROS_ERROR("Check CRC failed");
     }
   }
 
@@ -151,7 +126,9 @@ namespace imu
     {
       command[2 + ii] = commandCode[ii];
     }
-    calcCrc(command, 4 + length, true);
+    uint16_t crc = calcCrc(command, 4 + length, true);
+    command[4 + length - 2] = static_cast<unsigned char>(crc >> 8);
+    command[4 + length - 1] = static_cast<unsigned char>(crc & 0x00FF);
 
     // write command to ahrs
     serialPtr_->write(command, 4 + length);
@@ -160,10 +137,11 @@ namespace imu
 
   bool AhrsSerialInterface::check(const std::string& packet, int crc)
   {
-    int end = packet.size();
-    char packetCrc[2] = {packet.at(end-1), packet.at(end-2)};
+    int crcInPacket = 
+      ((packet[packet.size()-2] << 8) & 0xFF00) |
+      (packet[packet.size()-1] & 0x00FF);
 
-    if (*reinterpret_cast<uint16_t*>(packetCrc) == crc)
+    if (crcInPacket == crc)
       return true;
     else
       return false;
@@ -171,12 +149,12 @@ namespace imu
 
 
   uint16_t AhrsSerialInterface::calcCrc(
-    unsigned char* data, size_t dataSize, bool storeCrcInData)
+    unsigned char* packet, size_t packetSize, bool storeCrcInPacket)
   {
     uint16_t crc = 0;
-    for (int ii = 0; ii < dataSize-2; ii++)
+    for (int ii = 0; ii < packetSize-2; ii++)
     {
-      crc = crc ^ ((uint16_t)data[ii] << 8);
+      crc = crc ^ ((uint16_t)packet[ii] << 8);
       for (int jj = 0; jj < 8; jj++)
       {
         if (crc & 0x8000)
@@ -184,11 +162,6 @@ namespace imu
         else
           crc <<= 1;
       }
-    }
-    if (storeCrcInData)
-    {
-      data[dataSize-2] = (crc & 0xFF00) >> 8;
-      data[dataSize-1] = crc & 0xFF;
     }
     return crc;
   }
@@ -225,8 +198,7 @@ namespace imu
       }
 
       ROS_INFO(" yaw: %f   pitch: %f   roll: %f", yaw_, pitch_, roll_);
-/*
-      ROS_INFO(
+/*      ROS_INFO(
         "yaw[%f], pitch[%f], roll[%f], "
         "Ax[%f], Ay[%x], Az[%f], "
         "Gx[%f], Gy[%x], Gz[%f]",

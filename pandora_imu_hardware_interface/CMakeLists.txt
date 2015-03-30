@@ -36,6 +36,15 @@ target_link_libraries(
   imu_hardware_interface_node
   ${catkin_LIBRARIES})
 
+add_executable(
+  ahrs_configuration_node
+  src/ahrs_serial_interface.cpp
+  src/ahrs_configuration_node.cpp)
+target_link_libraries(
+  ahrs_configuration_node
+  ${catkin_LIBRARIES})
+
+
 # To check lint : catkin_make roslint_pandora_imu_hardware_interface
 set(ROSLINT_CPP_OPTS
   "--filter=-build/include_what_you_use")

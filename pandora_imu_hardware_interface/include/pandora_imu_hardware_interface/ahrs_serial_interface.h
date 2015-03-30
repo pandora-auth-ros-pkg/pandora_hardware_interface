@@ -135,7 +135,7 @@ namespace imu
      bytes of the packet, else false
      @return uint16_t crc
     **/
-    uint16_t calcCrc(unsigned char* data, size_t dataSize, bool storeCrcInData);
+    uint16_t calcCrc(unsigned char* data, size_t dataSize, bool storeCrcInPacket);
 
    private:
     //!< expression used to extract yaw, pitch, roll from packet
