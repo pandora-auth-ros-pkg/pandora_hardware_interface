@@ -95,7 +95,7 @@ namespace imu
     // write getData command
     char getDataCmd = K_GET_DATA;
     write(&getDataCmd, 1);
-    
+
     // read data from serial port
     std::string buffer;
     serialPtr_->read(buffer, 51);
@@ -104,7 +104,7 @@ namespace imu
     char charBuffer[51];
     strncpy(charBuffer, buffer.c_str(), 51);
 
-    if ( 
+    if (
       check(buffer, calcCrc((unsigned char*)buffer.c_str(), 51, false)))
     {
       parse(buffer);  // parse data packet
@@ -137,7 +137,7 @@ namespace imu
 
   bool AhrsSerialInterface::check(const std::string& packet, int crc)
   {
-    int crcInPacket = 
+    int crcInPacket =
       ((packet[packet.size()-2] << 8) & 0xFF00) |
       (packet[packet.size()-1] & 0x00FF);
 

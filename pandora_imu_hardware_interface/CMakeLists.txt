@@ -37,11 +37,11 @@ target_link_libraries(
   ${catkin_LIBRARIES})
 
 add_executable(
-  ahrs_configuration_node
+  trax_ahrs_configuration_node
   src/ahrs_serial_interface.cpp
-  src/ahrs_configuration_node.cpp)
+  src/trax_ahrs_configuration_node.cpp)
 target_link_libraries(
-  ahrs_configuration_node
+  trax_ahrs_configuration_node
   ${catkin_LIBRARIES})
 
 
