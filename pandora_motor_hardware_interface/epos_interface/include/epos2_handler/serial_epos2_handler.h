@@ -56,24 +56,14 @@ namespace motor
     int16_t current_;
   };
 
-  struct Params
-  {
-    std::string deviceName;
-    std::string protocolStackName;
-    std::string interfaceName;
-    std::string portName;
-    int baudrate;
-    int timeout;
-    int numControllers;
-    int epos2GatewayId;
-    int nodeId[4];
-    std::string motorIndex[4]; 
-  };
-  //=========================================================================
+
+  //====================Serial Epos2 Handler Class========================
 
   class SerialEpos2Handler: public AbstractEposHandler
   {
     private:
+      /*! NodeHandler under private namespace "~/epos2config"*/
+      ros::NodeHandle epos2_nh_;
       boost::scoped_ptr<Epos2Gateway> epos2Gateway_;
       std::vector<Epos2Controller*> epos2Controllers_;
       Epos2Controller* rightFrontMotor_;
@@ -82,17 +72,64 @@ namespace motor
       Epos2Controller* leftRearMotor_;
       uint16_t gatewayId_;
     public:
-      SerialEpos2Handler(Params& params);
+
+      /*!
+       * @brief Constructor 
+       */
+      SerialEpos2Handler(void);
+
+
+      /*!
+       * @brief Destructor
+       */
       virtual ~SerialEpos2Handler();
+
+
+      /*!
+       * @brief Reads current velocity (rpm) from motor controllers
+       * @param leftRearRpm Left-Rear wheel motor velocity in rpm
+       * @param leftFrontRpm Left-Front wheel motor velocity in rpm
+       * @param rightRearRpm Right-Rear wheel motor velocity in rpm
+       * @param rightFrontRpm Right-Front wheel motor velocity in rpm
+       * @return Void
+       */
       virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
         int* rightRearRpm, int* rightFrontRpm);
+
+
+      /*!
+       * @brief Reads output current (mA) from motor controllers
+       * @param leftRearCurrent Left-Rear wheel motor current in mA
+       * @param leftFrontCurrent Left-Front wheel motor current in mA
+       * @param rightRearCurrent Right-Rear wheel motor current in mA
+       * @param rightFrontCurrent Right-Front wheel motor current in mA
+       * @return Void
+       */
       virtual void getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
         int* rightRearCurrent, int* rightFrontCurrent);
       virtual Error getError();
+
+
+      /*!
+       * @brief Writes velocity commands (rpm) to motor cotrollers
+       * @param leftRpm   Left side velocity in rpm
+       * @param rightRpm  Right side velocity in rpm
+       * @return Void
+       */
       virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
+
+
+      /*!
+       * @brief Reads motor controller states and stores the values 
+       *  in a private scope
+       */
       void readStates(void);
       void stateHandle(void);
-     
+      
+      //TODO --- Implement these 2 methods
+      void currentToTorque(void);
+      void torqueToCurrent(void);
+      //----------------------------------
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

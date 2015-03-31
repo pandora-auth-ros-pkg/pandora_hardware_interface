@@ -43,38 +43,63 @@ namespace pandora_hardware_interface
 namespace motor
 {
 
-  SerialEpos2Handler::SerialEpos2Handler(Params& params)
+  SerialEpos2Handler::SerialEpos2Handler():
+    epos2_nh_("~/epos2config")
   {
-    epos2Gateway_.reset(new Epos2Gateway(params.portName, params.baudrate, 
-        params.timeout, params.deviceName, params.protocolStackName, 
-        params.interfaceName));
+    std::string _portName, _deviceName, _protocolStackName, _interfaceName;
+    int _baudrate, _timeout, _numControllers, _gatewayId;
+    int _nodeId[4];
+    std::string _motorId[4];
+
+   /*--<Load epos2 interface configs from parameter server>--*/
+    epos2_nh_.getParam("interface/portName", _portName);
+    epos2_nh_.getParam("interface/baudrate", _baudrate);
+    epos2_nh_.getParam("interface/timeout", _timeout);
+    epos2_nh_.getParam("interface/deviceName", _deviceName);
+    epos2_nh_.getParam("interface/protocolStackName", _protocolStackName);
+    epos2_nh_.getParam("interface/interfaceName", _interfaceName);
+    epos2_nh_.getParam("controllers/epos2Gateway_id", _gatewayId);
+    epos2_nh_.getParam("controllers/num", _numControllers);
+    epos2_nh_.getParam("controllers/node1/id", _nodeId[0]); 
+    epos2_nh_.getParam("controllers/node1/index", _motorId[0]); 
+    epos2_nh_.getParam("controllers/node2/id", _nodeId[1]); 
+    epos2_nh_.getParam("controllers/node2/index", _motorId[1]); 
+    epos2_nh_.getParam("controllers/node3/id", _nodeId[2]); 
+    epos2_nh_.getParam("controllers/node3/index", _motorId[2]); 
+    epos2_nh_.getParam("controllers/node4/id", _nodeId[3]); 
+    epos2_nh_.getParam("controllers/node4/index", _motorId[3]); 
+    /*-------------------------------------------------------*/
+
+    epos2Gateway_.reset(new Epos2Gateway(_portName, _baudrate, _timeout,
+        _deviceName, _protocolStackName, _interfaceName));
 
     rightFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightFrontMotor_);
-    rightFrontMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[0]);
-    rightFrontMotor_->motorId_ = params.motorIndex[0];
+    rightFrontMotor_->nodeId_ = static_cast<uint16_t>(_nodeId[0]);
+    rightFrontMotor_->motorId_ = _motorId[0];
 
     rightRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(rightRearMotor_);
-    rightRearMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[1]);
-    rightRearMotor_->motorId_ = params.motorIndex[1];
+    rightRearMotor_->nodeId_ = static_cast<uint16_t>(_nodeId[1]);
+    rightRearMotor_->motorId_ = _motorId[1];
 
     leftFrontMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftFrontMotor_);
-    leftFrontMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[2]);
-    leftFrontMotor_->motorId_ = params.motorIndex[2];
+    leftFrontMotor_->nodeId_ = static_cast<uint16_t>(_nodeId[2]);
+    leftFrontMotor_->motorId_ = _motorId[2];
 
     leftRearMotor_ = new Epos2Controller();
     epos2Controllers_.push_back(leftRearMotor_);
-    leftRearMotor_->nodeId_ = static_cast<uint16_t>(params.nodeId[3]);
-    leftRearMotor_->motorId_ = params.motorIndex[3];
+    leftRearMotor_->nodeId_ = static_cast<uint16_t>(_nodeId[3]);
+    leftRearMotor_->motorId_ = _motorId[3];
 
-    gatewayId_ = static_cast<uint16_t>(params.epos2GatewayId);
+    gatewayId_ = static_cast<uint16_t>(_gatewayId);
 
+    /*---<Open device communication port>---*/
     epos2Gateway_->openDevice();
     /*--<Initialize motor controller states {Enabled}>---*/
-    readStates();
-    stateHandle();
+    readStates();   //Read current state of the Motors
+    stateHandle();  //Calls the state handler to handle the states
     /*----------------------------------------------------*/
     //Set every epos2 controller at profileVelocityMode on startup 
     epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);

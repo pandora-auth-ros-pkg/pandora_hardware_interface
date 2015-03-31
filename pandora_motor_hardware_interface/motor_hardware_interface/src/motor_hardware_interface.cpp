@@ -48,34 +48,8 @@ namespace motor
     std::string _portName;
     int _baudrate;
     int _timeout;
-    Params _params;
 
-    /*--<Load epos2 interface configs from parameter server>--*/
-    nodeHandle_.getParam("interface/portName", _params.portName);
-    nodeHandle_.getParam("interface/baudrate", _params.baudrate);
-    nodeHandle_.getParam("interface/timeout", _params.timeout);
-    nodeHandle_.getParam("interface/deviceName", _params.deviceName);
-    nodeHandle_.getParam("interface/protocolStackName", 
-      _params.protocolStackName);
-    nodeHandle_.getParam("interface/interfaceName", 
-      _params.interfaceName);
-    nodeHandle_.getParam("controllers/epos2Gateway_id", 
-      _params.epos2GatewayId);
-    nodeHandle_.getParam("controllers/num", _params.numControllers);
-    nodeHandle_.getParam("controllers/node1/id", _params.nodeId[0]); 
-    nodeHandle_.getParam("controllers/node1/index", 
-      _params.motorIndex[0]); 
-    nodeHandle_.getParam("controllers/node2/id", _params.nodeId[1]); 
-    nodeHandle_.getParam("controllers/node2/index", 
-      _params.motorIndex[1]); 
-    nodeHandle_.getParam("controllers/node3/id", _params.nodeId[2]); 
-    nodeHandle_.getParam("controllers/node3/index", 
-      _params.motorIndex[2]); 
-    nodeHandle_.getParam("controllers/node4/id", _params.nodeId[3]); 
-    nodeHandle_.getParam("controllers/node4/index", 
-      _params.motorIndex[3]); 
-    /*-------------------------------------------------------*/
-    motors_ = new SerialEpos2Handler(_params);
+    motors_ = new SerialEpos2Handler();
     readJointNameFromParamServer();
     nodeHandle_.getParam("max_RPM", maxRPM_);
     nodeHandle_.getParam("gearbox_ratio", gearboxRatio_);
