@@ -32,7 +32,7 @@ kinect_pitch_controller:
     joint_name: kinect_pitch_joint
     joint_speed: 0.5
     motor:
-        id: 3
+        id: 6
         init: 512
         min: 420
         max: 715
@@ -45,7 +45,7 @@ kinect_yaw_controller:
     joint_name: kinect_yaw_joint
     joint_speed: 1.0
     motor:
-        id: 4
+        id: 5
         init: 512
         min: 370
         max: 715
@@ -58,7 +58,7 @@ linear_head_pitch_controller:
     joint_name: linear_head_pitch_joint
     joint_speed: 0.5
     motor:
-        id: 6
+        id: 3
         init: 512
         min: 415
         max: 650
@@ -71,7 +71,7 @@ linear_head_yaw_controller:
     joint_name: linear_head_yaw_joint
     joint_speed: 0.5
     motor:
-        id: 5
+        id: 4
         init: 512
         min: 310
         max: 715
