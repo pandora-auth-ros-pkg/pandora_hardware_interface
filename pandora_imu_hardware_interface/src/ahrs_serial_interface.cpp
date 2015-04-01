@@ -197,8 +197,8 @@ namespace imu
           sizeof(float));
       }
 
-      ROS_INFO(" yaw: %f   pitch: %f   roll: %f", yaw_, pitch_, roll_);
-/*      ROS_INFO(
+      ROS_DEBUG(" yaw: %f   pitch: %f   roll: %f", yaw_, pitch_, roll_);
+/*      ROS_DEBUG(
         "yaw[%f], pitch[%f], roll[%f], "
         "Ax[%f], Ay[%x], Az[%f], "
         "Gx[%f], Gy[%x], Gz[%f]",
