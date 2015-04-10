@@ -54,11 +54,10 @@ int main(int argc, char **argv)
   ROS_INFO("Starting Configuration:");
   ROS_INFO("=======================");
 
-  // TODO(gKouros): check responses from each command written
-
-  // TODO(gKouros): configure device for ahrs mode (not compass mode)
-
-  // TODO(gKouros): investigate addition of more configuration options
+  // configure device for ahrs mode (not compass mode)
+  char setFunctionalModeCmd[2] = {K_SET_FUNCTIONAL_MODE, K_AHRS_MODE};
+  serial.write(setFunctionalModeCmd, 2);
+  ROS_INFO("Functional Mode of device set to AHRS mode");
 
   // configure endianess of data in ahrs packet
   char endianessCmd[3] = {

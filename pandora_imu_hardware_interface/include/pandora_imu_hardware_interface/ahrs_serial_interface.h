@@ -53,6 +53,9 @@
 #define K_SAVE 0x09
 #define K_START_CONTINUOUS_MODE 0x15
 #define K_STOP_CONTINUOUS_MODE 0x16
+#define K_SET_FUNCTIONAL_MODE 0x4F
+#define K_AHRS_MODE 0x01
+
 #define K_HEADING 0x05
 #define K_PITCH 0x18
 #define K_ROLL 0x19
@@ -62,6 +65,7 @@
 #define K_GYRO_X 0x4A
 #define K_GYRO_Y 0x4B
 #define K_GYRO_Z 0x4C
+
 
 #define K_TRUE 0x01
 #define K_FALSE 0x00
