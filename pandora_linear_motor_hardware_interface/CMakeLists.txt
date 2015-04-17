@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
-    jrk_interface/include
+    linear_motor_com_interface/include
     linear_motor_hardware_interface/include
 )
 
@@ -20,8 +20,8 @@ catkin_package(
     controller_manager
     controller_interface
     serial
-#  LIBRARIES
-#  DEPENDS
+  LIBRARIES
+  DEPENDS
 )
 
 #~ set(CMAKE_BUILD_TYPE Debug)
@@ -31,7 +31,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_subdirectory(jrk_interface)
+add_subdirectory(linear_motor_com_interface)
 add_subdirectory(linear_motor_hardware_interface)
 
 # To check lint : catkin_make roslint_pandora_linear_motor_hardware_interface
@@ -40,6 +40,8 @@ set(ROSLINT_CPP_OPTS
   
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
+  linear_motor_com_interface/*.h
+  linear_motor_com_interface/*.cpp
   linear_motor_hardware_interface/*.h 
   linear_motor_hardware_interface/*.cpp
 )

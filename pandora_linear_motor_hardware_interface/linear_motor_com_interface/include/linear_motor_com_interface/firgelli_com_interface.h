@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,45 +32,35 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Petros Evangelakos
 *********************************************************************/
 
-#include "linear_motor_hardware_interface/linear_motor_hardware_interface.h"
+#ifndef LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
+#define LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
 
-int main(int argc, char **argv)
+#include "linear_motor_com_interface/abstract_linear_motor_com_interface.h"
+
+namespace pandora_hardware_interface
 {
-  ros::init(argc, argv, "linear_motor_hardware_interface_node");
-  ros::NodeHandle nodeHandle;
-
-  pandora_hardware_interface::linear::LinearMotorHardwareInterface
-    linearMotorHardwareInterface(
-      nodeHandle);
-  controller_manager::ControllerManager controllerManager(
-    &linearMotorHardwareInterface,
-    nodeHandle);
-
-  ros::Time
-    last,
-    now;
-  now = last = ros::Time::now();
-  ros::Duration period(1.0);
-
-  ros::AsyncSpinner spinner(2);
-  spinner.start();
-
-  ros::Rate rate(10);
-
-  while ( ros::ok() )
+namespace linear
+{
+  /**
+  @class FirgelliComInterface
+  @brief Class used for communicating with the firgelli linear motor via usb
+  **/
+  class FirgelliComInterface : public AbstractLinearMotorComInterface
   {
-    now = ros::Time::now();
-    period = now - last;
-    last = now;
-
-    linearMotorHardwareInterface.read();
-    controllerManager.update(now, period);
-    linearMotorHardwareInterface.write();
-    rate.sleep();
-  }
-  spinner.stop();
-  return 0;
-}
+   public:
+    FirgelliComInterface();
+    ~FirgelliComInterface();
+    void init();
+    void openDevice();
+    void closeDevice();
+    bool write(const uint8_t* data, size_t size);
+    bool read(uint8_t* data, size_t size);
+    int readScaledFeedback();
+    int setTarget(unsigned short target);
+  };
+}  // namespace linear
+}  // namespace pandora_hardware_interface
+#endif  // PANDORA_LINEAR_MOTOR_HARDWARE_INTERFACE_FIRGELLI_INTERFACE_H

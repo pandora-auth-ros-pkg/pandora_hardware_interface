@@ -46,10 +46,23 @@ namespace linear
     nodeHandle_(nodeHandle)
   {
     nodeHandle_.getParam("linear_motor_joint", jointName_);
-
-    serialIO_ = new JrkSerial("/dev/linear", 115200, 100);
-
-    serialIO_->openDevice();
+    nodeHandle_.param<std::string>("joint_type", jointType_, "firgelli");
+    
+    if (jointType_ == "jrk")
+    {
+      comInterfacePtr_ = new JrkComInterface("/dev/linear", 115200, 100);
+      comInterfacePtr_->init();
+    }
+    else if (jointType_ == "firgelli")
+    {
+      comInterfacePtr_ = new FirgelliComInterface();
+      comInterfacePtr_->init();
+    }
+    else
+    {
+      ROS_FATAL("Parameter 'joint_type' not set right in parameter server");
+      exit(-1);
+    }
 
     // connect and register the joint state interface
     position_ = 0;
@@ -73,12 +86,12 @@ namespace linear
 
   LinearMotorHardwareInterface::~LinearMotorHardwareInterface()
   {
-    delete serialIO_;
+    delete comInterfacePtr_;
   }
 
   void LinearMotorHardwareInterface::read()
   {
-    int feedback = serialIO_->readScaledFeedback();
+    int feedback = comInterfacePtr_->readScaledFeedback();
     position_ = static_cast<float>(feedback)/4080*0.23;
     ROS_DEBUG_STREAM("Feedback: " << position_);
   }
@@ -88,7 +101,7 @@ namespace linear
     int target = static_cast<int>(command_/0.23*4080);
     if (target >= 0 && target <= 3215)
     {
-      serialIO_->setTarget(target);
+      comInterfacePtr_->setTarget(target);
     }
     else
     {
