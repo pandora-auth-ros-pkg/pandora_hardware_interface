@@ -127,8 +127,11 @@ namespace motor
       void stateHandle(void);
       
       //TODO --- Implement these 2 methods
-      void currentToTorque(void);
-      void torqueToCurrent(void);
+    void currentToTorque(int* leftRearTorque, int* leftFrontTorque,
+    int* rightRearTorque, int* rightFrontTorque);
+    void torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
+    int* rightRearCurrent, int* rightFrontCurrent, int* rightFrontTorque, int* rightRearTorque,
+    int* leftFrontTorque, int* leftRearTorque);
       //----------------------------------
   };
 }  // namespace motor
