@@ -236,7 +236,7 @@ namespace motor
       leftRearMotor_->state_);
   }
 
-void SerialEposHandler::currentToTorque(int* leftRearTorque, int* leftFrontTorque,
+void SerialEpos2Handler::currentToTorque(int* leftRearTorque, int* leftFrontTorque,
     int* rightRearTorque, int* rightFrontTorque)
 {
      epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_, 
@@ -257,7 +257,7 @@ void SerialEposHandler::currentToTorque(int* leftRearTorque, int* leftFrontTorqu
   
   }
 
-void SerialEposHandler::torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
+void SerialEpos2Handler::torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
     int* rightRearCurrent, int* rightFrontCurrent, int* rightFrontTorque, int* rightRearTorque,
     int* leftFrontTorque, int* leftRearTorque)
 {
