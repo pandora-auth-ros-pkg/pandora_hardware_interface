@@ -236,6 +236,41 @@ namespace motor
       leftRearMotor_->state_);
   }
 
+void SerialEposHandler::currentToTorque(int* leftRearTorque, int* leftFrontTorque,
+    int* rightRearTorque, int* rightFrontTorque)
+{
+     epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_, 
+      &rightFrontMotor_->current_);
+      *rightFrontTorque = static_cast<int>(rightFrontMotor_->current_) * 33.5 * 113;
+      
+      epos2Gateway_->read_currentActual(rightRearMotor_->nodeId_,
+      &rightRearMotor_->current_);
+      *rightRearTorque=static_cast<int>(rightRearMotor_->current_) * 33.5 * 113;
+      
+      epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_,
+      &rightRearMotor_->current_);
+      *leftFrontTorque = static_cast<int>(leftFrontMotor_->current_) * 33.5 * 113;
+      
+      epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_, 
+      &leftRearMotor_->current_);
+      *leftRearTorque = static_cast<int>(leftRearMotor_->current_) * 33.5 * 113;
+  
+  }
+
+void SerialEposHandler::torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
+    int* rightRearCurrent, int* rightFrontCurrent, int* rightFrontTorque, int* rightRearTorque,
+    int* leftFrontTorque, int* leftRearTorque)
+{
+*rightFrontCurrent = *rightFrontTorque / 33.5 / 113;
+*rightRearCurrent = *rightRearTorque / 33.5 / 113;
+*leftFrontCurrent = *leftFrontTorque / 33.5 / 113;
+*leftRearCurrent = *leftRearTorque / 33.5 / 113;
+
+}
+
+
+
+
   //=======================================================================
   
 }  // namespace motor
