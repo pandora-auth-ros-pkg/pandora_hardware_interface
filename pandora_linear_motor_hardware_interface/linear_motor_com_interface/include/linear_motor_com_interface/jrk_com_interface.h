@@ -130,7 +130,7 @@ namespace linear
     int readFeedback();
 
     /**
-    @brief Asks linear motor for scaled position feedback value
+    @brief Reads position of linear joint in cm
     @return Scaled Feedback value
     **/
     int readScaledFeedback();

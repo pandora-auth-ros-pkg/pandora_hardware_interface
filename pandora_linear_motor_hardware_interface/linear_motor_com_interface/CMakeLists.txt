@@ -18,5 +18,6 @@ add_library(
   )
 target_link_libraries(
   firgelli_com_interface
+  ${LIBUSB_1_LIBRARIES}
   ${catkin_LIBRARIES}
   )

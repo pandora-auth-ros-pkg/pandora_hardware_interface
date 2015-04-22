@@ -84,26 +84,26 @@ namespace linear
     virtual void closeDevice() = 0;
 
     /**
-    @brief Write goal position to linear motor
-    @return bool : 1 for success, 0 for error
+    @brief Write command to linear motor
+    @return bool : true for success, false for error
     **/
     virtual bool write(const uint8_t* data, size_t size) = 0;
 
     /**
-    @brief Gets position feedback from the linear joint
+    @brief Reads feedback from the linear joint
     @details Init must be called first to establish communication
     @return void
     **/
     virtual bool read(uint8_t* data, size_t size) = 0;
 
     /**
-    @brief Asks linear motor for scaled position feedback value
+    @brief Reads goal position in cm
     @return int : scaled feedback value
     **/
     virtual int readScaledFeedback() = 0;
 
     /**
-    @brief Sends position target command [Linear Motor]
+    @brief Sends position target command to linear motor
     @param target Target position value
     @return 0 : success in setting target of linear motor joint
     @return -1 : failure in setting target of linear motor joint

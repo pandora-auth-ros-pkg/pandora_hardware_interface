@@ -38,6 +38,8 @@
 #ifndef LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
 #define LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
 
+#include <assert.h>
+#include <libusb-1.0/libusb.h>
 #include "linear_motor_com_interface/abstract_linear_motor_com_interface.h"
 
 namespace pandora_hardware_interface
@@ -51,15 +53,76 @@ namespace linear
   class FirgelliComInterface : public AbstractLinearMotorComInterface
   {
    public:
+    /**
+    @brief Default Constructor
+    **/
     FirgelliComInterface();
+
+    /**
+    @brief Default Destructor
+    **/
     ~FirgelliComInterface();
+
+    /**
+    @brief Opens communication port and performs other initialization tasks
+    @return void
+    **/
     void init();
+
+
+    /**
+    @brief Opens communication port
+    @return void
+    **/
     void openDevice();
+
+    /**
+    @brief Closes opened communication port
+    @brief This method is used to close linear motor communication port
+    **/
     void closeDevice();
+
+    /**
+    @brief Write goal position to linear motor
+    @return bool : 1 for success, 0 for error
+    **/
     bool write(const uint8_t* data, size_t size);
+
+    /**
+    @brief Gets position feedback from the linear joint
+    @details Init must be called first to establish communication
+    @return void
+    **/
     bool read(uint8_t* data, size_t size);
+
+    /**
+    @brief Reads goal position in cm
+    @return int : scaled feedback value
+    **/
     int readScaledFeedback();
+
+
+    /**
+    @brief Sends position target command to linear motor
+    @param target Target position value
+    @return 0 : success in setting target of linear motor joint
+    @return -1 : failure in setting target of linear motor joint
+    **/
     int setTarget(unsigned short target);
+
+   private:
+    /**
+    @brief Returns control type
+    @param attr [int] : attribute
+    @return static const char* : control type
+    **/
+    static const char* controlType(int attr);
+
+   private:
+    int mInterface_;
+    libusb_device_handle *mHandle_;
+    struct libusb_context *mCtx_;
+    static int mDebug;
   };
 }  // namespace linear
 }  // namespace pandora_hardware_interface

@@ -64,7 +64,6 @@ namespace linear
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::PositionJointInterface positionJointInterface_;
       std::string jointName_;
-      std::string jointType_;
       double command_;
       double position_;
       double velocity_;

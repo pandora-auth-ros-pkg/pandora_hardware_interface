@@ -43,10 +43,19 @@ namespace linear
 {
   FirgelliComInterface::FirgelliComInterface()
   {
+    mCtx_ = NULL;
+    mHandle_ = NULL;
+    mInterface_ = 0;
+  libusb_init(&mCtx_);
   }
 
   FirgelliComInterface::~FirgelliComInterface()
   {
+    int retval = libusb_release_interface(mHandle_, mInterface_);
+    assert(retval == 0);
+    if(mHandle_)
+      libusb_close(mHandle_);
+    libusb_exit(mCtx_);
   }
 
   void FirgelliComInterface::init()
@@ -55,6 +64,7 @@ namespace linear
 
   void FirgelliComInterface::openDevice()
   {
+    //mHandle_ = libusb_open_device_with_vid_pid(mCtx_, vid, pid);
   }
 
   void FirgelliComInterface::closeDevice()
