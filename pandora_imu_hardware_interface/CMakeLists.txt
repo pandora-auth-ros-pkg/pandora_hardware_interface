@@ -1,53 +1,52 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_imu_hardware_interface)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
-  tf
   controller_manager
+  controller_interface
+  tf
   serial
+  pandora_sensor_msgs
+  pluginlib
 )
 
+SET(THIS_PACKAGE_INCLUDE_DIRS
+  imu_com_interface/include
+  imu_hardware_interface/include
+  imu_controllers/include
+  )
+
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES
+  INCLUDE_DIRS
+    ${THIS_PACKAGE_INCLUDE_DIRS}
+  LIBRARIES
+    imu_rpy_controller
   CATKIN_DEPENDS
     roscpp
-    tf
     controller_manager
+    controller_interface
+    tf
     serial
-#  DEPENDS
+    pandora_sensor_msgs
+    pluginlib
 )
 
 include_directories(
-  include
+  ${THIS_PACKAGE_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
+add_subdirectory(imu_com_interface)
+add_subdirectory(imu_hardware_interface)
+add_subdirectory(imu_controllers)
+
 #~ set(CMAKE_BUILD_TYPE Debug)
-
-add_executable(
-  imu_hardware_interface_node
-  src/imu_serial_interface.cpp
-  src/ahrs_serial_interface.cpp
-  src/imu_hardware_interface.cpp
-  src/imu_hardware_interface_node.cpp)
-target_link_libraries(
-  imu_hardware_interface_node
-  ${catkin_LIBRARIES})
-
-add_executable(
-  trax_ahrs_configuration_node
-  src/ahrs_serial_interface.cpp
-  src/trax_ahrs_configuration_node.cpp)
-target_link_libraries(
-  trax_ahrs_configuration_node
-  ${catkin_LIBRARIES})
-
 
 # To check lint : catkin_make roslint_pandora_imu_hardware_interface
 set(ROSLINT_CPP_OPTS
-  "--filter=-build/include_what_you_use")
+  "--filter=-build/include_what_you_use, -runtime/references")
 
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
