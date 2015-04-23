@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   uint8_t temperature[64];
   std::stringstream ss;
 
-  while (ros::ok())
+  while (true)
   {
     arm.readSonarValues('L', range);
     arm.readSonarValues('R', range + 1);

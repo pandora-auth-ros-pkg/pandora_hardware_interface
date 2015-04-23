@@ -108,7 +108,9 @@ namespace arm
 
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
-    double radians = arm_->readEncoderValue(&value) / 180 * pi;
+    double degrees =
+      static_cast<double>(arm_->readEncoderValue(&value)) * 360 / 1024;
+    double radians = degrees / 180 * pi + encoder_offset_;
 
     // make radians value between [-pi, pi]
     if (radians > pi)
@@ -365,6 +367,11 @@ namespace arm
       "differential_joints/right_joint",
       name);
     jointNames_.push_back(name);
+
+    encoder_offset_ =
+      nodeHandle_.getParam(
+        "differential_joints/encoder_offset",
+        encoder_offset_);
 
     // connect and register the joint state interface
     for (int ii = 0; ii < jointNames_.size(); ii++)

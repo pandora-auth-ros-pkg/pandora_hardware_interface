@@ -165,6 +165,7 @@ namespace arm
      double position_[2];
      double velocity_[2];
      double effort_[2];
+     double encoder_offset_;
   };
 }  // namespace arm
 }  // namespace pandora_hardware_interface
