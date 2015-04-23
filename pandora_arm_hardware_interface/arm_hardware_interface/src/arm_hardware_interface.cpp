@@ -96,7 +96,7 @@ namespace arm
     for (int ii = 0; ii < rangeSensorName_.size(); ii++)
     {
       arm_->readSonarValues(rangeSensorCode_[ii], &value);
-      range_[ii] = value / 100;
+      range_[ii] = static_cast<double>(value) / 100;
     }
 
     // read voltage of batteries

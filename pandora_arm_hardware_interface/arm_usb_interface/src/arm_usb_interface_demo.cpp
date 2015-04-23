@@ -77,15 +77,15 @@ int main(int argc, char** argv)
 
     for (int ii = 0; ii < 8; ii++)
     {
+      ss << "\n";
       for (int jj = 0; jj < 8; jj++)
       {
         ss << " " << temperature[ii * 8 + jj];
       }
-      ss << "\n";
     }
 
     ROS_INFO("============== Thermal Image ===============");
-//    ROS_INFO("%s", ss);
+    ROS_INFO("%s", ss.str().c_str());
     ROS_INFO("============================================");
 
     for (int ii = 0; ii < 64; ii++){
