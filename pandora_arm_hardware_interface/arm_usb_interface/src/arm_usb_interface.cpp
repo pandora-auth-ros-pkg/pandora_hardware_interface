@@ -129,7 +129,7 @@ namespace arm
     tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
                              // -> and data written but not transmitted
 
-    nr = write(fd, (const void*)&bufOut, COMMAND_NBYTES);
+    nr = write(fd, &bufOut, COMMAND_NBYTES);
     if (nr != 1)
     {
       ROS_ERROR("[Head]: Write Error\n");
@@ -137,7 +137,7 @@ namespace arm
       return WRITE_ERROR;
     }
 
-    nr = read(fd, reinterpret_cast<void*>(values), GEYE_NBYTES);  // blocking
+    nr = read(fd, values, GEYE_NBYTES);  // blocking
     if (nr < 0)
     {
       ROS_ERROR("[Head]: Read Error\n");
@@ -185,7 +185,7 @@ namespace arm
 
     tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
                              // -> and data written but not transmitted
-    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    nr = write(fd, &bufOut, COMMAND_NBYTES);
     if (nr != 1)
     {
       ROS_ERROR("[Head]: Write Error\n");
@@ -228,7 +228,7 @@ namespace arm
                              // -> and data written but not transmitted
 
     bufOut = COMMAND_CO2;
-    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    nr = write(fd, &bufOut, COMMAND_NBYTES);
     if (nr != 1)
     {
       ROS_ERROR("[Head]: Write Error\n");
@@ -271,7 +271,7 @@ namespace arm
                              // -> and data written but not transmitted
 
     bufOut = COMMAND_ENCODER;
-    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    nr = write(fd, &bufOut, COMMAND_NBYTES);
     if (nr != 1)
     {
       ROS_ERROR("[Head]: Write Error\n");
@@ -331,7 +331,7 @@ namespace arm
     tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
                              // -> and data written but not transmitted
 
-    nr = write(fd, (const void *)&bufOut, COMMAND_NBYTES);
+    nr = write(fd, &bufOut, COMMAND_NBYTES);
     if (nr != 1)
     {
       ROS_ERROR("[Head]: Write Error\n");

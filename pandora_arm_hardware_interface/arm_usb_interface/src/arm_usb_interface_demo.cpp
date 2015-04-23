@@ -61,8 +61,10 @@ int main(int argc, char** argv)
     arm.readBatteryValues('S', tempVoltage + 1);
     arm.readGrideyeValues('C', temperature);
 
+    encoderDegrees = encoderDegrees * 360 / 1024;
+
     for (int ii = 0; ii < 2; ii++)
-      voltage[ii] = (tempVoltage[ii]/4096.)*33;
+      voltage[ii] = (tempVoltage[ii] / 4096.) * 33.0;
 
     ROS_INFO("============================================");
     ROS_INFO("Left Sonar measurement: %d", range[0]);
@@ -74,27 +76,30 @@ int main(int argc, char** argv)
     ROS_INFO("============================================");
 
 
-
+    ss << "\n============== Thermal Image ===============\n";
     for (int ii = 0; ii < 8; ii++)
     {
-      ss << "\n";
       for (int jj = 0; jj < 8; jj++)
       {
-        ss << " " << temperature[ii * 8 + jj];
+        ss << " " << static_cast<int>(temperature[ii * 8 + jj]);
       }
+      ss << "\n";
     }
+    ss << "============================================";
 
-    ROS_INFO("============== Thermal Image ===============");
     ROS_INFO("%s", ss.str().c_str());
-    ROS_INFO("============================================");
 
     for (int ii = 0; ii < 64; ii++){
-      if (temperature[ii] < 0 || temperature[ii] > 255)
+      // 0 in temperature indicates communication problem
+      if (temperature[ii] < 1 || temperature[ii] > 255)
         {
           ROS_INFO("GridEye values were not read correctly.");
           break;
         }
     }
+
+    ss.str(std::string());
+
     ros::Duration(1.0).sleep();
   }
   return 0;

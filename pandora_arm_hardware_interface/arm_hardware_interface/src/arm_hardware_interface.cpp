@@ -108,9 +108,9 @@ namespace arm
 
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
-    double degrees =
-      static_cast<double>(arm_->readEncoderValue(&value)) * 360 / 1024;
-    double radians = degrees / 180 * pi + encoder_offset_;
+    arm_->readEncoderValue(&value);
+    double degrees = static_cast<double>(value) * 360.0 / 1024.0;
+    double radians = degrees / 180.0 * pi + encoder_offset_;
 
     // make radians value between [-pi, pi]
     if (radians > pi)
