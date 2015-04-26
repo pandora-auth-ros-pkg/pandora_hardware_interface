@@ -108,9 +108,9 @@ namespace linear
     @return 0 : success in setting target of linear motor joint
     @return -1 : failure in setting target of linear motor joint
     **/
-    virtual  int setTarget(uint16_t target)=0;
+     int setTarget(unsigned short target)=0;
   };
-}  // namespace linear
+}  // namespace linear_motor
 }  // namespace pandora_hardware_interface
 
 #endif  // LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H

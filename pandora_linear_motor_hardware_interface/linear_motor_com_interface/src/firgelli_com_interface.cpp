@@ -41,50 +41,222 @@ namespace pandora_hardware_interface
 {
 namespace linear
 {
+  int  FirgelliComInterface::mDebug_;
   FirgelliComInterface::FirgelliComInterface()
   {
     mCtx_ = NULL;
     mHandle_ = NULL;
     mInterface_ = 0;
-  libusb_init(&mCtx_);
+    libusb_init(&mCtx_);
+    rank_ = 1;
   }
 
   FirgelliComInterface::~FirgelliComInterface()
   {
     int retval = libusb_release_interface(mHandle_, mInterface_);
     assert(retval == 0);
-    if(mHandle_)
-      libusb_close(mHandle_);
+    if (mHandle_)
+      closeDevice();
     libusb_exit(mCtx_);
   }
 
   void FirgelliComInterface::init()
   {
+    uint8_t buf[3];
+    int command;
+    openDevice();
+
+    // set accuracy
+    command = 10;
+    buf[0] = SET_ACCURACY;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set retract limit
+    command = 20;
+    buf[0] = SET_RETRACT_LIMIT;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set extend limit
+    command = 1000;
+    buf[0] = SET_EXTEND_LIMIT;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set movement threshold
+    command = 3;
+    buf[0] = SET_MOVEMENT_THRESHOLD;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set stall time
+    command = 10000;
+    buf[0] = SET_STALL_TIME;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set PWM threshold
+    command = 80;
+    buf[0] = SET_PWM_THRESHOLD;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set Derivative Threshold
+    command = 3;
+    buf[0] = SET_DERIVATIVE_THRESHOLD;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set max derivative
+    command = 1023;
+    buf[0] = SET_DERIVATIVE_MAXIMUM;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set min derivative
+    command = 0;
+    buf[0] = SET_DERIVATIVE_MINIMUM;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set max pwm
+    command = 1023;
+    buf[0] = SET_PWM_MAXIMUM;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set min pwm
+    command = 0;
+    buf[0] = SET_PWM_MINIMUM;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set Kp
+    command = 1;
+    buf[0] = SET_PROPORTIONAL_GAIN;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set Kd
+    command = 10;
+    buf[0] = SET_DERIVATIVE_GAIN;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set average RC
+    command = 4;
+    buf[0] = SET_AVERAGE_RC;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set average ADC
+    command = 8;
+    buf[0] = SET_AVERAGE_ADC;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
+    // set speed
+    command = 1023;
+    buf[0] = SET_SPEED;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
   }
 
   void FirgelliComInterface::openDevice()
   {
-    //mHandle_ = libusb_open_device_with_vid_pid(mCtx_, vid, pid);
+    int rval;
+    uint16_t vid = 0x04d8;  // Microtech
+    uint16_t pid = 0xfc5f;  // ??
+    ROS_INFO("firgelli:: vid=%x",
+      vid);
+
+    mHandle_ = libusb_open_device_with_vid_pid(mCtx_, vid, pid);
+    if (mHandle_ == NULL){
+      ROS_INFO("firgelli::open device vid=0x%x pid=0x%x not found\n",
+        vid, pid);
+      exit(1);
+    }
+
+    rval = libusb_claim_interface(mHandle_, mInterface_);
+    assert(rval == 0);
+  }
+
+
+
+  bool FirgelliComInterface::write(const uint8_t* data, size_t size)
+  {
+    int transferred = 0;
+    unsigned int timeout = 1000;
+    uint8_t buf[3];
+    buf[0] = data[0];
+    buf[1] = data[1];
+    buf[2] = data[2];
+    unsigned char endpoint = 1 | LIBUSB_ENDPOINT_OUT;
+
+    int rval = libusb_bulk_transfer(
+      mHandle_,
+      endpoint,
+      buf,
+      size,
+      &transferred,
+      timeout);
+
+    if (rval)
+    {
+      ROS_INFO("firgelli: bad write rval=%d\n", rval);
+      exit(1);
+    }
+
+    endpoint = 1 | LIBUSB_ENDPOINT_IN;
+    rval = libusb_bulk_transfer(
+    mHandle_,
+    endpoint,
+    buf,
+    size,
+    &transferred,
+    timeout);
+
+
+    if (rval)
+    {
+      ROS_INFO("firgelli: bad read rval=%d \n",
+        rval);
+      exit(1);
+    }
+
+    return rval;
+  }
+
+int FirgelliComInterface::readScaledFeedback()
+  {
+    int position;
+    uint8_t buf[3];
+    buf[0] = GET_FEEDBACK;
+    position = write(buf, sizeof(buf));
+    return position;
   }
 
   void FirgelliComInterface::closeDevice()
   {
-  }
-
-  bool FirgelliComInterface::write(const uint8_t* data, size_t size)
-  {
+     libusb_close(mHandle_);
   }
 
   bool FirgelliComInterface::read(uint8_t* data, size_t size)
   {
   }
 
-  int FirgelliComInterface::readScaledFeedback()
-  {
-  }
 
-  int FirgelliComInterface::setTarget(unsigned short target)
+  int FirgelliComInterface::setTarget(uint16_t target)
   {
+    uint8_t buf[3];
+    uint16_t command = target;
+    command = (target/14.0)*1023;
+    buf[0] = SET_POSITION;
+    buf[1] = command % 256;  // Low
+    buf[2] = command / 256;  // High
+    write(buf, sizeof(buf));
   }
-}  // namespace linear_motor
+}  // namespace linear
 }  // namespace pandora_hardware_interface

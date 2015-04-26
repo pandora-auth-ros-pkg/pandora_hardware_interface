@@ -103,7 +103,7 @@ namespace linear
 
   void JrkComInterface::closeDevice()
   {
-    serialPtr_->flush();  //Flush both input and output  buffers on exit
+    serialPtr_->flush();  // Flush both input and output buffers on exit
     serialPtr_->close();
   }
 
@@ -118,7 +118,7 @@ namespace linear
 
   bool JrkComInterface::read(uint8_t* data, size_t size)
   {
-    if (serialPtr_->read(data,size) == size)
+    if (serialPtr_->read(data, size) == size)
     {
       serialPtr_->flushInput();  // flush received, but unread data
       return true;
@@ -130,7 +130,7 @@ namespace linear
     }
   }
 
-  int JrkComInterface::setTarget(unsigned short target)
+  int JrkComInterface::setTarget(uint16_t target)
   {
     uint8_t command[] = {0xB3, 0xC0 + (target & 0x1F), (target >> 5) & 0x7F};
     if ( !this->write(command, sizeof(command)) )

@@ -41,7 +41,7 @@
 #include <assert.h>
 #include <libusb-1.0/libusb.h>
 #include "linear_motor_com_interface/abstract_linear_motor_com_interface.h"
-
+#include "linear_motor_com_interface/firgelli_definitions.h"
 namespace pandora_hardware_interface
 {
 namespace linear
@@ -108,7 +108,7 @@ namespace linear
     @return 0 : success in setting target of linear motor joint
     @return -1 : failure in setting target of linear motor joint
     **/
-    int setTarget(unsigned short target);
+    int setTarget(uint16_t target);
 
    private:
     /**
@@ -122,8 +122,9 @@ namespace linear
     int mInterface_;
     libusb_device_handle *mHandle_;
     struct libusb_context *mCtx_;
-    static int mDebug;
+    static int mDebug_;
+    int rank_;
   };
 }  // namespace linear
 }  // namespace pandora_hardware_interface
-#endif  // PANDORA_LINEAR_MOTOR_HARDWARE_INTERFACE_FIRGELLI_INTERFACE_H
+#endif  // LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H

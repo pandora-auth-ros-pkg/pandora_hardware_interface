@@ -97,7 +97,7 @@ namespace linear
     @return [int] : variable value requested through command
     **/
     int readVariable(const unsigned char command);
-  
+
     /**
     @brief Write command to [Linear Motor] controller
     @param data [const uint8_t*] : Output Data buffer
@@ -106,7 +106,7 @@ namespace linear
     @return FALSE : Error writing to output buffer
     **/
     bool write(const uint8_t* data, size_t size);
-    
+
     /**
     @brief Read command of linear motor controller
     @param data [uint8_t*] : input data buffer
@@ -153,7 +153,7 @@ namespace linear
     @return 0 : success in setting target of linear motor joint
     @return -1 : failure in setting target of linear motor joint
     **/
-    int setTarget(unsigned short target);
+    int setTarget(uint16_t target);
 
     /**
     @fn int getErrors();

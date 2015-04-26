@@ -46,10 +46,10 @@ namespace linear
     nodeHandle_(nodeHandle)
   {
     nodeHandle_.getParam("linear_motor_joint", jointName_);
-    
+
     std::string jointType;
     nodeHandle_.param<std::string>("joint_type", jointType, "firgelli");
-    
+
     if (jointType == "jrk")
     {
       comInterfacePtr_ = new JrkComInterface("/dev/linear", 115200, 100);
@@ -94,14 +94,15 @@ namespace linear
   void LinearMotorHardwareInterface::read()
   {
     int feedback = comInterfacePtr_->readScaledFeedback();
-    position_ = static_cast<float>(feedback) / 4080 * 0.23;
+    position_ = static_cast<float>(feedback);
     ROS_DEBUG_STREAM("Feedback: " << position_);
   }
 
   void LinearMotorHardwareInterface::write()
   {
-    int target = static_cast<int>(command_ / 0.23 * 4080);
-    if (target >= 0 && target <= 3215)
+    uint16_t target = static_cast<uint16_t>(command_);
+    ROS_INFO("%d", target);
+    if (target >= 0 && target <= 14)
     {
       comInterfacePtr_->setTarget(target);
     }
