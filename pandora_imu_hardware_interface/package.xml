@@ -23,6 +23,7 @@
   <depend>tf</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
+  <depend>dynamic_reconfigure</depend>
   <depend>pandora_sensor_msgs</depend>
   <depend>serial</depend>
   <depend>pluginlib</depend>

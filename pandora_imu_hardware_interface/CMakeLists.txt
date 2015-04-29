@@ -4,6 +4,7 @@ project(pandora_imu_hardware_interface)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
+  dynamic_reconfigure
   controller_manager
   controller_interface
   tf
@@ -12,11 +13,19 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
 )
 
+generate_dynamic_reconfigure_options(imu_hardware_interface/config/ImuHardwareInterface.cfg)
+
 SET(THIS_PACKAGE_INCLUDE_DIRS
   imu_com_interface/include
   imu_hardware_interface/include
   imu_controllers/include
   )
+
+
+include_directories(
+  ${THIS_PACKAGE_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
+)
 
 catkin_package(
   INCLUDE_DIRS
@@ -33,10 +42,6 @@ catkin_package(
     pluginlib
 )
 
-include_directories(
-  ${THIS_PACKAGE_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-)
 
 add_subdirectory(imu_com_interface)
 add_subdirectory(imu_hardware_interface)

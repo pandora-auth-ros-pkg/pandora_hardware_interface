@@ -44,32 +44,26 @@ namespace imu
   ImuHardwareInterface::ImuHardwareInterface(
     ros::NodeHandle nodeHandle)
   :
-    nodeHandle_(nodeHandle),
-    imuComInterface_("/dev/imu", 38400, 100),
-    ahrsComInterface_("/dev/imu", 38400, 100)
+    nodeHandle_(nodeHandle)
   {
     std::string device_type;
     if (nodeHandle_.getParam("device_type", device_type))
     {
       if (device_type == "imu")
-      {
-        nodeHandle_.param("imu_roll_offset", rollOffset_, 0.0);
-        nodeHandle_.param("imu_pitch_offset", pitchOffset_, 0.0);
-
-        comInterface_ = &imuComInterface_;
-      }
+        comInterface_ = new ImuComInterface("/dev/imu", 38400, 100);
       else if (device_type == "ahrs")
-      {
-        nodeHandle_.param("ahrs_roll_offset", rollOffset_, 0.0);
-        nodeHandle_.param("ahrs_pitch_offset", pitchOffset_, 0.0);
-
-        comInterface_ = &ahrsComInterface_;
-      }
+        comInterface_ = new AhrsComInterface("/dev/imu", 38400, 100);
       else
       {
-        ROS_FATAL("[ERROR]: device_type not set in parameter server.");
-        exit(-1);
+          ROS_FATAL(
+            "[ERROR]: device_type not set correctly in parameter server.");
+          exit(-1);
       }
+    }
+    else
+    {
+      ROS_FATAL("[ERROR]: device_type not set in parameter server.");
+      exit(-1);
     }
 
     comInterface_->init();
@@ -110,6 +104,12 @@ namespace imu
     pandora_hardware_interface::imu::ImuRPYHandle imuRPYHandle(imuRPYData_);
     imuRPYInterface_.registerHandle(imuRPYHandle);
     registerInterface(&imuRPYInterface_);
+
+    server_.setCallback(boost::bind(
+      &pandora_hardware_interface::imu::ImuHardwareInterface::dynamicReconfigureCallback,
+      this,
+      _1,
+      _2));
   }
 
   ImuHardwareInterface::~ImuHardwareInterface()
@@ -119,6 +119,7 @@ namespace imu
   void ImuHardwareInterface::read()
   {
     float yaw, pitch, roll, aV[3], lA[3];
+
     comInterface_->read();
     comInterface_->getData(
       &yaw,
@@ -126,6 +127,10 @@ namespace imu
       &roll,
       aV,
       lA);
+
+    // apply offsets to pitch and roll
+    roll = roll + rollOffset_;
+    pitch = pitch + pitchOffset_;
 
     *imuYaw_ = static_cast<double>(yaw);
     *imuPitch_ = static_cast<double>(pitch);
@@ -136,8 +141,7 @@ namespace imu
     roll = roll * (2 * boost::math::constants::pi<double>()) / 360;
 
     geometry_msgs::Quaternion orientation;
-    orientation = tf::createQuaternionMsgFromRollPitchYaw(
-      roll - rollOffset_, pitch -pitchOffset_, yaw);
+    orientation = tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
     imuOrientation_[0] = orientation.x;
     imuOrientation_[1] = orientation.y;
     imuOrientation_[2] = orientation.z;
@@ -148,6 +152,18 @@ namespace imu
       imuAngularVelocity_[ii] = static_cast<double>(aV[ii]);
       imuLinearAcceleration_[ii] = static_cast<double>(lA[ii]);
     }
+  }
+
+  void ImuHardwareInterface::dynamicReconfigureCallback(
+    const pandora_imu_hardware_interface::ImuHardwareInterfaceConfig& config,
+    uint32_t level)
+  {
+    ROS_INFO("Reconfigure Request:  roll[%f]  pitch[%f]",
+      config.roll_offset,
+      config.pitch_offset);
+
+    rollOffset_ = config.roll_offset;
+    pitchOffset_ = config.pitch_offset;
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface
