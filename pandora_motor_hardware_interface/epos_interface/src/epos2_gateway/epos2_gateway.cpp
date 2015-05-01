@@ -42,9 +42,9 @@ namespace pandora_hardware_interface
 {
 namespace motor
 {
-  Epos2Gateway::Epos2Gateway(const std::string port, 
-    const uint32_t baudrate, const uint32_t timeout, 
-    const std::string deviceName, const std::string protocolStackName, 
+  Epos2Gateway::Epos2Gateway(const std::string port,
+    const uint32_t baudrate, const uint32_t timeout,
+    const std::string deviceName, const std::string protocolStackName,
     const std::string interfaceName)
   {
     comInterface_.reset(new Interface());
@@ -58,28 +58,27 @@ namespace motor
     strcpy(comInterface_->portName, port.c_str());
     comInterface_->baudrate = baudrate;
     comInterface_->timeout = timeout;
-    //TODO --- Read number of Nodes from a yaml
+    // TODO(klpanagi): --- Read number of Nodes from a yaml
   }
 
   Epos2Gateway::~Epos2Gateway()
   {
-    //Deleting void pointer is undefined;
-    //delete comHandler_; 
+    // Deleting void pointer is undefined;
+    // delete comHandler_;
   }
 
-  //=================<GATEWAY COMMUNICATION Methods>=====================
-  //#####################################################################
+  // =================<GATEWAY COMMUNICATION Methods>=====================
+  // #####################################################################
 
   void Epos2Gateway::openDevice(void)
   {
     /*--<Open Device Serial Communication interface>--*/
     comHandler_ = VCS_OpenDevice(comInterface_->deviceName,
-      comInterface_->protocolStackName, comInterface_->interfaceName, 
+      comInterface_->protocolStackName, comInterface_->interfaceName,
       comInterface_->portName, &error_);
-    if (comHandler_==0 || error_!=0)
+    if (comHandler_ == 0 || error_ != 0)
     {
-      ROS_FATAL("[Motors]: Error while opening serial \
-        communication port");
+      ROS_FATAL("[Motors]: Error while opening serial communication port");
       exit(-1);
     }
     else
@@ -88,10 +87,9 @@ namespace motor
         comInterface_->portName);
     }
     /*--<Set and evaluate communication interface>--*/
-    if(eval_communicationParameters()==0)
+    if (eval_communicationParameters() == 0)
     {
-      ROS_FATAL("[Motors]: Failed to evaluate communication \
-        parameters");
+      ROS_FATAL("[Motors]: Failed to evaluate communication parameters");
       exit(-1);
     }
   }
@@ -99,15 +97,14 @@ namespace motor
 
   void Epos2Gateway::closeDevice(void)
   {
-    if(VCS_CloseDevice(comHandler_, &error_)!=0 &&
-      error_ == 0)
+    if (VCS_CloseDevice(comHandler_, &error_) !=0 && error_ == 0)
     {
       ROS_FATAL("[Motors]: Device communication port closed succesfully");
     }
     else
     {
-      ROS_FATAL("[Motors]: Error closing device \
-        communication port...Investigate!!!"); 
+      ROS_FATAL("[Motors]: Error closing device "
+        "communication port...Investigate!!!");
     }
   }
 
@@ -116,16 +113,16 @@ namespace motor
   {
     uint32_t _baudrate;
     uint32_t _timeout;
-    if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-        &_timeout, &error_)!=0)
+    if (VCS_GetProtocolStackSettings(comHandler_, &_baudrate,
+        &_timeout, &error_) != 0)
     {
-      if(VCS_SetProtocolStackSettings(comHandler_, comInterface_->baudrate, 
-          comInterface_->timeout, &error_)!=0)
+      if (VCS_SetProtocolStackSettings(comHandler_, comInterface_->baudrate,
+          comInterface_->timeout, &error_) != 0)
       {
-        if(VCS_GetProtocolStackSettings(comHandler_, &_baudrate, 
-            &_timeout, &error_)!=0)
+        if (VCS_GetProtocolStackSettings(comHandler_, &_baudrate,
+            &_timeout, &error_) != 0)
         {
-          if(comInterface_->baudrate == _baudrate)
+          if (comInterface_->baudrate == _baudrate)
           {
             return true;
           }
@@ -136,18 +133,18 @@ namespace motor
   }
 
 
-  //=======================<STATE MACHINE Methods>=======================
-  //#####################################################################
+  // =======================<STATE MACHINE Methods>=======================
+  // #####################################################################
 
   uint32_t Epos2Gateway::resetNode(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_ResetDevice(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_ResetDevice(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isEnableState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isEnableState, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -161,44 +158,44 @@ namespace motor
   uint32_t Epos2Gateway::setEnableState(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_SetEnableState(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_SetEnableState(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- setEnableState, nodeId=%d",
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- setEnableState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else // Command executed succesfully
+    else  // Command executed succesfully
     {
       ROS_INFO("[Motors]: NodeId[%d] is set at {Enabled-State}", nodeId);
     }
     return _errorCode;
-  } 
+  }
 
 
   bool Epos2Gateway::isEnableState(uint16_t nodeId)
   {
     uint32_t _errorCode;
     int isEnabled = 0;
-    //isEnabled => 1: Device Enabled, 0: Device NOT Enabled
-    if(VCS_GetEnableState(comHandler_, nodeId, &isEnabled, &_errorCode)==0)
+    // isEnabled => 1: Device Enabled, 0: Device NOT Enabled
+    if (VCS_GetEnableState(comHandler_, nodeId, &isEnabled, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isEnableState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isEnableState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else // Command executed succesfully
+    else  // Command executed succesfully
     {
-      if(isEnabled)
+      if (isEnabled)
       {
-        //Device is at Enabled State
+        // Device is at Enabled State
         return true;
-      } 
+      }
       else
       {
-        //Device is NOT at Enabled State
+        // Device is NOT at Enabled State
         return false;
       }
     }
@@ -209,45 +206,44 @@ namespace motor
   uint32_t Epos2Gateway::setDisableState(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_SetDisableState(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_SetDisableState(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- setDisableState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- setDisableState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else //Command executed succesfully
+    else  // Command executed succesfully
     {
       ROS_INFO("[Motors]: NodeId[%d] is set at Disabled State", nodeId);
     }
     return _errorCode;
-  } 
+  }
 
 
   bool Epos2Gateway::isDisableState(uint16_t nodeId)
   {
     uint32_t _errorCode;
     int isDisabled = 0;
-    if(VCS_GetDisableState(comHandler_, nodeId, &isDisabled,
-        &_errorCode)==0)
+    if (VCS_GetDisableState(comHandler_, nodeId, &isDisabled, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isDisableState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isDisableState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else //Command executed succesfully
+    else  // Command executed succesfully
     {
-      if(isDisabled)
+      if (isDisabled)
       {
-        //Device is at Disabled State
+        // Device is at Disabled State
         return true;
-      } 
+      }
       else
       {
-        //Device is NOT at Disabled State
+        // Device is NOT at Disabled State
         return false;
       }
     }
@@ -258,12 +254,12 @@ namespace motor
   uint32_t Epos2Gateway::clearFaultState(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_ClearFault(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_ClearFault(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isFaultState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isFaultState, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -278,19 +274,19 @@ namespace motor
   {
     uint32_t _errorCode;
     int isFault = 0;
-    if(VCS_GetFaultState(comHandler_, nodeId, &isFault, &_errorCode)==0)
+    if (VCS_GetFaultState(comHandler_, nodeId, &isFault, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isFaultState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isFaultState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else //Command executed succesfully
+    else  // Command executed succesfully
     {
-      if(isFault)
+      if (isFault)
       {
-        //Device is at Fault State
+        // Device is at Fault State
         return true;
       }
       else
@@ -306,20 +302,20 @@ namespace motor
   {
     uint32_t _errorCode;
     int isQuickStopped = 0;
-    if(VCS_GetQuickStopState(comHandler_, nodeId, &isQuickStopped, 
-        &_errorCode)==0)
+    if (VCS_GetQuickStopState(comHandler_, nodeId, &isQuickStopped,
+        &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- isQuickStopState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- isQuickStopState, nodeId=%d",
         _errorCode, nodeId);
     }
-    else //Command executed succesfully
+    else  // Command executed succesfully
     {
-      if(isQuickStopped)
+      if (isQuickStopped)
       {
-        //Device is at "QuickStop" State
+        // Device is at "QuickStop" State
         return true;
       }
       else
@@ -334,12 +330,12 @@ namespace motor
   uint32_t Epos2Gateway::setQuickStopState(uint16_t nodeId)
   {
     uint32_t _errorCode = 0;
-    if(VCS_SetQuickStopState(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_SetQuickStopState(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- setQuickStopState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- setQuickStopState, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -353,31 +349,30 @@ namespace motor
   uint32_t Epos2Gateway::readState(uint16_t nodeId, uint16_t* nodeState)
   {
     uint32_t _errorCode = 0;
-    if(VCS_GetState(comHandler_, nodeId, nodeState,
-        &_errorCode)==0)
+    if (VCS_GetState(comHandler_, nodeId, nodeState, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- readState, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- readState, nodeId=%d",
         _errorCode, nodeId);
       *nodeState = 9;
     }
     return _errorCode;
   }
 
-  //=======================PROFILE VELOCITY MODE Methods=================
-  //#####################################################################
+  // =======================PROFILE VELOCITY MODE Methods=================
+  // #####################################################################
 
   uint32_t Epos2Gateway::activate_profileVelocityMode(uint16_t nodeId)
   {
     uint32_t _errorCode = 0;
-    if(VCS_ActivateProfileVelocityMode(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_ActivateProfileVelocityMode(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- activate_profileVelocity, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- activate_profileVelocity, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -391,12 +386,12 @@ namespace motor
   uint32_t Epos2Gateway::set_targetVelocity(uint16_t nodeId, int32_t vel)
   {
     uint32_t _errorCode;
-    if(VCS_MoveWithVelocity(comHandler_, nodeId, vel, &_errorCode)==0)
+    if (VCS_MoveWithVelocity(comHandler_, nodeId, vel, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- moveWithVelocity, nodeId=%d", _errorCode, nodeId);
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- moveWithVelocity, nodeId=%d", _errorCode, nodeId);
     }
     return _errorCode;
   }
@@ -406,30 +401,30 @@ namespace motor
     uint16_t acceleration, uint16_t deceleration)
   {
     uint32_t _errorCode;
-    if(VCS_SetVelocityProfile(comHandler_, nodeId,
-        acceleration, deceleration, &_errorCode)==0)
+    if (VCS_SetVelocityProfile(comHandler_, nodeId,
+        acceleration, deceleration, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- setVelocityProfile, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- setVelocityProfile, nodeId=%d",
         _errorCode, nodeId);
     }
     return _errorCode;
   }
 
-  uint32_t Epos2Gateway::get_profileVelocityParameters(uint16_t nodeId, 
+  uint32_t Epos2Gateway::get_profileVelocityParameters(uint16_t nodeId,
     uint16_t* acceleration, uint16_t* deceleration)
   {
     uint32_t _acc, _dec;
     uint32_t _errorCode;
-    if(VCS_GetVelocityProfile(comHandler_, nodeId,
-        &_acc, &_dec, &_errorCode)==0)
+    if (VCS_GetVelocityProfile(
+      comHandler_, nodeId, &_acc, &_dec, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- getVelocityProfile, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- getVelocityProfile, nodeId=%d",
         _errorCode, nodeId);
     }
     *acceleration = static_cast<uint16_t>(_acc);
@@ -440,12 +435,12 @@ namespace motor
   uint32_t Epos2Gateway::haltMovement(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_HaltVelocityMovement(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_HaltVelocityMovement(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- haltVelocityMovement, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- haltVelocityMovement, nodeId=%d",
         _errorCode, nodeId);
     }
     return _errorCode;
@@ -455,13 +450,13 @@ namespace motor
     uint32_t velWindow, uint16_t velWindowTime)
   {
     uint32_t _errorCode;
-    if(VCS_EnableVelocityWindow(comHandler_, nodeId, velWindow,
-        velWindowTime, &_errorCode)==0)
+    if (VCS_EnableVelocityWindow(
+      comHandler_, nodeId, velWindow, velWindowTime, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- enableVelocityWindow, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- enableVelocityWindow, nodeId=%d",
         _errorCode, nodeId);
     }
     return _errorCode;
@@ -470,12 +465,12 @@ namespace motor
   uint32_t Epos2Gateway::disableVelocityWindow(uint16_t nodeId)
   {
     uint32_t _errorCode;
-    if(VCS_DisableVelocityWindow(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_DisableVelocityWindow(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- disableVelocityWindow, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- disableVelocityWindow, nodeId=%d",
         _errorCode, nodeId);
     }
     return _errorCode;
@@ -484,15 +479,15 @@ namespace motor
   uint32_t Epos2Gateway::read_targetVelocity(uint16_t nodeId, int32_t* targetVel)
   {
     uint32_t _errorCode;
-    long int _targetVel;
-    /*input value for target velocity should be int32_t type according to
-    the EPOS_COMMAND_LIBRARY but it aint -- BUG_REPORT */
-    if(VCS_GetTargetVelocity(comHandler_, nodeId, &_targetVel, &_errorCode)==0)
+    int64_t _targetVel;
+    // input value for target velocity should be int32_t type according to
+    // the EPOS_COMMAND_LIBRARY but it aint -- BUG_REPORT
+    if (VCS_GetTargetVelocity(comHandler_, nodeId, &_targetVel, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- disableVelocityWindow, nodeId=%d", 
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- disableVelocityWindow, nodeId=%d",
         _errorCode, nodeId);
     }
     *targetVel = static_cast<int32_t>(_targetVel);
@@ -500,19 +495,19 @@ namespace motor
   }
 
 
-  //=======================CURRENT MODE Methods==========================
-  //#####################################################################
+  // =======================CURRENT MODE Methods==========================
+  // #####################################################################
 
 
   uint32_t Epos2Gateway::activate_currentMode(uint16_t nodeId)
   {
     uint32_t _errorCode = 0;
-    if(VCS_ActivateCurrentMode(comHandler_, nodeId, &_errorCode)==0)
+    if (VCS_ActivateCurrentMode(comHandler_, nodeId, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- activate_profileVelocity, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- activate_profileVelocity, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -526,12 +521,12 @@ namespace motor
   uint32_t Epos2Gateway::set_targetCurrent(uint16_t nodeId, int16_t currentMust)
   {
     uint32_t _errorCode = 0;
-    if(VCS_SetCurrentMust(comHandler_, nodeId, currentMust, &_errorCode)==0)
+    if (VCS_SetCurrentMust(comHandler_, nodeId, currentMust, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- activate_profileVelocity, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- activate_profileVelocity, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -544,12 +539,12 @@ namespace motor
   uint32_t Epos2Gateway::read_targetCurrent(uint16_t nodeId, int16_t* currentMust)
   {
     uint32_t _errorCode = 0;
-    if(VCS_GetCurrentMust(comHandler_, nodeId, currentMust, &_errorCode)==0)
+    if (VCS_GetCurrentMust(comHandler_, nodeId, currentMust, &_errorCode) == 0)
     {
-      //TODO --- resolve errorCode
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution -- activate_profileVelocity, nodeId=%d",
+      // TODO(klpanagi): --- resolve errorCode
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution -- activate_profileVelocity, nodeId=%d",
         _errorCode, nodeId);
     }
     else
@@ -559,18 +554,18 @@ namespace motor
     return _errorCode;
   }
 
-  //======================MOTION INFO Methods============================
-  //#####################################################################
+  // ======================MOTION INFO Methods============================
+  // #####################################################################
 
   uint32_t Epos2Gateway::read_velocityActual(uint16_t nodeId, int32_t* velActual)
   {
     uint32_t _errorCode = 0;
-    if(VCS_GetVelocityIs(comHandler_, nodeId, velActual, &_errorCode)==0)
+    if (VCS_GetVelocityIs(comHandler_, nodeId, velActual, &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution --getVelocityIs, nodeId=%d", _errorCode, nodeId);
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution --getVelocityIs, nodeId=%d", _errorCode, nodeId);
     }
     return _errorCode;
   }
@@ -579,43 +574,45 @@ namespace motor
   uint32_t Epos2Gateway::read_velocityAvg(uint16_t nodeId, int32_t* velAvg)
   {
     uint32_t _errorCode;
-    if(VCS_GetVelocityIsAveraged(comHandler_, nodeId, velAvg,
-        &_errorCode)==0)
+    if (VCS_GetVelocityIsAveraged(comHandler_, nodeId, velAvg,
+        &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution --getVelocityIsAverage, nodeId=%d", _errorCode, nodeId);
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution --getVelocityIsAverage, nodeId=%d", _errorCode, nodeId);
     }
     return _errorCode;
   }
-  
 
-  uint32_t Epos2Gateway::read_currentActual(uint16_t nodeId, int16_t* currentActual)
+
+  uint32_t Epos2Gateway::read_currentActual(
+    uint16_t nodeId,
+    int16_t* currentActual)
   {
     uint32_t _errorCode;
-    if(VCS_GetCurrentIs(comHandler_, nodeId, currentActual,
-        &_errorCode)==0)
+    if (VCS_GetCurrentIs(comHandler_, nodeId, currentActual,
+        &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution --getCurrentIs, nodeId=%d", _errorCode, nodeId);
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution --getCurrentIs, nodeId=%d", _errorCode, nodeId);
     }
     return _errorCode;
   }
-  
+
 
   uint32_t Epos2Gateway::read_currentAvg(uint16_t nodeId, int16_t* currentAvg)
   {
     uint32_t _errorCode;
-    if(VCS_GetCurrentIsAveraged(comHandler_, nodeId, currentAvg,
-        &_errorCode)==0)
+    if (VCS_GetCurrentIsAveraged(comHandler_, nodeId, currentAvg,
+        &_errorCode) == 0)
     {
-      //TODO --- resolve error
-      //Will return error to serial_epos2_handler to handle.
-      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command \ 
-        execution --getCurrentIsAverage, nodeId=%d", _errorCode, nodeId);
+      // TODO(klpanagi): --- resolve error
+      // Will return error to serial_epos2_handler to handle.
+      ROS_FATAL("[Epos2-Gateway]: Received error {%d} on command "
+        "execution --getCurrentIsAverage, nodeId=%d", _errorCode, nodeId);
     }
     return _errorCode;
   }

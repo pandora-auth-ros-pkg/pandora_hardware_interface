@@ -41,7 +41,7 @@ namespace motor
         int* axis2, int* axis3);
 
       virtual Error getError();
-      virtual unsigned short writeRPM(const int leftRpm, const int rightRpm);
+      virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

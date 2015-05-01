@@ -35,6 +35,7 @@
 * Author:     Konstantinos Panayiotou   <klpanagi@gmail.com>
 * Maintainer: Konstantinos Panayiotou   <klpanagi@gmail.com>
 *********************************************************************/
+
 #ifndef EPOS2_GATEWAY_EPOS2_GATEWAY_H
 #define EPOS2_GATEWAY_EPOS2_GATEWAY_H
 
@@ -47,7 +48,7 @@ namespace pandora_hardware_interface
 {
 namespace motor
 {
- 
+
   struct Interface
   {
     char* deviceName;
@@ -66,8 +67,8 @@ namespace motor
       void* comHandler_;
       uint32_t error_;
     public:
-      Epos2Gateway(const std::string port, const uint32_t baudrate, 
-        const uint32_t timeout, const std::string deviceName, 
+      Epos2Gateway(const std::string port, const uint32_t baudrate,
+        const uint32_t timeout, const std::string deviceName,
         const std::string protocolStackName, const std::string interfaceName);
       ~Epos2Gateway();
 
@@ -166,7 +167,7 @@ namespace motor
        * @param acceleration Velocity profile acceleration.
        * @param deceleration Velocity profile deceleration.
        */
-      uint32_t set_profileVelocityParameters(uint16_t nodeId, 
+      uint32_t set_profileVelocityParameters(uint16_t nodeId,
         uint16_t acceleration, uint16_t deceleration);
 
       /*!
@@ -177,9 +178,9 @@ namespace motor
        * @return Error code for executing the command.
        *  If no errors recorded it returns zero 0.
        */
-      uint32_t get_profileVelocityParameters(uint16_t nodeId, 
+      uint32_t get_profileVelocityParameters(uint16_t nodeId,
         uint16_t* acceleration, uint16_t* deceleration);
-           
+
       /*!
        * @brief Commands target velocity
        * @param nodeId NodeID of the epos2 controller defined on CAN-Bus
@@ -262,7 +263,7 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      uint32_t read_currentActual(uint16_t nodeId, int16_t* currentActual); 
+      uint32_t read_currentActual(uint16_t nodeId, int16_t* currentActual);
 
       /*!
        * @brief Reads the current average value 
@@ -270,11 +271,8 @@ namespace motor
        *
        *  If nodeId = 0 then command trasmits to everyone.
        */
-      uint32_t read_currentAvg(uint16_t nodeId, int16_t* currentAvg); 
-
-
+      uint32_t read_currentAvg(uint16_t nodeId, int16_t* currentAvg);
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-
 #endif  // EPOS2_GATEWAY_EPOS2_GATEWAY_H

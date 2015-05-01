@@ -50,14 +50,14 @@ void SerialEposHandler::getRPM(int* leftRearRpm, int* leftFrontRpm,
   }
   else
   {
-    //Minus because of motor reverse direction torsion
+    // Minus because of motor reverse direction torsion
     *rightFrontRpm = -(int32_t)out[1];
   }
   /*-------------------------------------------------*/
 
   /*-----<Read Right-Rear Motor velocity>-----*/
   gatewayImpl_->readObject(2, 0x2028, 0, &out[0]);
-  //Minus because of motor reverse direction torsion
+  // Minus because of motor reverse direction torsion
   *rightRearRpm = -(int16_t)out[1];
   /*------------------------------------------*/
 
@@ -122,13 +122,10 @@ Error SerialEposHandler::getError()
 }
 
 
-
-
-unsigned short  SerialEposHandler::writeRPM(
-  const int leftRpm, const int rightRpm)
+uint16_t  SerialEposHandler::writeRPM(const int leftRpm, const int rightRpm)
 {
   ROS_DEBUG("setting speed %d, %d", leftRpm, rightRpm);
-  //Right motor rpm speed needs to be reversed because of its placement in the vehicle
+  // Right motor rpm speed needs to be reversed because of its placement in the vehicle
   uint32_t controlWord = encodeToControlWord(leftRpm, -rightRpm);
   epos::CommandStatus error = gatewayImpl_->writeObject(2, 0x200C, 1, controlWord);
 

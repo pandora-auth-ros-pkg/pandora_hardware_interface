@@ -56,7 +56,7 @@ namespace motor
       int* rightRearCurrent, int* rightFrontCurrent) = 0;
 
     virtual Error getError() = 0;
-    virtual unsigned short  writeRPM(const int leftRpm, const int rightRpm) = 0;
+    virtual uint16_t  writeRPM(const int leftRpm, const int rightRpm) = 0;
 
    protected:
     uint32_t encodeToControlWord(const int& left, const int& right);

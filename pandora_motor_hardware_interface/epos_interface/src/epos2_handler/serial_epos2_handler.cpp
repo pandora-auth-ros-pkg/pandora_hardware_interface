@@ -51,7 +51,7 @@ namespace motor
     int _nodeId[4];
     std::string _motorId[4];
 
-   /*--<Load epos2 interface configs from parameter server>--*/
+    /*--<Load epos2 interface configs from parameter server>--*/
     epos2_nh_.getParam("interface/portName", _portName);
     epos2_nh_.getParam("interface/baudrate", _baudrate);
     epos2_nh_.getParam("interface/timeout", _timeout);
@@ -95,12 +95,13 @@ namespace motor
 
     gatewayId_ = static_cast<uint16_t>(_gatewayId);
 
-    /*---<Open device communication port>---*/
+    // Open device communication port
     epos2Gateway_->openDevice();
-    /*--<Initialize motor controller states {Enabled}>---*/
-    readStates();   //Read current state of the Motors
-    stateHandle();  //Calls the state handler to handle the states
-    /*----------------------------------------------------*/
+
+    // Initialize motor controller states {Enabled}
+    readStates();   // Read current state of the Motors
+    stateHandle();  // Calls the state handler to handle the states
+
     // Set every epos2 controller at profileVelocityMode on startup
     epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
@@ -113,7 +114,7 @@ namespace motor
   {
     epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, 0);
     epos2Gateway_->set_targetVelocity(rightRearMotor_->nodeId_, 0);
-    epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_,0);
+    epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_, 0);
     epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, 0);
     epos2Gateway_->setDisableState(rightFrontMotor_->nodeId_);
     epos2Gateway_->setDisableState(rightRearMotor_->nodeId_);
@@ -125,32 +126,32 @@ namespace motor
 
   void SerialEpos2Handler::stateHandle(void)
   {
-    for(uint16_t _ii=0;_ii<epos2Controllers_.size();_ii++)
+    for (uint16_t _ii = 0; _ii < epos2Controllers_.size(); _ii++)
     {
-      switch(epos2Controllers_.at(_ii)->state_)
+      switch (epos2Controllers_.at(_ii)->state_)
       {
-        case 0://DISABLE STATE
+        case 0:  // DISABLE STATE
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
-        case 1://ENABLE STATE
+        case 1:  // ENABLE STATE
           break;
-        case 2://QUICKSTOP STATE
+        case 2:  // QUICKSTOP STATE
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
-        case 3://FAULTY STATE
+        case 3:  // FAULTY STATE
           epos2Gateway_->clearFaultState(epos2Controllers_.at(_ii)->nodeId_);
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
-        case 9://CANNOT COMMUNICATE
-          if(epos2Controllers_.at(_ii)->nodeId_ == gatewayId_)
+        case 9:  // CANNOT COMMUNICATE
+          if (epos2Controllers_.at(_ii)->nodeId_ == gatewayId_)
           {
-            //Cannot communicate with epos2-Gateway
+            // Cannot communicate with epos2-Gateway
             ROS_FATAL("[Motors]: Cannot communicate with epos2-Gateway.");
           }
           epos2Gateway_->resetNode(epos2Controllers_.at(_ii)->nodeId_);
           epos2Gateway_->setEnableState(epos2Controllers_.at(_ii)->nodeId_);
           break;
-        default://UKNOWN STATE
+        default:  // UKNOWN STATE
           ROS_FATAL("[Motors]: UKNOWN STATE --> [%d]",
             epos2Controllers_.at(_ii)->state_);
           epos2Gateway_->resetNode(epos2Controllers_.at(_ii)->nodeId_);
@@ -158,10 +159,12 @@ namespace motor
           break;
       }
     }
+
     readStates();
-    for(uint16_t _ii=0;_ii<epos2Controllers_.size();_ii++)
+
+    for (uint16_t _ii = 0; _ii < epos2Controllers_.size(); _ii++)
     {
-      if(epos2Controllers_.at(_ii)->state_!=1)
+      if (epos2Controllers_.at(_ii)->state_ != 1)
       {
         stateHandle();
       }
@@ -208,7 +211,7 @@ namespace motor
   {
   }
 
-  uint16_t SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm)
+  uint16_t SerialEpos2Handler::writeRPM(const int leftRpm, const int rightRpm)
   {
     ROS_DEBUG("[Motors]: Setting speed %d, %d", leftRpm, rightRpm);
     epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, -rightRpm);
@@ -250,13 +253,13 @@ namespace motor
       &rightFrontMotor_->current_);
     *rightFrontTorque =
       static_cast<int>(rightFrontMotor_->current_) * 33.5 * 113;
-      
+
     epos2Gateway_->read_currentActual(
       rightRearMotor_->nodeId_,
       &rightRearMotor_->current_);
     *rightRearTorque =
       static_cast<int>(rightRearMotor_->current_) * 33.5 * 113;
-      
+
     epos2Gateway_->read_currentActual(
       leftFrontMotor_->nodeId_,
       &rightRearMotor_->current_);
