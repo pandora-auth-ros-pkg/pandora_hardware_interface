@@ -12,9 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   angles
   tf
   nav_msgs
-  message_generation
   std_msgs
   sensor_msgs
+  pandora_sensor_msgs
   pandora_cmake_tools
 )
 
@@ -23,18 +23,6 @@ set(THIS_PACKAGE_INCLUDE_DIRS
     motor_hardware_interface/include
     orangutan_interface/include
     epos_interface/include
-)
-
-add_message_files(
-  DIRECTORY msg
-  FILES
-  MotorCurrents.msg
-  )
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  sensor_msgs
 )
 
 catkin_package(
@@ -49,9 +37,9 @@ catkin_package(
     urdf
     angles
     tf
-    message_runtime
     nav_msgs
     std_msgs
+    pandora_sensor_msgs
   LIBRARIES
     skid_steer_drive_controller
 #  DEPENDS
@@ -76,13 +64,11 @@ set(ROSLINT_CPP_OPTS
 
 file(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
-  #motor_hardware_interface/*.h
-  #motor_hardware_interface/*.cpp
-  #motor_controllers/*.h
-  #motor_controllers/*.cpp
-  orangutan_interface/*.h
-  orangutan_interface/*.cpp
-  #epos_interface/*.h
-  #epos_interface/*.cpp
+  motor_hardware_interface/*.h
+  motor_hardware_interface/*.cpp
+  motor_controllers/*.h
+  motor_controllers/*.cpp
+  epos_interface/*.h
+  epos_interface/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

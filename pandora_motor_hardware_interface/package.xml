@@ -20,8 +20,6 @@
 
   <build_depend>roslint</build_depend>
   <build_depend>pandora_cmake_tools</build_depend>
-  <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
 
   <depend>roscpp</depend>
   <depend>controller_manager</depend>
@@ -35,6 +33,7 @@
   <depend>urdf</depend>
   <depend>angles</depend>
   <depend>std_msgs</depend>
+  <depend>pandora_sensor_msgs</depend>
 
   <export>
     <controller_interface plugin="${prefix}/skid_steer_drive_controller_plugins.xml"/>

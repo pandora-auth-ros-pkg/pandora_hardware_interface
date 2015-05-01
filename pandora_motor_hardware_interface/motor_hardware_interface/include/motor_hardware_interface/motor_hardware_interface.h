@@ -33,7 +33,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *
 * Author:  Evangelos Apostolidis
-*********************************************************************/
+* Author: Konstantinos Panayiotou
+**********************************************************************/
 #ifndef MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 
@@ -43,9 +44,9 @@
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include "epos2_handler/serial_epos2_handler.h"
-#include <pandora_motor_hardware_interface/MotorCurrents.h>
+#include <pandora_sensor_msgs/MotorCurrents.h>
 
-typedef pandora_motor_hardware_interface::MotorCurrents MotorCurrentsMsg;
+typedef pandora_sensor_msgs::MotorCurrents MotorCurrentsMsg;
 
 namespace pandora_hardware_interface
 {
