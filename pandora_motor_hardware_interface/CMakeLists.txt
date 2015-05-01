@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_motor_hardware_interface)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
@@ -21,7 +22,6 @@ find_package(catkin REQUIRED COMPONENTS
 set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include
     motor_hardware_interface/include
-    orangutan_interface/include
     epos_interface/include
 )
 
@@ -52,7 +52,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_subdirectory(orangutan_interface)
 add_subdirectory(epos_interface)
 add_subdirectory(motor_controllers)
 add_subdirectory(motor_hardware_interface)
