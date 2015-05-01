@@ -71,19 +71,17 @@ namespace motor
       Epos2Controller* leftFrontMotor_;
       Epos2Controller* leftRearMotor_;
       uint16_t gatewayId_;
-    public:
 
+    public:
       /*!
        * @brief Constructor 
        */
       SerialEpos2Handler(void);
 
-
       /*!
        * @brief Destructor
        */
       virtual ~SerialEpos2Handler();
-
 
       /*!
        * @brief Reads current velocity (rpm) from motor controllers
@@ -93,9 +91,11 @@ namespace motor
        * @param rightFrontRpm Right-Front wheel motor velocity in rpm
        * @return Void
        */
-      virtual void getRPM(int* leftRearRpm, int* leftFrontRpm,
-        int* rightRearRpm, int* rightFrontRpm);
-
+      virtual void getRPM(
+        int* leftRearRpm,
+        int* leftFrontRpm,
+        int* rightRearRpm,
+        int* rightFrontRpm);
 
       /*!
        * @brief Reads output current (mA) from motor controllers
@@ -105,10 +105,13 @@ namespace motor
        * @param rightFrontCurrent Right-Front wheel motor current in mA
        * @return Void
        */
-      virtual void getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
-        int* rightRearCurrent, int* rightFrontCurrent);
-      virtual Error getError();
+      virtual void getCurrent(
+        int* leftRearCurrent,
+        int* leftFrontCurrent,
+        int* rightRearCurrent,
+        int* rightFrontCurrent);
 
+      virtual Error getError();
 
       /*!
        * @brief Writes velocity commands (rpm) to motor cotrollers
@@ -118,21 +121,25 @@ namespace motor
        */
       virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
 
-
       /*!
-       * @brief Reads motor controller states and stores the values 
+       * @brief Reads motor controller states and stores the values
        *  in a private scope
        */
       void readStates(void);
+
       void stateHandle(void);
       
-      //TODO --- Implement these 2 methods
-    void currentToTorque(int* leftRearTorque, int* leftFrontTorque,
-    int* rightRearTorque, int* rightFrontTorque);
-    void torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
-    int* rightRearCurrent, int* rightFrontCurrent, int* rightFrontTorque, int* rightRearTorque,
-    int* leftFrontTorque, int* leftRearTorque);
-      //----------------------------------
+      void currentToTorque(
+        int* leftRearTorque,
+        int* leftFrontTorque,
+        int* rightRearTorque,
+        int* rightFrontTorque);
+
+      void torqueToCurrent(
+        int* rightFrontTorque,
+        int* rightRearTorque,
+        int* leftFrontTorque,
+        int* leftRearTorque);
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

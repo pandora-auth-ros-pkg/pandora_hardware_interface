@@ -60,14 +60,14 @@ namespace motor
     epos2_nh_.getParam("interface/interfaceName", _interfaceName);
     epos2_nh_.getParam("controllers/epos2Gateway_id", _gatewayId);
     epos2_nh_.getParam("controllers/num", _numControllers);
-    epos2_nh_.getParam("controllers/node1/id", _nodeId[0]); 
-    epos2_nh_.getParam("controllers/node1/index", _motorId[0]); 
-    epos2_nh_.getParam("controllers/node2/id", _nodeId[1]); 
-    epos2_nh_.getParam("controllers/node2/index", _motorId[1]); 
-    epos2_nh_.getParam("controllers/node3/id", _nodeId[2]); 
-    epos2_nh_.getParam("controllers/node3/index", _motorId[2]); 
-    epos2_nh_.getParam("controllers/node4/id", _nodeId[3]); 
-    epos2_nh_.getParam("controllers/node4/index", _motorId[3]); 
+    epos2_nh_.getParam("controllers/node1/id", _nodeId[0]);
+    epos2_nh_.getParam("controllers/node1/index", _motorId[0]);
+    epos2_nh_.getParam("controllers/node2/id", _nodeId[1]);
+    epos2_nh_.getParam("controllers/node2/index", _motorId[1]);
+    epos2_nh_.getParam("controllers/node3/id", _nodeId[2]);
+    epos2_nh_.getParam("controllers/node3/index", _motorId[2]);
+    epos2_nh_.getParam("controllers/node4/id", _nodeId[3]);
+    epos2_nh_.getParam("controllers/node4/index", _motorId[3]);
     /*-------------------------------------------------------*/
 
     epos2Gateway_.reset(new Epos2Gateway(_portName, _baudrate, _timeout,
@@ -101,7 +101,7 @@ namespace motor
     readStates();   //Read current state of the Motors
     stateHandle();  //Calls the state handler to handle the states
     /*----------------------------------------------------*/
-    //Set every epos2 controller at profileVelocityMode on startup 
+    // Set every epos2 controller at profileVelocityMode on startup
     epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
@@ -172,14 +172,14 @@ namespace motor
   void SerialEpos2Handler::getRPM(int* leftRearRpm, int* leftFrontRpm,
     int* rightRearRpm, int* rightFrontRpm)
   {
-    epos2Gateway_->read_velocityActual(rightFrontMotor_->nodeId_, 
-      &rightFrontMotor_->rpm_);  
+    epos2Gateway_->read_velocityActual(rightFrontMotor_->nodeId_,
+      &rightFrontMotor_->rpm_);
     epos2Gateway_->read_velocityActual(rightRearMotor_->nodeId_,
-      &rightRearMotor_->rpm_);  
+      &rightRearMotor_->rpm_);
     epos2Gateway_->read_velocityActual(leftFrontMotor_->nodeId_,
-      &leftFrontMotor_->rpm_);  
+      &leftFrontMotor_->rpm_);
     epos2Gateway_->read_velocityActual(leftRearMotor_->nodeId_,
-      &leftRearMotor_->rpm_);  
+      &leftRearMotor_->rpm_);
     *rightFrontRpm = rightFrontMotor_->rpm_;
     *rightRearRpm = rightRearMotor_->rpm_;
     *leftFrontRpm = leftFrontMotor_->rpm_;
@@ -189,13 +189,13 @@ namespace motor
   void SerialEpos2Handler::getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
     int* rightRearCurrent, int* rightFrontCurrent)
   {
-    epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_, 
+    epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->current_);
     epos2Gateway_->read_currentActual(rightRearMotor_->nodeId_,
       &rightRearMotor_->current_);
-    epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_, 
+    epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_,
       &rightFrontMotor_->current_);
-    epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_, 
+    epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_,
       &leftRearMotor_->current_);
     *rightFrontCurrent = static_cast<int>(rightFrontMotor_->current_);
     *rightRearCurrent = static_cast<int>(rightRearMotor_->current_);
@@ -204,75 +204,87 @@ namespace motor
   }
 
 
-  Error SerialEpos2Handler::getError() {}
+  Error SerialEpos2Handler::getError()
+  {
+  }
 
-  uint16_t SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm) 
+  uint16_t SerialEpos2Handler::writeRPM( const int leftRpm, const int rightRpm)
   {
     ROS_DEBUG("[Motors]: Setting speed %d, %d", leftRpm, rightRpm);
     epos2Gateway_->set_targetVelocity(rightFrontMotor_->nodeId_, -rightRpm);
     epos2Gateway_->set_targetVelocity(rightRearMotor_->nodeId_, -rightRpm);
     epos2Gateway_->set_targetVelocity(leftFrontMotor_->nodeId_, leftRpm);
     epos2Gateway_->set_targetVelocity(leftRearMotor_->nodeId_, leftRpm);
-    return 1; //
+    return 1;
   }
 
   void SerialEpos2Handler::readStates(void)
   {
     epos2Gateway_->readState(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State==%d", rightFrontMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", rightFrontMotor_->nodeId_,
       rightFrontMotor_->state_);
     epos2Gateway_->readState(rightRearMotor_->nodeId_,
       &rightRearMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State==%d", rightRearMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", rightRearMotor_->nodeId_,
       rightRearMotor_->state_);
     epos2Gateway_->readState(leftFrontMotor_->nodeId_,
       &leftFrontMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State==%d", leftFrontMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", leftFrontMotor_->nodeId_,
       leftFrontMotor_->state_);
     epos2Gateway_->readState(leftRearMotor_->nodeId_,
      &leftRearMotor_->state_);
-    ROS_INFO("[Motors]: NodeId-%d State==%d", leftRearMotor_->nodeId_, 
+    ROS_INFO("[Motors]: NodeId-%d State==%d", leftRearMotor_->nodeId_,
       leftRearMotor_->state_);
   }
 
-void SerialEpos2Handler::currentToTorque(int* leftRearTorque, int* leftFrontTorque,
-    int* rightRearTorque, int* rightFrontTorque)
-{
-     epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_, 
+
+  void SerialEpos2Handler::currentToTorque(
+    int* leftRearTorque,
+    int* leftFrontTorque,
+    int* rightRearTorque,
+    int* rightFrontTorque)
+  {
+    epos2Gateway_->read_currentActual(
+      rightFrontMotor_->nodeId_,
       &rightFrontMotor_->current_);
-      *rightFrontTorque = static_cast<int>(rightFrontMotor_->current_) * 33.5 * 113;
+    *rightFrontTorque =
+      static_cast<int>(rightFrontMotor_->current_) * 33.5 * 113;
       
-      epos2Gateway_->read_currentActual(rightRearMotor_->nodeId_,
+    epos2Gateway_->read_currentActual(
+      rightRearMotor_->nodeId_,
       &rightRearMotor_->current_);
-      *rightRearTorque=static_cast<int>(rightRearMotor_->current_) * 33.5 * 113;
+    *rightRearTorque =
+      static_cast<int>(rightRearMotor_->current_) * 33.5 * 113;
       
-      epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_,
+    epos2Gateway_->read_currentActual(
+      leftFrontMotor_->nodeId_,
       &rightRearMotor_->current_);
-      *leftFrontTorque = static_cast<int>(leftFrontMotor_->current_) * 33.5 * 113;
-      
-      epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_, 
+    *leftFrontTorque =
+      static_cast<int>(leftFrontMotor_->current_) * 33.5 * 113;
+
+    epos2Gateway_->read_currentActual(
+      leftRearMotor_->nodeId_,
       &leftRearMotor_->current_);
-      *leftRearTorque = static_cast<int>(leftRearMotor_->current_) * 33.5 * 113;
-  
+    *leftRearTorque =
+      static_cast<int>(leftRearMotor_->current_) * 33.5 * 113;
   }
 
-void SerialEpos2Handler::torqueToCurrent(int* leftRearCurrent, int* leftFrontCurrent,
-    int* rightRearCurrent, int* rightFrontCurrent, int* rightFrontTorque, int* rightRearTorque,
-    int* leftFrontTorque, int* leftRearTorque)
-{
-*rightFrontCurrent = *rightFrontTorque / 33.5 / 113;
-*rightRearCurrent = *rightRearTorque / 33.5 / 113;
-*leftFrontCurrent = *leftFrontTorque / 33.5 / 113;
-*leftRearCurrent = *leftRearTorque / 33.5 / 113;
 
-}
-
-
-
-
-  //=======================================================================
-  
+  void SerialEpos2Handler::torqueToCurrent(
+      int* rightFrontTorque,
+      int* rightRearTorque,
+      int* leftFrontTorque,
+      int* leftRearTorque)
+  {
+    rightFrontMotor_->current_ =
+      static_cast<uint16_t>(*rightFrontTorque / 33.5 / 113);
+    rightRearMotor_->current_ =
+      static_cast<uint16_t>(*rightRearTorque / 33.5 / 113);
+    leftFrontMotor_->current_ =
+      static_cast<uint16_t>(*leftFrontTorque / 33.5 / 113);
+    leftRearMotor_->current_ =
+      static_cast<uint16_t>(*leftRearTorque / 33.5 / 113);
+  }
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-
