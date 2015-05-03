@@ -275,19 +275,19 @@ namespace motor
 
 
   void SerialEpos2Handler::torqueToCurrent(
-      int* rightFrontTorque,
-      int* rightRearTorque,
-      int* leftFrontTorque,
-      int* leftRearTorque)
+      const int rightFrontTorque,
+      const int rightRearTorque,
+      const int leftFrontTorque,
+      const int leftRearTorque)
   {
     rightFrontMotor_->current_ =
-      static_cast<uint16_t>(*rightFrontTorque / 33.5 / 113);
+      static_cast<uint16_t>(rightFrontTorque / 33.5 / 113);
     rightRearMotor_->current_ =
-      static_cast<uint16_t>(*rightRearTorque / 33.5 / 113);
+      static_cast<uint16_t>(rightRearTorque / 33.5 / 113);
     leftFrontMotor_->current_ =
-      static_cast<uint16_t>(*leftFrontTorque / 33.5 / 113);
+      static_cast<uint16_t>(leftFrontTorque / 33.5 / 113);
     leftRearMotor_->current_ =
-      static_cast<uint16_t>(*leftRearTorque / 33.5 / 113);
+      static_cast<uint16_t>(leftRearTorque / 33.5 / 113);
   }
 }  // namespace motor
 }  // namespace pandora_hardware_interface
