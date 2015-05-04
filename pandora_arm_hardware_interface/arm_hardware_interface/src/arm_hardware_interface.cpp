@@ -89,7 +89,24 @@ namespace arm
     // read thermal image from grideye sensors
     for (int ii = 0; ii < thermalSensorName_.size(); ii++)
     {
-      arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
+      bool validReading = true;
+
+      while (true)
+      {
+        arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
+
+        for (int jj = 0; jj < GEYE_NBYTES; jj++)
+        {
+          if (thermalData_[jj] == 0)
+          {
+            validReading = false;
+            break;
+          }
+        }
+
+        if (validReading)
+          break;
+      }
     }
 
     // read distances from range sensors
