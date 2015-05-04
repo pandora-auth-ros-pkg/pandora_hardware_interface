@@ -1,0 +1,6 @@
+
+If you don't have  boost 1.49.0 already installed (or you have an other version of boost) run the set_boost_1_49_0.sh from a terminal. This shell script requires root privileges.
+Copy and paste the following commands:
+
+chmod +x set_boost_1_49_0.sh
+sudo ./set_boost_1_49_0.sh
