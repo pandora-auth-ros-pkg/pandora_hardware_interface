@@ -4,3 +4,10 @@ Copy and paste the following commands:
 
 chmod +x set_boost_1_49_0.sh
 sudo ./set_boost_1_49_0.sh
+
+To use boost 1.49.0 copy and paste the foollowing lines in the CMakeLists.txt file, before find_package ( Boost 1.49 COMPONENTS ... REQUIRED).
+
+set (Boost_NO_SYSTEM_PATHS ON)
+set(BOOST_ROOT "/usr/boost_1_49_0")
+set(BOOST_INCLUDEDIR "/usr/boost_1_49_0/include/")
+set(BOOST_LIBRARYDIR "/usr/boost_1_49_0/lib/")
