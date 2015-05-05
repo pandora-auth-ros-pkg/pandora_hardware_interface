@@ -131,9 +131,9 @@ namespace arm
     {
       ROS_ERROR("[Head]: Read Error\n");
       reconnectUsb();
-      return READ_ERROR;
+      return READ_ERROR;NACK
     }
-    else if (nr != NACK_NBYTES)
+    else if (nr != read_bytes)
     {
       ROS_ERROR("[Head]: Wrong number of bytes read\n");
       reconnectUsb();
@@ -141,10 +141,8 @@ namespace arm
     }
     
     if (!(nackBufInUint16 == ACK))
-    {
-      ROS_ERROR("[Head]: Received NACK\n");
+	ROS_ERROR("[Head]: Received NACK");
       return RECEIVED_NACK;
-    }
       
    //------------------------------------------------- 
     
@@ -224,8 +222,7 @@ namespace arm
         break;
     }
 
-    int ret = readData(fd, bufOut, SONAR_NBYTES, sonarBufIn_uint8);
-    *value = sonarBufIn_uint16;
+    int ret = readData(fd, bufOut, SONAR_NBYTES, sonarBufIn_uint8); 
     return ret;
   }
 
@@ -239,9 +236,9 @@ namespace arm
     };
 
     int nr;
-    uint8_t bufOut = COMMAND_CO2;
-    int ret = readData(fd, bufOut, CO2_NBYTES, CO2BufInUint8);
-    *value = CO2BufInFloat;
+    uint8_t bufOut;
+    
+    int ret = readData(fd, bufOut, CO2_NBYTES, CO2BufInUint8); 
     return ret;
   }
 
@@ -254,10 +251,9 @@ namespace arm
     };
 
     int nr;
-    uint8_t bufOut = COMMAND_ENCODER;
+    uint8_t bufOut;
 
-    int ret = readData(fd, bufOut, ENCODER_NBYTES, encoderBufInUint8);
-    *value = encoderBufInUint16; 
+    int ret = readData(fd, bufOut, ENCODER_NBYTES, encoderBufInUint8); 
     return ret;    
   }
 
@@ -289,8 +285,7 @@ namespace arm
         break;
     }
     
-    int ret = readData(fd, bufOut, BATTERY_NBYTES, batteryBufInUint8);
-    *value = batteryBufInUint16;
+    int ret = readData(fd, bufOut, BATTERY_NBYTES, batteryBufInUint8); 
     return ret;
   }
 

@@ -54,12 +54,19 @@ int main(int argc, char** argv)
   while (true)
   {
     arm.readSonarValues('L', range);
+    ROS_INFO("1");
     arm.readSonarValues('R', range + 1);
+    ROS_INFO("2");
     arm.readCo2Value(&co2Percentage);
+    ROS_INFO("3");
     arm.readEncoderValue(&encoderDegrees);
+    ROS_INFO("4");
     arm.readBatteryValues('M', tempVoltage);
+    ROS_INFO("5");
     arm.readBatteryValues('S', tempVoltage + 1);
+    ROS_INFO("6");
     arm.readGrideyeValues('C', temperature);
+    ROS_INFO("7");
 
     encoderDegrees = encoderDegrees * 360 / 1024;
 
