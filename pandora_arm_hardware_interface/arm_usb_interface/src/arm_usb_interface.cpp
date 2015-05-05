@@ -100,6 +100,69 @@ namespace arm
       ROS_ERROR("init_serialport: Couldn't set term attributes\n");
     }
   }
+  
+  int ArmUsbInterface::readData(int fd, uint8_t bufOut, uint8_t read_bytes,
+                                    uint8_t* readBuf)
+  {
+    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
+                             // -> and data written but not transmitted
+                             
+    int nr;
+
+    nr = write(fd, &bufOut, 1);
+    if (nr != 1)
+    {
+      ROS_ERROR("[Head]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
+    
+    //----------------------READ NACK------------------
+    
+    union
+    {
+      uint8_t nackBufInUint8[NACK_NBYTES];
+      uint16_t nackBufInUint16;
+    };
+    
+    
+    nr = read(fd, nackBufInUint8, NACK_NBYTES);
+    if (nr<0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != read_bytes)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    
+    if (!(nackBufInUint16 == ACK))
+      return RECEIVED_NACK;
+      
+   //------------------------------------------------- 
+    
+    nr = read(fd, readBuf, read_bytes);  // blocking
+    if (nr < 0)
+    {
+      ROS_ERROR("[Head]: Read Error\n");
+      reconnectUsb();
+      return READ_ERROR;
+    }
+    else if (nr != read_bytes)
+    {
+      ROS_ERROR("[Head]: Wrong number of bytes read\n");
+      reconnectUsb();
+      return INCORRECT_NUM_OF_BYTES;
+    }
+    else
+    {
+      return NO_ERROR;
+    }
+  }
 
 
   int ArmUsbInterface::readGrideyeValues(
@@ -125,35 +188,10 @@ namespace arm
         bufOut = COMMAND_GEYE_CENTER;
         break;
     }
-
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-
-    nr = write(fd, &bufOut, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      ROS_ERROR("[Head]: Write Error\n");
-      reconnectUsb();
-      return WRITE_ERROR;
-    }
-
-    nr = read(fd, values, GEYE_NBYTES);  // blocking
-    if (nr < 0)
-    {
-      ROS_ERROR("[Head]: Read Error\n");
-      reconnectUsb();
-      return READ_ERROR;
-    }
-    else if (nr != GEYE_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
-    else
-    {
-      return NO_ERROR;
-    }
+    
+    int ret = readData(fd, bufOut, GEYE_NBYTES, values); 
+    return ret;
+    
   }
 
 
@@ -183,33 +221,8 @@ namespace arm
         break;
     }
 
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-    nr = write(fd, &bufOut, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      ROS_ERROR("[Head]: Write Error\n");
-      reconnectUsb();
-      return WRITE_ERROR;
-    }
-    nr = read(fd, sonarBufIn_uint8, SONAR_NBYTES);  // blocking
-    *value = sonarBufIn_uint16;
-    if (nr < 0)
-    {
-      ROS_ERROR("[Head]: Read Error\n");
-      reconnectUsb();
-      return READ_ERROR;
-    }
-    else if (nr != SONAR_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
-    else
-    {
-      return NO_ERROR;
-    }
+    int ret = readData(fd, bufOut, SONAR_NBYTES, sonarBufIn_uint8); 
+    return ret;
   }
 
 
@@ -223,37 +236,9 @@ namespace arm
 
     int nr;
     uint8_t bufOut;
-
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-
-    bufOut = COMMAND_CO2;
-    nr = write(fd, &bufOut, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      ROS_ERROR("[Head]: Write Error\n");
-      reconnectUsb();
-      return WRITE_ERROR;
-    }
-
-    nr = read(fd, CO2BufInUint8, CO2_NBYTES);  // blocking
-    if (nr < 0)
-    {
-      ROS_ERROR("[Head]: Read Error\n");
-      reconnectUsb();
-      return READ_ERROR;
-    }
-    else if (nr != CO2_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
-    else
-    {
-      *value = CO2BufInFloat;
-      return NO_ERROR;
-    }
+    
+    int ret = readData(fd, bufOut, CO2_NBYTES, CO2BufInUint8); 
+    return ret;
   }
 
   int ArmUsbInterface::readEncoderValue(uint16_t* value)
@@ -267,37 +252,8 @@ namespace arm
     int nr;
     uint8_t bufOut;
 
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-
-    bufOut = COMMAND_ENCODER;
-    nr = write(fd, &bufOut, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      ROS_ERROR("[Head]: Write Error\n");
-      reconnectUsb();
-      return WRITE_ERROR;
-    }
-
-    nr = read(fd, encoderBufInUint8, ENCODER_NBYTES);  // blocking
-    *value = encoderBufInUint16;
-    if (nr < 0)
-    {
-      ROS_ERROR("[Head]: Read Error\n");
-      reconnectUsb();
-      return READ_ERROR;
-    }
-    else if (nr != ENCODER_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
-    else
-    {
-      *value = encoderBufInUint16;
-      return NO_ERROR;
-    }
+    int ret = readData(fd, bufOut, ENCODER_NBYTES, encoderBufInUint8); 
+    return ret;    
   }
 
 
@@ -327,36 +283,9 @@ namespace arm
         bufOut = COMMAND_BATTERY_MOTOR;  // shouldn't get in there
         break;
     }
-
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-
-    nr = write(fd, &bufOut, COMMAND_NBYTES);
-    if (nr != 1)
-    {
-      ROS_ERROR("[Head]: Write Error\n");
-      reconnectUsb();
-      return WRITE_ERROR;
-    }
-
-    nr = read(fd, batteryBufInUint8, BATTERY_NBYTES);  // blocking
-    if (nr < 0)
-    {
-      ROS_ERROR("[Head]: Read Error\n");
-      reconnectUsb();
-      return READ_ERROR;
-    }
-    else if (nr != BATTERY_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
-    else
-    {
-      *value = batteryBufInUint16;
-      return NO_ERROR;
-    }
+    
+    int ret = readData(fd, bufOut, BATTERY_NBYTES, batteryBufInUint8); 
+    return ret;
   }
 
   void ArmUsbInterface::reconnectUsb()

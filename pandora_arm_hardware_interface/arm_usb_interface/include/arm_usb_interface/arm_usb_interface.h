@@ -56,6 +56,10 @@ namespace pandora_hardware_interface
 namespace arm
 {
 
+#define NACK 0xFFF1
+#define ACK 0x0001
+
+
 #define COMMAND_ENCODER 1         //!< encoder ead command code
 #define COMMAND_SONAR_LEFT 2      //!< Left Sonar read command code
 #define COMMAND_SONAR_RIGHT 3     //!< Right Sonar read command code
@@ -70,6 +74,7 @@ namespace arm
 #define WRITE_ERROR -1             //!< write error code
 #define READ_ERROR -2              //!< read error code
 #define INCORRECT_NUM_OF_BYTES -3  //!< incorrect number of bytes error code
+#define RECEIVED_NACK -4
 
 #define CO2_NBYTES 4         //!< Number of bytes of incoming CO2 data
 #define SONAR_NBYTES 2       //!< Number of bytes of incoming Sonar data
@@ -77,7 +82,7 @@ namespace arm
 #define BATTERY_NBYTES 2     //!< Number of bytes of incoming Battery data
 #define COMMAND_NBYTES 1     //!< Number of bytes of outgoing command
 #define GEYE_NBYTES 64       //!< Number of bytes of incoming GridEYE data
-
+#define NACK_NBYTES 2
 
 /**
  * @class ArmUSBInterface
@@ -101,6 +106,8 @@ class ArmUsbInterface : private boost::noncopyable
    * @brief Opens USB port  
   **/
   void openUsbPort();
+  
+  int readData(int fd, uint8_t bufOut, uint8_t command_bytes,uint8_t* readBuf);
 
   /**
    * @brief Reads 8x8 thermal image of the selected grideye
