@@ -35,6 +35,10 @@
     type="controller_manager" output="screen"
     args="
       spawn
-      arm_co2_sensor_controller"
+      arm_co2_sensor_controller
+      arm_thermal_sensor_controller
+      arm_range_sensor_controller
+      arm_battery_controller
+      joint_state_controller"
     ns = "$(arg namespace)"/>
 </launch>

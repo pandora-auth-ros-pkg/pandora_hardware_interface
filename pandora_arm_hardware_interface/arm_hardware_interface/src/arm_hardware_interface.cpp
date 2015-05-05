@@ -79,7 +79,7 @@ namespace arm
   void ArmHardwareInterface::read()
   {
     uint16_t value;
-
+    /*
     // read CO2 percentage from CO2 sensors
     for (int ii = 0; ii < co2SensorName_.size(); ii++)
     {
@@ -115,14 +115,14 @@ namespace arm
       arm_->readSonarValues(rangeSensorCode_[ii], &value);
       range_[ii] = static_cast<double>(value) / 100;
     }
-
+    */
     // read voltage of batteries
     for (int ii = 0; ii < batteryName_.size(); ii++)
     {
         arm_->readBatteryValues(batteryCode_[ii], &value);
         voltage_[ii] = value / 4096.0 * 33.0;
     }
-
+    /*
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
     arm_->readEncoderValue(&value);
@@ -135,6 +135,7 @@ namespace arm
 
     position_[0] = radians;
     position_[1] = -radians;
+    */
   }
 
 
