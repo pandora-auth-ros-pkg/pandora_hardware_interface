@@ -68,15 +68,17 @@ namespace arm
       ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
 
       ros::Duration(0.5).sleep();
-      timeout++;
+
       if (timeout > 100)
         throw std::runtime_error("[Head]: cannot open USB port");
+      else
+        timeout++;
     }
 
     ROS_INFO("[Head]: USB port successfully opened\n");
 
-    /*Needs some time to initialize, even though it opens succesfully.
-     tcflush() didn't work without waiting at least 8 ms*/
+    // Needs some time to initialize, even though it opens succesfully.
+    // tcflush() didn't work without waiting at least 8 ms
     ros::Duration(0.03).sleep();
 
     // To save time you can see and change terminal settings in command line with stty command,
@@ -85,9 +87,7 @@ namespace arm
     struct termios tios;
 
     if (tcgetattr(fd, &tios) < 0)
-    {
       ROS_ERROR("init_serialport: Couldn't get term attributes\n");
-    }
 
     tios.c_lflag &= ~(ICANON | ISIG | ECHO |  IEXTEN | ECHOE | ECHOK);
 
@@ -95,18 +95,18 @@ namespace arm
 
     tios.c_oflag &= ~(OPOST);
 
+    tios.c_cc[VTIME] = 1;  // set timeout to 100ms
+
     if (tcsetattr(fd, TCSANOW, &tios) < 0)
-    {
       ROS_ERROR("init_serialport: Couldn't set term attributes\n");
-    }
   }
   
-  int ArmUsbInterface::readData(int fd, uint8_t bufOut, uint8_t read_bytes,
-                                    uint8_t* readBuf)
+  int ArmUsbInterface::readData(
+    int fd, uint8_t bufOut, uint8_t read_bytes, uint8_t* readBuf)
   {
-    tcflush(fd, TCIOFLUSH);  // flushes both data received but not read,
-                             // -> and data written but not transmitted
-                             
+    // flush both data received but not read and data written but not transmitted
+    tcflush(fd, TCIOFLUSH);
+
     int nr;
 
     nr = write(fd, &bufOut, 1);
@@ -116,16 +116,14 @@ namespace arm
       reconnectUsb();
       return WRITE_ERROR;
     }
-    
-    //----------------------READ NACK------------------
-    
+
+    //------------- READ NACK -------------
     union
     {
       uint8_t nackBufInUint8[NACK_NBYTES];
       uint16_t nackBufInUint16;
     };
-    
-    
+
     nr = read(fd, nackBufInUint8, NACK_NBYTES);
     if (nr<0)
     {
@@ -187,14 +185,13 @@ namespace arm
         break;
       default:
         ROS_ERROR(
-          "Undefined Grideye Selection! Left Grideye selected by  default.");
+          "Undefined Grideye Selection! Center Grideye selected by  default.");
         bufOut = COMMAND_GEYE_CENTER;
         break;
     }
-    
-    int ret = readData(fd, bufOut, GEYE_NBYTES, values); 
+
+    int ret = readData(fd, bufOut, GEYE_NBYTES, values);
     return ret;
-    
   }
 
 
@@ -255,10 +252,9 @@ namespace arm
 
     int nr;
     uint8_t bufOut = COMMAND_ENCODER;
-
     int ret = readData(fd, bufOut, ENCODER_NBYTES, encoderBufInUint8);
-    *value = encoderBufInUint16; 
-    return ret;    
+    *value = encoderBufInUint16;
+    return ret;
   }
 
 

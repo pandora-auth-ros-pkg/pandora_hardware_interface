@@ -79,13 +79,14 @@ namespace arm
   void ArmHardwareInterface::read()
   {
     uint16_t value;
-    /*
+    ROS_INFO("Will read CO2/n");
     // read CO2 percentage from CO2 sensors
     for (int ii = 0; ii < co2SensorName_.size(); ii++)
     {
       arm_->readCo2Value(co2Percentage_ + ii);
     }
-
+    
+    
     // read thermal image from grideye sensors
     for (int ii = 0; ii < thermalSensorName_.size(); ii++)
     {
@@ -93,11 +94,12 @@ namespace arm
 
       while (true)
       {
+        // ROS_INFO("Will read GEYE loop/n");
         arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
 
         for (int jj = 0; jj < GEYE_NBYTES; jj++)
         {
-          if (thermalData_[jj] == 0)
+          if (thermalData_[ii][jj] == 0)
           {
             validReading = false;
             break;
@@ -108,21 +110,22 @@ namespace arm
           break;
       }
     }
-
+    
+    ROS_INFO("Will read SONARS/n");
     // read distances from range sensors
     for (int ii = 0; ii < rangeSensorName_.size(); ii++)
     {
       arm_->readSonarValues(rangeSensorCode_[ii], &value);
       range_[ii] = static_cast<double>(value) / 100;
     }
-    */
+    ROS_INFO("Will read BATTERIES/n");
     // read voltage of batteries
     for (int ii = 0; ii < batteryName_.size(); ii++)
     {
         arm_->readBatteryValues(batteryCode_[ii], &value);
         voltage_[ii] = value / 4096.0 * 33.0;
     }
-    /*
+    ROS_INFO("Will read ENCODER/n");
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
     arm_->readEncoderValue(&value);
@@ -135,7 +138,7 @@ namespace arm
 
     position_[0] = radians;
     position_[1] = -radians;
-    */
+    
   }
 
 
