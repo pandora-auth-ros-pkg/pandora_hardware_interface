@@ -97,10 +97,10 @@ namespace arm
 
     tios.c_cc[VTIME] = 1;  // set timeout to 100ms
 
-    if (tcsetattr(fd, TCSANOW, &tios) < 0)
+    if (tcsetattr(fd, TCSANOW, &tiose) < 0)
       ROS_ERROR("init_serialport: Couldn't set term attributes\n");
   }
-  
+
   int ArmUsbInterface::readData(
     int fd, uint8_t bufOut, uint8_t read_bytes, uint8_t* readBuf)
   {
@@ -125,7 +125,7 @@ namespace arm
     };
 
     nr = read(fd, nackBufInUint8, NACK_NBYTES);
-    if (nr<0)
+    if (nr < 0)
     {
       ROS_ERROR("[Head]: Read Error\n");
       reconnectUsb();
@@ -137,15 +137,13 @@ namespace arm
       reconnectUsb();
       return INCORRECT_NUM_OF_BYTES;
     }
-    
+
     if (!(nackBufInUint16 == ACK))
     {
       ROS_ERROR("[Head]: Received NACK\n");
       return RECEIVED_NACK;
     }
-      
-   //------------------------------------------------- 
-    
+
     nr = read(fd, readBuf, read_bytes);  // blocking
     if (nr < 0)
     {
@@ -284,7 +282,7 @@ namespace arm
         bufOut = COMMAND_BATTERY_MOTOR;  // shouldn't get in there
         break;
     }
-    
+
     int ret = readData(fd, bufOut, BATTERY_NBYTES, batteryBufInUint8);
     *value = batteryBufInUint16;
     return ret;

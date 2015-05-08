@@ -85,8 +85,7 @@ namespace arm
     {
       arm_->readCo2Value(co2Percentage_ + ii);
     }
-    
-    
+
     // read thermal image from grideye sensors
     for (int ii = 0; ii < thermalSensorName_.size(); ii++)
     {
@@ -110,7 +109,7 @@ namespace arm
           break;
       }
     }
-    
+
     ROS_INFO("Will read SONARS/n");
     // read distances from range sensors
     for (int ii = 0; ii < rangeSensorName_.size(); ii++)
@@ -125,7 +124,6 @@ namespace arm
         arm_->readBatteryValues(batteryCode_[ii], &value);
         voltage_[ii] = value / 4096.0 * 33.0;
     }
-    ROS_INFO("Will read ENCODER/n");
     // read encoder degrees
     double pi = boost::math::constants::pi<double>();
     arm_->readEncoderValue(&value);
@@ -138,7 +136,6 @@ namespace arm
 
     position_[0] = radians;
     position_[1] = -radians;
-    
   }
 
 
@@ -389,10 +386,9 @@ namespace arm
       name);
     jointNames_.push_back(name);
 
-    encoder_offset_ =
-      nodeHandle_.getParam(
-        "differential_joints/encoder_offset",
-        encoder_offset_);
+    nodeHandle_.getParam(
+      "differential_joints/encoder_offset",
+      encoder_offset_);
 
     // connect and register the joint state interface
     for (int ii = 0; ii < jointNames_.size(); ii++)

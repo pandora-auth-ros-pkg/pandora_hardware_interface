@@ -85,8 +85,8 @@ namespace arm
 #define NACK_NBYTES 2
 
 /**
- * @class ArmUSBInterface
- * @brief Communicates with an arm uC board to get sensor measurements
+* @class ArmUSBInterface
+* @brief Communicates with an arm uC board to get sensor measurements
 **/
 class ArmUsbInterface : private boost::noncopyable
 {
@@ -99,15 +99,15 @@ class ArmUsbInterface : private boost::noncopyable
   /**
    * @brief Default Destructor
    * @details Closes USB port
-  **/ 
+  **/
   ~ArmUsbInterface();
 
   /**
-   * @brief Opens USB port  
+   * @brief Opens USB port
   **/
   void openUsbPort();
-  
-  int readData(int fd, uint8_t bufOut, uint8_t command_bytes,uint8_t* readBuf);
+
+  int readData(int fd, uint8_t bufOut, uint8_t command_bytes, uint8_t* readBuf);
 
   /**
    * @brief Reads 8x8 thermal image of the selected grideye

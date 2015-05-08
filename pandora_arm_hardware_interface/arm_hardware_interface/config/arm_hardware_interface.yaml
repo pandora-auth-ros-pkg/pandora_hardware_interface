@@ -33,4 +33,4 @@ batteries:
 differential_joints:
   left_joint: left_side_joint
   right_joint: right_side_joint
-  encoder_offset: 0
+ encoder_offset: -0.8 
