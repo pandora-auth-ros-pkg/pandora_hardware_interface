@@ -97,7 +97,7 @@ namespace arm
 
     tios.c_cc[VTIME] = 1;  // set timeout to 100ms
 
-    if (tcsetattr(fd, TCSANOW, &tiose) < 0)
+    if (tcsetattr(fd, TCSANOW, &tios) < 0)
       ROS_ERROR("init_serialport: Couldn't set term attributes\n");
   }
 
@@ -106,6 +106,33 @@ namespace arm
   {
     // flush both data received but not read and data written but not transmitted
     tcflush(fd, TCIOFLUSH);
+    
+    
+    fd_set set;
+    struct timeval timeout;
+    int rv;
+    char buff[100];
+    int len = 100;
+    int filedesc = open( "dev/ttyS0", O_RDWR );
+
+    FD_ZERO(&set); /* clear the set */
+    FD_SET(fd, &set); /* add our file descriptor to the set */
+
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     int nr;
 
@@ -143,7 +170,17 @@ namespace arm
       ROS_ERROR("[Head]: Received NACK\n");
       return RECEIVED_NACK;
     }
-
+// ------------------------------------------------------
+    rv = select(filedesc + 1, &set, NULL, NULL, &timeout);
+    if(rv == -1){
+      ROS_ERROR("select error!!!!!!!!!!"); /* an error accured */
+      return SELECT_ERROR;
+    }
+    else if(rv == 0){
+      ROS_INFO("timeout!!!!!!!!!!!!!!!!"); /* a timeout occured */
+      return READ_TIMEOUT;
+    }
+    
     nr = read(fd, readBuf, read_bytes);  // blocking
     if (nr < 0)
     {

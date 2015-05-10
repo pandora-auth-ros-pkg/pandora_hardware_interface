@@ -75,6 +75,8 @@ namespace arm
 #define READ_ERROR -2              //!< read error code
 #define INCORRECT_NUM_OF_BYTES -3  //!< incorrect number of bytes error code
 #define RECEIVED_NACK -4
+#define SELECT_ERROR -5
+#define READ_TIMEOUT -6
 
 #define CO2_NBYTES 4         //!< Number of bytes of incoming CO2 data
 #define SONAR_NBYTES 2       //!< Number of bytes of incoming Sonar data
