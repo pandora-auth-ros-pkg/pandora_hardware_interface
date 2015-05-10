@@ -62,7 +62,7 @@ namespace arm
     int timeout = 0;
     // To make read non-blocking use the following:
     // fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
-    while ((fd = open("/dev/head", O_RDWR | O_NOCTTY)) == -1)
+    while ((fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY)) == -1)
     {
       ROS_ERROR("[Head]: cannot open USB port\n");
       ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
@@ -106,15 +106,15 @@ namespace arm
   {
     // flush both data received but not read and data written but not transmitted
     tcflush(fd, TCIOFLUSH);
+    ROS_INFO("JUST FLUSHED BUFFER");
     
     
     fd_set set;
     struct timeval timeout;
     int rv;
-    char buff[100];
+    uint8_t buff[100];
     int len = 100;
-    int filedesc = open( "dev/ttyS0", O_RDWR );
-
+  
     FD_ZERO(&set); /* clear the set */
     FD_SET(fd, &set); /* add our file descriptor to the set */
 
@@ -144,34 +144,51 @@ namespace arm
       return WRITE_ERROR;
     }
 
+
     //------------- READ NACK -------------
     union
     {
       uint8_t nackBufInUint8[NACK_NBYTES];
       uint16_t nackBufInUint16;
     };
-
-    nr = read(fd, nackBufInUint8, NACK_NBYTES);
+    
+    
+    ROS_INFO("After Write Process");
+    for(int i=0;i<NACK_NBYTES;i++){
+    rv = select(fd + 1, &set, NULL, NULL, &timeout);
+    if(rv == -1){
+      ROS_ERROR("select error at NACK!!!!!!!!!!"); /* an error accured */
+      return SELECT_ERROR;
+    }
+    else if(rv == 0){
+      ROS_INFO("timeout at NACK!!!!!!!!!!!!!!!!"); /* a timeout occured */
+      return READ_TIMEOUT;
+    }
+	ROS_INFO("Before NACK read");
+    nr = read(fd, &nackBufInUint8[i], 1);
+	ROS_INFO("After NACK read");
     if (nr < 0)
     {
       ROS_ERROR("[Head]: Read Error\n");
       reconnectUsb();
       return READ_ERROR;
     }
-    else if (nr != NACK_NBYTES)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
-    }
+    //else if (nr != NACK_NBYTES)
+    //{
+    //  ROS_ERROR("[Head]: Wrong number of bytes read\n");
+    //  reconnectUsb();
+    //  return INCORRECT_NUM_OF_BYTES;
+    //}
 
-    if (!(nackBufInUint16 == ACK))
-    {
-      ROS_ERROR("[Head]: Received NACK\n");
-      return RECEIVED_NACK;
+    //if (!(nackBufInUint16 == ACK))
+    //{
+    //  ROS_ERROR("[Head]: Received NACK\n");
+    //  return RECEIVED_NACK;
+    // }
     }
 // ------------------------------------------------------
-    rv = select(filedesc + 1, &set, NULL, NULL, &timeout);
+    for(int i=0;i<read_bytes;i++){
+    rv = select(fd + 1, &set, NULL, NULL, &timeout);
     if(rv == -1){
       ROS_ERROR("select error!!!!!!!!!!"); /* an error accured */
       return SELECT_ERROR;
@@ -180,24 +197,28 @@ namespace arm
       ROS_INFO("timeout!!!!!!!!!!!!!!!!"); /* a timeout occured */
       return READ_TIMEOUT;
     }
-    
-    nr = read(fd, readBuf, read_bytes);  // blocking
+    ROS_INFO("Before BUFFER READ");
+    nr = read(fd, (void *)readBuf++, 1);  // blocking
+	ROS_INFO("After BUFFER READ");
     if (nr < 0)
     {
       ROS_ERROR("[Head]: Read Error\n");
       reconnectUsb();
       return READ_ERROR;
     }
-    else if (nr != read_bytes)
-    {
-      ROS_ERROR("[Head]: Wrong number of bytes read\n");
-      reconnectUsb();
-      return INCORRECT_NUM_OF_BYTES;
+    else if (nr == 0){
+	ROS_ERROR("GOT TIMEOUT!");
+	return READ_TIMEOUT;
     }
-    else
-    {
-      return NO_ERROR;
+   // else if (nr != read_bytes)
+   // {
+   //   ROS_ERROR("[Head]: Wrong number of bytes read, nr = %d, read = %d",nr,read_bytes);
+   //   reconnectUsb();
+   //   return INCORRECT_NUM_OF_BYTES;
+   // }
     }
+    //readBuf = buff;
+    
   }
 
 
