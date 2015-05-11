@@ -146,12 +146,13 @@ namespace arm
 
 
     //------------- READ NACK -------------
-    union
-    {
-      uint8_t nackBufInUint8[NACK_NBYTES];
-      uint16_t nackBufInUint16;
-    };
+   // union
+   // {
+      uint8_t * nackBufInUint8;
+   //   uint16_t nackBufInUint16;
+   // };
     
+    nackBufInUint8 = new uint8_t [NACK_NBYTES];
     
     ROS_INFO("After Write Process");
     for(int i=0;i<NACK_NBYTES;i++){
@@ -165,7 +166,7 @@ namespace arm
       return READ_TIMEOUT;
     }
 	ROS_INFO("Before NACK read");
-    nr = read(fd, &nackBufInUint8[i], 1);
+    nr = read(fd, (void*)nackBufInUint8++, 1);
 	ROS_INFO("After NACK read");
     if (nr < 0)
     {
@@ -180,11 +181,13 @@ namespace arm
     //  return INCORRECT_NUM_OF_BYTES;
     //}
 
-    //if (!(nackBufInUint16 == ACK))
-    //{
-    //  ROS_ERROR("[Head]: Received NACK\n");
-    //  return RECEIVED_NACK;
-    // }
+/*
+    if (!(nackBufInUint8[1] == 0x01))
+    {
+      ROS_ERROR("[Head]: Received NACK: %x%x",nackBufInUint8[0],nackBufInUint8[1]);
+      return RECEIVED_NACK;
+     }
+*/     
     }
 // ------------------------------------------------------
     for(int i=0;i<read_bytes;i++){
