@@ -36,19 +36,19 @@
 * Author: George Kouros
 *********************************************************************/
 
-#include "linear_motor_com_interface/jrk_definitions.h"
-#include "linear_motor_com_interface/jrk_com_interface.h"
+#include "linear_actuator_com_interface/jrk_definitions.h"
+#include "linear_actuator_com_interface/jrk_com_interface.h"
 
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
   JrkComInterface::JrkComInterface(
     const std::string& device,
     int speed,
     int timeout)
   :
-    AbstractLinearMotorComInterface(),
+    AbstractLinearActuatorComInterface(),
     serialPtr_(NULL),
     device_(device),
     speed_(speed),
@@ -71,7 +71,7 @@ namespace linear
 
     serialPtr_->flush();  // flush both Input and output buffers
 
-    clearErrors();  // clear errors of linear motor controller on startup
+    clearErrors();  // clear errors of linear actuator controller on startup
   }
 
 
@@ -89,14 +89,14 @@ namespace linear
       }
       catch (serial::IOException& ex)
       {
-        ROS_FATAL("[Linear Motor]: Failed to open serial port");
+        ROS_FATAL("[Linear Actuator]: Failed to open serial port");
         ROS_FATAL("%s", ex.what());
         exit(-1);
       }
     }
     else
     {
-      throw std::logic_error("[Linear Motor]: Declined second call on open_device");
+      throw std::logic_error("[Linear Actuator]: Declined second call on open_device");
     }
   }
 
@@ -135,7 +135,7 @@ namespace linear
     uint8_t command[] = {0xB3, 0xC0 + (target & 0x1F), (target >> 5) & 0x7F};
     if ( !this->write(command, sizeof(command)) )
     {
-      ROS_ERROR_STREAM("[Linear Motor] Error writing > " << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator] Error writing > " << strerror(errno));
       return -1;
     }
     return 0;
@@ -147,13 +147,13 @@ namespace linear
     uint8_t message[] = {command};
     if ( !this->write(message, 1) )
     {
-      ROS_ERROR_STREAM("[Linear Motor]: Error writing > " << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator]: Error writing > " << strerror(errno));
       return -1;
     }
     uint8_t response[2];
     if ( !this->read(response, 2) )
     {
-      ROS_ERROR_STREAM("[Linear Motor]: Error reading > " << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator]: Error reading > " << strerror(errno));
       return -1;
     }
     return response[0] + 256*response[1];
@@ -197,13 +197,13 @@ namespace linear
     uint8_t message[] = {command};
     if ( !this->write(message, 1) )
     {
-      ROS_ERROR_STREAM("[Linear Motor] Error writing >" << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator] Error writing >" << strerror(errno));
       return -1;
     }
     unsigned char response[2];
     if ( !this->read(static_cast<uint8_t*>(response), 2) )
     {
-      ROS_ERROR_STREAM("[Linear Motor] Error reading >" << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator] Error reading >" << strerror(errno));
       return -1;
     }
     return response[0];
@@ -213,12 +213,12 @@ namespace linear
   {
     if ( errors >= 32 && errors <= 63 )
     {
-      ROS_ERROR("[Linear Motor Error]: Feedback disconenct");
+      ROS_ERROR("[Linear Actuator Error]: Feedback disconenct");
       return;
     }
     if ( errors >= 64 && errors <= 127 )
     {
-      ROS_ERROR("[Linear Motor Error]: Maximum current exceeded");
+      ROS_ERROR("[Linear Actuator Error]: Maximum current exceeded");
       return;
     }
     else
@@ -226,29 +226,29 @@ namespace linear
       switch (errors)
       {
       case 1:
-        ROS_ERROR("[Linear Motor Error]: Awaiting command");
+        ROS_ERROR("[Linear Actuator Error]: Awaiting command");
         break;
       case 2:
-        ROS_ERROR("[Linear Motor Error]: No power");
+        ROS_ERROR("[Linear Actuator Error]: No power");
         break;
       case 3:
-        ROS_ERROR("[Linear Motor Error]: Awaiting Command and No power");
+        ROS_ERROR("[Linear Actuator Error]: Awaiting Command and No power");
         break;
       case 4:
-        ROS_ERROR("[Linear Motor Error]: Motor driver");
+        ROS_ERROR("[Linear Actuator Error]: Actuator driver");
       case 5:
-        ROS_ERROR("[Linear Motor Error]: Awaiting Command and Motor driver");
+        ROS_ERROR("[Linear Actuator Error]: Awaiting Command and Actuator driver");
       case 6:
-        ROS_ERROR("[Linear Motor Error]: No power and Motor driver");
+        ROS_ERROR("[Linear Actuator Error]: No power and Actuator driver");
         break;
       case 7:
-        ROS_ERROR("[Linear Motor Error]: Awaiting command and No power and Motor driver");
+        ROS_ERROR("[Linear Actuator Error]: Awaiting command and No power and Actuator driver");
         break;
       case 8:
-        ROS_ERROR("[Linear Motor Error]: Input invalid");
+        ROS_ERROR("[Linear Actuator Error]: Input invalid");
         break;
       default:
-        ROS_ERROR("[Linear Motor Error]: NONE!");
+        ROS_ERROR("[Linear Actuator Error]: NONE!");
       }
     }
   }
@@ -259,10 +259,10 @@ namespace linear
     uint8_t command[] = {ERRORS_HALTING_VARIABLE};
     if ( !this->write(command, 1) )
     {
-      ROS_ERROR_STREAM("[Linear Motor] Error writing > " << strerror(errno));
+      ROS_ERROR_STREAM("[Linear Actuator] Error writing > " << strerror(errno));
       return -1;
     }
     return 0;
   }
-}  // namespace linear
+}  // namespace linear_actuator
 }  // namespace pandora_hardware_interface

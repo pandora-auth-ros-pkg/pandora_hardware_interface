@@ -34,25 +34,26 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
-#include "linear_motor_hardware_interface/linear_motor_hardware_interface.h"
+#include "linear_actuator_hardware_interface/linear_actuator_hardware_interface.h"
 
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
-  LinearMotorHardwareInterface::LinearMotorHardwareInterface(
+  LinearActuatorHardwareInterface::LinearActuatorHardwareInterface(
     ros::NodeHandle nodeHandle)
   :
     nodeHandle_(nodeHandle)
   {
-    nodeHandle_.getParam("linear_motor_joint", jointName_);
+    nodeHandle_.getParam("linear_actuator_name", jointName_);
 
     std::string jointType;
-    nodeHandle_.param<std::string>("joint_type", jointType, "firgelli");
+    nodeHandle_.param<std::string>(
+      "linear_actuator_type", jointType, "firgelli");
 
     if (jointType == "jrk")
     {
-      comInterfacePtr_ = new JrkComInterface("/dev/linear", 115200, 100);
+      comInterfacePtr_ = new JrkComInterface("/dev/linear_actuator", 115200, 100);
       comInterfacePtr_->init();
     }
     else if (jointType == "firgelli")
@@ -86,19 +87,19 @@ namespace linear
     registerInterface(&positionJointInterface_);
   }
 
-  LinearMotorHardwareInterface::~LinearMotorHardwareInterface()
+  LinearActuatorHardwareInterface::~LinearActuatorHardwareInterface()
   {
     delete comInterfacePtr_;
   }
 
-  void LinearMotorHardwareInterface::read()
+  void LinearActuatorHardwareInterface::read()
   {
     int feedback = comInterfacePtr_->readScaledFeedback();
     position_ = static_cast<float>(feedback);
     ROS_DEBUG_STREAM("Feedback: " << position_);
   }
 
-  void LinearMotorHardwareInterface::write()
+  void LinearActuatorHardwareInterface::write()
   {
     uint16_t target = static_cast<uint16_t>(command_);
     ROS_INFO("%d", target);
@@ -111,5 +112,5 @@ namespace linear
       ROS_DEBUG_STREAM("Linear command out of bounds");
     }
   }
-}  // namespace linear
+}  // namespace linear_actuator
 }  // namespace pandora_hardware_interface

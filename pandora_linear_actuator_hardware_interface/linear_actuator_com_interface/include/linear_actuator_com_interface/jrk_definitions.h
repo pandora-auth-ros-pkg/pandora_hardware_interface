@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -35,43 +35,19 @@
 * Author: Vasilis Bosdelekidis
 *********************************************************************/
 
-#include <linear_motor_com_interface/jrk_com_interface.h>
+#ifndef LINEAR_ACTUATOR_COM_INTERFACE_JRK_DEFINITIONS_H
+#define LINEAR_ACTUATOR_COM_INTERFACE_JRK_DEFINITIONS_H
 
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "pololu_jrk_communicator_node");
-  pandora_hardware_interface::linear::JrkComInterface
-    pololu_jrk_driver("/dev/linear", 115200, 100);
-  pololu_jrk_driver.init();
+#define INPUT_VARIABLE 0xA1
+#define TARGET_VARIABLE 0xA3
+#define FEEDBACK_VARIABLE 0xA5
+#define SCALED_FEEDBACK_VARIABLE 0xA7
+#define ERROR_SUM_VARIABLE 0xA9
+#define DUTY_CYCLE_TARGET_VARIABLE 0xAB
+#define DUTY_CYCLE_VARIABLE 0xAD
+#define CURRENT_VARIABLE 0x8F
+#define PID_PERIOD_COUNT_VARIABLE 0xB1
+#define ERRORS_FLAG_VARIABLE 0xB5
+#define ERRORS_HALTING_VARIABLE 0xB3
 
-  int reply = pololu_jrk_driver.readFeedback();
-  ROS_ERROR("Got this position feedback: %d", reply);
-  reply = pololu_jrk_driver.readScaledFeedback();
-  ROS_ERROR("Got this scaled feedback: %d", reply);
-  reply = pololu_jrk_driver.readDutyCycle();
-  ROS_ERROR("Got this speed: %d", reply);
-  reply = pololu_jrk_driver.getErrors();
-  ROS_ERROR("Got these errors: %d", reply);
-
-  // Send 'target position' over the serial port
-  pololu_jrk_driver.setTarget(132);
-  reply = pololu_jrk_driver.readTarget();
-  ROS_ERROR("Got this target: %d", reply);
-
-  // Get feedback
-  reply = pololu_jrk_driver.readFeedback();
-  ROS_ERROR("Got this position feedback: %d", reply);
-  reply = pololu_jrk_driver.readScaledFeedback();
-  ROS_ERROR("Got this scaled feedback: %d", reply);
-  pololu_jrk_driver.setTarget(3600);
-  reply = pololu_jrk_driver.readTarget();
-  ROS_ERROR("Got this target: %d", reply);
-
-  // Get feedback
-  reply = pololu_jrk_driver.readFeedback();
-  ROS_ERROR("Got this position feedback: %d", reply);
-  reply = pololu_jrk_driver.readScaledFeedback();
-  ROS_ERROR("Got this scaled feedback: %d", reply);
-  pololu_jrk_driver.closeDevice();
-  ros::spinOnce();
-}
+#endif  // LINEAR_ACTUATOR_COM_INTERFACE_JRK_DEFINITIONS_H

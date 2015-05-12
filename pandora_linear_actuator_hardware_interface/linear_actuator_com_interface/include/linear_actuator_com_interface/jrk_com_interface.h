@@ -37,8 +37,8 @@
 *********************************************************************/
 
 
-#ifndef LINEAR_MOTOR_COM_INTERFACE_JRK_COM_INTERFACE_H
-#define LINEAR_MOTOR_COM_INTERFACE_JRK_COM_INTERFACE_H
+#ifndef LINEAR_ACTUATOR_COM_INTERFACE_JRK_COM_INTERFACE_H
+#define LINEAR_ACTUATOR_COM_INTERFACE_JRK_COM_INTERFACE_H
 
 #include <stdexcept>
 #include <fcntl.h>
@@ -47,17 +47,17 @@
 #include <serial/serial.h>
 #include <boost/scoped_ptr.hpp>
 #include <boost/utility.hpp>
-#include "linear_motor_com_interface/abstract_linear_motor_com_interface.h"
+#include "linear_actuator_com_interface/abstract_linear_actuator_com_interface.h"
 
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
   /**
   @class Class JrkComInterface
-  @brief Class used to communicate with the jrk controller and control the linear motor actuator
+  @brief Class used to communicate with the jrk controller and control the linear actuator actuator
   **/
-  class JrkComInterface : public AbstractLinearMotorComInterface
+  class JrkComInterface : public AbstractLinearActuatorComInterface
   {
    public:
     /**
@@ -93,13 +93,13 @@ namespace linear
 
     /**
     @brief Reads variable, according to command value
-    @param command [const unsigned char] : command to the linear motor controller
+    @param command [const unsigned char] : command to the linear actuator controller
     @return [int] : variable value requested through command
     **/
     int readVariable(const unsigned char command);
 
     /**
-    @brief Write command to [Linear Motor] controller
+    @brief Write command to [Linear Actuator] controller
     @param data [const uint8_t*] : Output Data buffer
     @param size [size_t] : Output Data buffer size
     @return TRUE : Success on writing data to output buffer
@@ -108,7 +108,7 @@ namespace linear
     bool write(const uint8_t* data, size_t size);
 
     /**
-    @brief Read command of linear motor controller
+    @brief Read command of linear actuator controller
     @param data [uint8_t*] : input data buffer
     @param size [size_t] : input data buffer size
     @return TRUE : Success on read data from input buffer
@@ -117,14 +117,14 @@ namespace linear
     bool read(uint8_t* data, size_t size);
 
     /**
-    @brief Read errors from [Linear Motor] controller
+    @brief Read errors from [Linear Actuator] controller
     @param command [unsigned char] : command for reading errors
     return int : error code
     **/
     int readErrors(unsigned char command);
 
     /**
-    @brief Read position feedback from [Linear Motor]
+    @brief Read position feedback from [Linear Actuator]
     @return int : feedback
     **/
     int readFeedback();
@@ -136,40 +136,40 @@ namespace linear
     int readScaledFeedback();
 
     /**
-    @brief Asks linear motor for duty cycle value. Returns duty cycle value
+    @brief Asks linear actuator for duty cycle value. Returns duty cycle value
     @return Duty Cycle
     **/
     int readDutyCycle();
 
     /**
-    @brief Asks linear motor for position target value
+    @brief Asks linear actuator for position target value
     @return Target position value
     **/
     int readTarget();
 
     /**
-    @brief Sends position target command [Linear Motor]
+    @brief Sends position target command [Linear Actuator]
     @param target Target position value
-    @return 0 : success in setting target of linear motor joint
-    @return -1 : failure in setting target of linear motor joint
+    @return 0 : success in setting target of linear actuator joint
+    @return -1 : failure in setting target of linear actuator joint
     **/
     int setTarget(uint16_t target);
 
     /**
     @fn int getErrors();
-    @brief Read and print errors on [Linear Motor]
+    @brief Read and print errors on [Linear Actuator]
     @return Error integer variable
     **/
     int getErrors();
 
     /**
-    @brief Prints errors reported from [Linear Motor]
+    @brief Prints errors reported from [Linear Actuator]
     @param errors Error index
     **/
     void printErrors(int errors);
 
     /**
-    @brief Sends the ERRORS_HALTING_VARIABLE char to [Linear Motor] to clear errors reported on startup
+    @brief Sends the ERRORS_HALTING_VARIABLE char to [Linear Actuator] to clear errors reported on startup
     @return
     **/
     int clearErrors();
@@ -180,7 +180,7 @@ namespace linear
     const int speed_;  //!< serial communication speed
     const int timeout_;  //!< timeout for serial port connection
   };
-}  // namespace linear
+}  // namespace linear_actuator
 }  // namespace pandora_hardware_interface
 
-#endif  // LINEAR_MOTOR_COM_INTERFACE_JRK_COM_INTERFACE_H
+#endif  // LINEAR_ACTUATOR_COM_INTERFACE_JRK_COM_INTERFACE_H

@@ -32,85 +32,99 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: George Kouros
+* Author: Petros Evangelakos
 *********************************************************************/
 
-#ifndef LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
-#define LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
+#ifndef LINEAR_ACTUATOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
+#define LINEAR_ACTUATOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H
 
-#include <ros/ros.h>
-
+#include <assert.h>
+#include <libusb-1.0/libusb.h>
+#include "linear_actuator_com_interface/abstract_linear_actuator_com_interface.h"
+#include "linear_actuator_com_interface/firgelli_definitions.h"
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
   /**
-  @class AbstractLinearMotorComInterface
-  @brief Abstract Linear Motor Communication Interface class
+  @class FirgelliComInterface
+  @brief Class used for communicating with the firgelli linear actuator via usb
   **/
-  class AbstractLinearMotorComInterface : private boost::noncopyable
+  class FirgelliComInterface : public AbstractLinearActuatorComInterface
   {
    public:
     /**
     @brief Default Constructor
     **/
-    AbstractLinearMotorComInterface()
-    {
-    }
+    FirgelliComInterface();
 
     /**
     @brief Default Destructor
     **/
-    ~AbstractLinearMotorComInterface()
-    {
-    }
+    ~FirgelliComInterface();
 
     /**
     @brief Opens communication port and performs other initialization tasks
     @return void
     **/
-    virtual void init() = 0;
+    void init();
+
 
     /**
     @brief Opens communication port
     @return void
     **/
-    virtual void openDevice() = 0;
+    void openDevice();
 
     /**
     @brief Closes opened communication port
-    @brief This method is used to close linear motor communication port
+    @brief This method is used to close linear actuator communication port
     **/
-    virtual void closeDevice() = 0;
+    void closeDevice();
 
     /**
-    @brief Write command to linear motor
-    @return bool : true for success, false for error
+    @brief Write goal position to linear actuator
+    @return bool : 1 for success, 0 for error
     **/
-    virtual bool write(const uint8_t* data, size_t size) = 0;
+    bool write(const uint8_t* data, size_t size);
 
     /**
-    @brief Reads feedback from the linear joint
+    @brief Gets position feedback from the linear joint
     @details Init must be called first to establish communication
     @return void
     **/
-    virtual bool read(uint8_t* data, size_t size) = 0;
+    bool read(uint8_t* data, size_t size);
 
     /**
     @brief Reads goal position in cm
     @return int : scaled feedback value
     **/
-    virtual int readScaledFeedback() = 0;
+    int readScaledFeedback();
+
 
     /**
-    @brief Sends position target command to linear motor
+    @brief Sends position target command to linear actuator
     @param target Target position value
-    @return 0 : success in setting target of linear motor joint
-    @return -1 : failure in setting target of linear motor joint
+    @return 0 : success in setting target of linear actuator joint
+    @return -1 : failure in setting target of linear actuator joint
     **/
-     int setTarget(unsigned short target)=0;
-  };
-}  // namespace linear_motor
-}  // namespace pandora_hardware_interface
+    int setTarget(uint16_t target);
 
-#endif  // LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
+   private:
+    /**
+    @brief Returns control type
+    @param attr [int] : attribute
+    @return static const char* : control type
+    **/
+    static const char* controlType(int attr);
+
+   private:
+    int mInterface_;
+    libusb_device_handle *mHandle_;
+    struct libusb_context *mCtx_;
+    static int mDebug_;
+    int rank_;
+  };
+}  // namespace linear_actuator
+}  // namespace pandora_hardware_interface
+#endif  // LINEAR_ACTUATOR_COM_INTERFACE_FIRGELLI_COM_INTERFACE_H

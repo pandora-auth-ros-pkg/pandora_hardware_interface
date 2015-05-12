@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,43 +32,46 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author:  Evangelos Apostolidis
+* Author: Vasilis Bosdelekidis
 *********************************************************************/
-#ifndef LINEAR_MOTOR_HARDWARE_INTERFACE_LINEAR_MOTOR_HARDWARE_INTERFACE_H
-#define LINEAR_MOTOR_HARDWARE_INTERFACE_LINEAR_MOTOR_HARDWARE_INTERFACE_H
 
-#include "ros/ros.h"
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-#include "linear_motor_com_interface/jrk_com_interface.h"
-#include "linear_motor_com_interface/firgelli_com_interface.h"
+#include <linear_actuator_com_interface/jrk_com_interface.h>
 
-namespace pandora_hardware_interface
+int main(int argc, char** argv)
 {
-namespace linear
-{
-  class LinearMotorHardwareInterface : public hardware_interface::RobotHW
-  {
-    public:
-      explicit LinearMotorHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~LinearMotorHardwareInterface();
-      void read();
-      void write();
+  ros::init(argc, argv, "pololu_jrk_communicator_node");
+  pandora_hardware_interface::linear_actuator::JrkComInterface
+    pololu_jrk_driver("/dev/linear", 115200, 100);
+  pololu_jrk_driver.init();
 
-    private:
-      ros::NodeHandle nodeHandle_;
-      AbstractLinearMotorComInterface* comInterfacePtr_;
-      hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::PositionJointInterface positionJointInterface_;
-      std::string jointName_;
-      double command_;
-      double position_;
-      double velocity_;
-      double effort_;
-  };
-}  // namespace linear
-}  // namespace pandora_hardware_interface
-#endif  // LINEAR_MOTOR_HARDWARE_INTERFACE_LINEAR_MOTOR_HARDWARE_INTERFACE_H
+  int reply = pololu_jrk_driver.readFeedback();
+  ROS_ERROR("Got this position feedback: %d", reply);
+  reply = pololu_jrk_driver.readScaledFeedback();
+  ROS_ERROR("Got this scaled feedback: %d", reply);
+  reply = pololu_jrk_driver.readDutyCycle();
+  ROS_ERROR("Got this speed: %d", reply);
+  reply = pololu_jrk_driver.getErrors();
+  ROS_ERROR("Got these errors: %d", reply);
+
+  // Send 'target position' over the serial port
+  pololu_jrk_driver.setTarget(132);
+  reply = pololu_jrk_driver.readTarget();
+  ROS_ERROR("Got this target: %d", reply);
+
+  // Get feedback
+  reply = pololu_jrk_driver.readFeedback();
+  ROS_ERROR("Got this position feedback: %d", reply);
+  reply = pololu_jrk_driver.readScaledFeedback();
+  ROS_ERROR("Got this scaled feedback: %d", reply);
+  pololu_jrk_driver.setTarget(3600);
+  reply = pololu_jrk_driver.readTarget();
+  ROS_ERROR("Got this target: %d", reply);
+
+  // Get feedback
+  reply = pololu_jrk_driver.readFeedback();
+  ROS_ERROR("Got this position feedback: %d", reply);
+  reply = pololu_jrk_driver.readScaledFeedback();
+  ROS_ERROR("Got this scaled feedback: %d", reply);
+  pololu_jrk_driver.closeDevice();
+  ros::spinOnce();
+}

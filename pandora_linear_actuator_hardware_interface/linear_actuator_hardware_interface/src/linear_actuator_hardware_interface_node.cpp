@@ -35,18 +35,18 @@
 * Author:  Evangelos Apostolidis
 *********************************************************************/
 
-#include "linear_motor_hardware_interface/linear_motor_hardware_interface.h"
+#include "linear_actuator_hardware_interface/linear_actuator_hardware_interface.h"
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "linear_motor_hardware_interface_node");
+  ros::init(argc, argv, "linear_actuator_hardware_interface_node");
   ros::NodeHandle nodeHandle;
 
-  pandora_hardware_interface::linear::LinearMotorHardwareInterface
-    linearMotorHardwareInterface(
+  pandora_hardware_interface::linear_actuator::LinearActuatorHardwareInterface
+    linearActuatorHardwareInterface(
       nodeHandle);
   controller_manager::ControllerManager controllerManager(
-    &linearMotorHardwareInterface,
+    &linearActuatorHardwareInterface,
     nodeHandle);
 
   ros::Time
@@ -66,9 +66,9 @@ int main(int argc, char **argv)
     period = now - last;
     last = now;
 
-    linearMotorHardwareInterface.read();
+    linearActuatorHardwareInterface.read();
     controllerManager.update(now, period);
-    linearMotorHardwareInterface.write();
+    linearActuatorHardwareInterface.write();
     rate.sleep();
   }
   spinner.stop();

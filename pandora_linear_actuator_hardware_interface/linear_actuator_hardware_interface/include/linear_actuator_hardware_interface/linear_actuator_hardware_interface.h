@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,30 +32,43 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Petros Evangelakos
+* Author:  Evangelos Apostolidis
 *********************************************************************/
+#ifndef LINEAR_ACTUATOR_HARDWARE_INTERFACE_LINEAR_ACTUATOR_HARDWARE_INTERFACE_H
+#define LINEAR_ACTUATOR_HARDWARE_INTERFACE_LINEAR_ACTUATOR_HARDWARE_INTERFACE_H
 
-#ifndef LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_DEFINITIONS_H
-#define LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_DEFINITIONS_H
+#include "ros/ros.h"
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+#include <controller_manager/controller_manager.h>
+#include "linear_actuator_com_interface/jrk_com_interface.h"
+#include "linear_actuator_com_interface/firgelli_com_interface.h"
 
-#define  SET_ACCURACY 0x01
-#define  SET_RETRACT_LIMIT 0x02
-#define  SET_EXTEND_LIMIT 0x03
-#define  SET_MOVEMENT_THRESHOLD 0x04
-#define   SET_STALL_TIME 0x05
-#define  SET_PWM_THRESHOLD 0x06
-#define  SET_DERIVATIVE_THRESHOLD   0x07
-#define   SET_DERIVATIVE_MAXIMUM     0x08
-#define  SET_DERIVATIVE_MINIMUM   0x09
-#define SET_PWM_MAXIMUM   0x0A
-#define SET_PWM_MINIMUM  0x0B
-#define  SET_PROPORTIONAL_GAIN  0x0C
-#define  SET_DERIVATIVE_GAIN 0x0D
-#define  SET_AVERAGE_RC  0x0E
-#define  SET_AVERAGE_ADC   0x0F
-#define GET_FEEDBACK  0x10
-#define SET_POSITION  0x20
-#define SET_SPEED  0x21
-#define DISABLE_MANUAL   0x30
-#define RESET 0xFF
-#endif  // LINEAR_MOTOR_COM_INTERFACE_FIRGELLI_DEFINITIONS_H
+namespace pandora_hardware_interface
+{
+namespace linear_actuator
+{
+  class LinearActuatorHardwareInterface : public hardware_interface::RobotHW
+  {
+    public:
+      explicit LinearActuatorHardwareInterface(
+        ros::NodeHandle nodeHandle);
+      ~LinearActuatorHardwareInterface();
+      void read();
+      void write();
+
+    private:
+      ros::NodeHandle nodeHandle_;
+      AbstractLinearActuatorComInterface* comInterfacePtr_;
+      hardware_interface::JointStateInterface jointStateInterface_;
+      hardware_interface::PositionJointInterface positionJointInterface_;
+      std::string jointName_;
+      double command_;
+      double position_;
+      double velocity_;
+      double effort_;
+  };
+}  // namespace linear_actuator
+}  // namespace pandora_hardware_interface
+#endif  // LINEAR_ACTUATOR_HARDWARE_INTERFACE_LINEAR_ACTUATOR_HARDWARE_INTERFACE_H

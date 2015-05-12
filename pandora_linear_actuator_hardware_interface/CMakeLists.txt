@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(pandora_linear_motor_hardware_interface)
+project(pandora_linear_actuator_hardware_interface)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
@@ -9,8 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
-    linear_motor_com_interface/include
-    linear_motor_hardware_interface/include
+    linear_actuator_com_interface/include
+    linear_actuator_hardware_interface/include
 )
 
 catkin_package(
@@ -20,7 +20,7 @@ catkin_package(
     controller_manager
     controller_interface
     serial
-    
+
   LIBRARIES
   DEPENDS
 )
@@ -84,18 +84,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_subdirectory(linear_motor_com_interface)
-add_subdirectory(linear_motor_hardware_interface)
+add_subdirectory(linear_actuator_com_interface)
+add_subdirectory(linear_actuator_hardware_interface)
 
-# To check lint : catkin_make roslint_pandora_linear_motor_hardware_interface
+# To check lint : catkin_make roslint_pandora_linear_actuator_hardware_interface
 set(ROSLINT_CPP_OPTS
   "--filter=-build/include_what_you_use")
-  
+
 FILE(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}
-  linear_motor_com_interface/*.h
-  linear_motor_com_interface/*.cpp
-  linear_motor_hardware_interface/*.h 
-  linear_motor_hardware_interface/*.cpp
+  linear_actuator_com_interface/*.h
+  linear_actuator_com_interface/*.cpp
+  linear_actuator_hardware_interface/*.h
+  linear_actuator_hardware_interface/*.cpp
 )
 roslint_cpp(${${PROJECT_NAME}_LINT_SRCS})

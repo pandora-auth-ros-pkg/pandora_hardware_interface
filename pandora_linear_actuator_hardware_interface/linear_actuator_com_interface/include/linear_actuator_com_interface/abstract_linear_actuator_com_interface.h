@@ -35,33 +35,33 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
-#define LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
+#ifndef LINEAR_ACTUATOR_COM_INTERFACE_ABSTRACT_LINEAR_ACTUATOR_COM_INTERFACE_H
+#define LINEAR_ACTUATOR_COM_INTERFACE_ABSTRACT_LINEAR_ACTUATOR_COM_INTERFACE_H
 
 #include <ros/ros.h>
 
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
   /**
-  @class AbstractLinearMotorComInterface
-  @brief Abstract Linear Motor Communication Interface class
+  @class AbstractLinearActuatorComInterface
+  @brief Abstract Linear Actuator Communication Interface class
   **/
-  class AbstractLinearMotorComInterface : private boost::noncopyable
+  class AbstractLinearActuatorComInterface : private boost::noncopyable
   {
    public:
     /**
     @brief Default Constructor
     **/
-    AbstractLinearMotorComInterface()
+    AbstractLinearActuatorComInterface()
     {
     }
 
     /**
     @brief Default Destructor
     **/
-    ~AbstractLinearMotorComInterface()
+    ~AbstractLinearActuatorComInterface()
     {
     }
 
@@ -79,12 +79,12 @@ namespace linear
 
     /**
     @brief Closes opened communication port
-    @brief This method is used to close linear motor communication port
+    @brief This method is used to close linear actuator communication port
     **/
     virtual void closeDevice() = 0;
 
     /**
-    @brief Write command to linear motor
+    @brief Write command to linear actuator
     @return bool : true for success, false for error
     **/
     virtual bool write(const uint8_t* data, size_t size) = 0;
@@ -103,14 +103,14 @@ namespace linear
     virtual int readScaledFeedback() = 0;
 
     /**
-    @brief Sends position target command to linear motor
+    @brief Sends position target command to linear actuator
     @param target Target position value
-    @return 0 : success in setting target of linear motor joint
-    @return -1 : failure in setting target of linear motor joint
+    @return 0 : success in setting target of linear actuator joint
+    @return -1 : failure in setting target of linear actuator joint
     **/
     virtual  int setTarget(uint16_t target)=0;
   };
-}  // namespace linear
+}  // namespace linear_actuator
 }  // namespace pandora_hardware_interface
 
-#endif  // LINEAR_MOTOR_COM_INTERFACE_ABSTRACT_LINEAR_MOTOR_COM_INTERFACE_H
+#endif  // LINEAR_ACTUATOR_COM_INTERFACE_ABSTRACT_LINEAR_ACTUATOR_COM_INTERFACE_H

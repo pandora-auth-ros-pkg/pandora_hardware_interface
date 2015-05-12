@@ -35,11 +35,11 @@
 * Author: Petros Evangelakos
 *********************************************************************/
 
-#include "linear_motor_com_interface/firgelli_com_interface.h"
+#include "linear_actuator_com_interface/firgelli_com_interface.h"
 
 namespace pandora_hardware_interface
 {
-namespace linear
+namespace linear_actuator
 {
   int  FirgelliComInterface::mDebug_;
   FirgelliComInterface::FirgelliComInterface()
@@ -229,7 +229,7 @@ namespace linear
     return rval;
   }
 
-int FirgelliComInterface::readScaledFeedback()
+  int FirgelliComInterface::readScaledFeedback()
   {
     int position;
     uint8_t buf[3];
@@ -258,5 +258,5 @@ int FirgelliComInterface::readScaledFeedback()
     buf[2] = command / 256;  // High
     write(buf, sizeof(buf));
   }
-}  // namespace linear
+}  // namespace linear_actuator
 }  // namespace pandora_hardware_interface
