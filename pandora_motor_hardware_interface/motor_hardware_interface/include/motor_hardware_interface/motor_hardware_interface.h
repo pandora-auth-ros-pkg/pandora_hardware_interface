@@ -55,7 +55,7 @@ namespace motor
   class MotorHardwareInterface : public hardware_interface::RobotHW
   {
     private:
-      AbstractEposHandler *motors_;
+      SerialEpos2Handler *motors_;
 
       ros::NodeHandle nodeHandle_;
       ros::Publisher currentPub_;

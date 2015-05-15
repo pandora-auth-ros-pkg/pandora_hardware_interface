@@ -144,12 +144,8 @@ namespace motor
       double currentToTorque(
         int input_current_);
 
-/*      void getTorque(
-        int* leftRearTorque,
-        int* leftFrontTorque,
-        int* rightRearTorque,
-        int* rightFrontTorque);*/
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-#endif  // EPOS2_HANDLER_SERIAL_EPOS2_HANDLER_H
+#endif  
+// EPOS2_HANDLER_SERIAL_EPOS2_HANDLER_H
