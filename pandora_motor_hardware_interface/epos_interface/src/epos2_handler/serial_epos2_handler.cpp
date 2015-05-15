@@ -1,3 +1,4 @@
+
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -242,35 +243,30 @@ namespace motor
   }
 
 
-  void SerialEpos2Handler::currentToTorque(
-    int* leftRearTorque,
-    int* leftFrontTorque,
-    int* rightRearTorque,
-    int* rightFrontTorque)
+  void SerialEpos2Handler::getTorque( 
+    double* leftRearTorque,
+    double* leftFrontTorque,
+    double* rightRearTorque,
+    double* rightFrontTorque)
   {
-    epos2Gateway_->read_currentActual(
-      rightFrontMotor_->nodeId_,
-      &rightFrontMotor_->current_);
-    *rightFrontTorque =
-      static_cast<int>(rightFrontMotor_->current_) * 33.5 * 113;
+    //Define new pointers to current
+    int* leftRearCurrent;
+    int* leftFrontCurrent;
+    int* rightRearCurrent; 
+    int* rightFrontCurrent;
 
-    epos2Gateway_->read_currentActual(
-      rightRearMotor_->nodeId_,
-      &rightRearMotor_->current_);
-    *rightRearTorque =
-      static_cast<int>(rightRearMotor_->current_) * 33.5 * 113;
+    //Fill with current values using getCurrent method
+    this->getCurrent(leftRearCurrent,
+                    leftFrontCurrent,
+                    rightRearCurrent,
+                    rightFrontCurrent);
 
-    epos2Gateway_->read_currentActual(
-      leftFrontMotor_->nodeId_,
-      &rightRearMotor_->current_);
-    *leftFrontTorque =
-      static_cast<int>(leftFrontMotor_->current_) * 33.5 * 113;
+    //Convert to Torques
+    *leftRearTorque = this->currentToTorque(*leftRearCurrent);
+    *leftFrontTorque = this->currentToTorque(*leftFrontCurrent);
+    *rightRearTorque = this->currentToTorque(*rightRearCurrent);
+    *rightFrontTorque = this->currentToTorque(*rightFrontCurrent);
 
-    epos2Gateway_->read_currentActual(
-      leftRearMotor_->nodeId_,
-      &leftRearMotor_->current_);
-    *leftRearTorque =
-      static_cast<int>(leftRearMotor_->current_) * 33.5 * 113;
   }
 
 
@@ -289,5 +285,12 @@ namespace motor
     leftRearMotor_->current_ =
       static_cast<uint16_t>(leftRearTorque / 33.5 / 113);
   }
+
+
+  double SerialEpos2Handler::currentToTorque(int input_current_)
+  {
+    return static_cast<double>(input_current_ * 33.5 * 113);
+  }
+
 }  // namespace motor
 }  // namespace pandora_hardware_interface

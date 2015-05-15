@@ -58,6 +58,12 @@ namespace motor
     virtual Error getError() = 0;
     virtual uint16_t  writeRPM(const int leftRpm, const int rightRpm) = 0;
 
+    virtual void getTorque(
+        double* leftRearTorque,
+        double* leftFrontTorque,
+        double* rightRearTorque,
+        double* rightFrontTorque);
+
    protected:
     uint32_t encodeToControlWord(const int& left, const int& right);
 

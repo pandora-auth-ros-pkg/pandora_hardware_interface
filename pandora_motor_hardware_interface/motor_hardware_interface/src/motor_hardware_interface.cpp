@@ -103,6 +103,7 @@ namespace motor
   {
     int velFeed[4];
     int currFeed[4];
+    double effortFeed[4];
 
     /*--<Read motors actual velocity value from EPOS controllers>--*/
     motors_->getRPM(&velFeed[2], &velFeed[0], &velFeed[3], &velFeed[1]);
@@ -113,6 +114,11 @@ namespace motor
       &currFeed[3]);
     /*-------------------------------------------------------------*/
 
+    /*--<Read motors actual current value from EPOS controllers>---*/
+    motors_->getTorque(&effortFeed[0], &effortFeed[1], &effortFeed[2],
+      &effortFeed[3]);
+    /*-------------------------------------------------------------*/
+
     /*--<Update local velocity, current, and position values>--*/
     for (int ii = 0; ii < 4; ii++)
     {
@@ -121,6 +127,7 @@ namespace motor
       current_[ii] = static_cast<double>(currFeed[ii]);
       motorCurrentsMsg_.current[ii] = current_[ii];
       position_[ii] = position_[ii] + period.toSec() * velocity_[ii];
+      effort_[ii] = effortFeed[ii];
     }
     /*---------------------------------------------------------*/
 

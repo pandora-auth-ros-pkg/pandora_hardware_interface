@@ -129,17 +129,26 @@ namespace motor
 
       void stateHandle(void);
 
-      void currentToTorque(
-        int* leftRearTorque,
-        int* leftFrontTorque,
-        int* rightRearTorque,
-        int* rightFrontTorque);
+      void getTorque(
+        double* leftRearTorque,
+        double* leftFrontTorque,
+        double* rightRearTorque,
+        double* rightFrontTorque);
 
       void torqueToCurrent(
         const int rightFrontTorque,
         const int rightRearTorque,
         const int leftFrontTorque,
         const int leftRearTorque);
+
+      double currentToTorque(
+        int input_current_);
+
+/*      void getTorque(
+        int* leftRearTorque,
+        int* leftFrontTorque,
+        int* rightRearTorque,
+        int* rightFrontTorque);*/
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
