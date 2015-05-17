@@ -108,6 +108,9 @@ namespace motor
     epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
+
+    //Setting operation mode to velocity_mode
+    operation_mode_ = 0;
   }
 
 
@@ -326,7 +329,45 @@ namespace motor
     return 1;
   }
 
+  void SerialEpos2Handler::setMode(int mode)
+  {
 
+    switch (mode)
+    {
+      case 0:
+              // Activate Velocity Mode
+              ROS_INFO("Entering Velocity Mode");
+              epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
+              epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
+              epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
+              epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
+
+              operation_mode_ = 0;
+
+              break;
+
+      case 1:
+              // Activate Current Mode
+              ROS_INFO("Entering Current Mode");
+              epos2Gateway_->activate_currentMode(rightFrontMotor_->nodeId_);
+              epos2Gateway_->activate_currentMode(rightRearMotor_->nodeId_);
+              epos2Gateway_->activate_currentMode(leftFrontMotor_->nodeId_);
+              epos2Gateway_->activate_currentMode(leftRearMotor_->nodeId_);
+
+              operation_mode_ = 1;
+
+              break;
+
+      default:
+              ROS_WARN("There is no such state");
+              break;
+    }
+  }
+
+  int SerialEpos2Handler::getMode(void)
+  {
+    return operation_mode_;
+  }
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface

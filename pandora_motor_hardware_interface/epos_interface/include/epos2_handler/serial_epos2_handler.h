@@ -72,6 +72,12 @@ namespace motor
       Epos2Controller* leftRearMotor_;
       uint16_t gatewayId_;
 
+      /*
+       * operation_mode_ = 0 ==> velocity mode
+       * operation_mode_ = 1 ==> current mode
+       */
+      int operation_mode_;
+
     public:
       /*!
        * @brief Constructor 
@@ -156,6 +162,18 @@ namespace motor
         double leftFrontTorque,
         double rightRearTorque,
         double rightFrontTorque);
+
+
+      /*!
+       * @brief Switches between current and velocity mode 
+       *        Constuctor defaul = velocity mode 
+       * 
+       * @param mode  mode = 0 => velocity mode
+       *              mode = 1 => current mode
+       */
+      void setMode(int mode);
+
+      int getMode(void);
 
   };
 }  // namespace motor

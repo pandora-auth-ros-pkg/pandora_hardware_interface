@@ -142,20 +142,42 @@ namespace motor
 
   void MotorHardwareInterface::write()
   {
-    //Velocity Control Mode 
-    double RPMCommand[2];
-    for (int ii = 0; ii < 2; ii++)
+   
+    if (motors_->getMode()==0)
     {
-      RPMCommand[ii] = command_[ii] * gearboxRatio_ * 30 / 3.14;
-      if (fabs(RPMCommand[ii]) > maxRPM_)
+      //Velocity Control Mode 
+      double RPMCommand[2];
+      for (int ii = 0; ii < 2; ii++)
       {
-        ROS_DEBUG_STREAM("Limiting wheel speed, it's to high");
-        RPMCommand[ii] = copysign(maxRPM_, RPMCommand[ii]);
+        RPMCommand[ii] = command_[ii] * gearboxRatio_ * 30 / 3.14;
+        if (fabs(RPMCommand[ii]) > maxRPM_)
+        {
+          ROS_DEBUG_STREAM("Limiting wheel speed, it's to high");
+          RPMCommand[ii] = copysign(maxRPM_, RPMCommand[ii]);
+        }
       }
+      ROS_DEBUG_STREAM("Commands: " << RPMCommand[0] << ", " << RPMCommand[1]);
+      motors_->writeRPM(RPMCommand[0], RPMCommand[1]);
     }
-    ROS_DEBUG_STREAM("Commands: " << RPMCommand[0] << ", " << RPMCommand[1]);
-    motors_->writeRPM(RPMCommand[0], RPMCommand[1]);
 
+
+    else if (motors_->getMode()==1)
+    {
+      //Current control Modes
+      double torque_command[4];  //Temp :later will be filled by ros control
+
+      //Probably add if else struct for controlling torque limits
+      //!!! IMPORTANT : Make sure that torque commands are given in the correct order
+      motors_->writeTorques(
+                            torque_command[0],
+                            torque_command[1],
+                            torque_command[2],
+                            torque_command[3]);
+
+      ROS_DEBUG_STREAM("Torque Commands: " << torque_command[0] << ", " << torque_command[1]
+                                    << ", "<<torque_command[2] << ", " << torque_command[3]);
+
+    }
   }
 
   void MotorHardwareInterface::readJointNameFromParamServer()
