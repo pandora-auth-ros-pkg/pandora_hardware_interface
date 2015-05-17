@@ -135,14 +135,27 @@ namespace motor
         double* rightRearTorque,
         double* rightFrontTorque);
 
-      void torqueToCurrent(
-        const int rightFrontTorque,
-        const int rightRearTorque,
-        const int leftFrontTorque,
-        const int leftRearTorque);
+      /*!
+       * @brief Converts single WHEEL Torque to motor current
+       */
+      int16_t torqueToCurrent(
+        double _input_torque);
 
+      /*!
+       * @brief Converts single motor current to WHEEL Torque 
+       */
       double currentToTorque(
-        int input_current_);
+        int _input_current);
+
+      /*!
+       * @brief Writes torque commands to motor controllers 
+       * (needs to convert torques to currents as well)
+       */
+      uint16_t writeTorques(
+        double leftRearTorque,
+        double leftFrontTorque,
+        double rightRearTorque,
+        double rightFrontTorque);
 
   };
 }  // namespace motor

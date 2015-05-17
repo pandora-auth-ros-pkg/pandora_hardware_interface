@@ -270,11 +270,11 @@ namespace motor
   }
 
 
-  void SerialEpos2Handler::torqueToCurrent(
-      const int rightFrontTorque,
-      const int rightRearTorque,
-      const int leftFrontTorque,
-      const int leftRearTorque)
+  /*void SerialEpos2Handler::torqueToCurrent(
+      const double rightFrontTorque,
+      const double rightRearTorque,
+      const double leftFrontTorque,
+      const double leftRearTorque)
   {
     rightFrontMotor_->current_ =
       static_cast<uint16_t>(rightFrontTorque / 33.5 / 113);
@@ -284,13 +284,49 @@ namespace motor
       static_cast<uint16_t>(leftFrontTorque / 33.5 / 113);
     leftRearMotor_->current_ =
       static_cast<uint16_t>(leftRearTorque / 33.5 / 113);
-  }
+  }*/
 
 
-  double SerialEpos2Handler::currentToTorque(int input_current_)
+  double SerialEpos2Handler::currentToTorque(int _input_current)
   {
-    return static_cast<double>(input_current_ * 33.5 * 113);
+    return static_cast<double>(_input_current * 33.5 * 113);
   }
+
+
+  int16_t SerialEpos2Handler::torqueToCurrent(double _input_torque)
+  {
+    return static_cast<int16_t>(_input_torque / 33.5 / 113);
+  }
+
+  uint16_t SerialEpos2Handler::writeTorques(
+        double leftRearTorque,
+        double leftFrontTorque,
+        double rightRearTorque,
+        double rightFrontTorque)
+  {
+    //Step I :Convert Torques to currents
+    int16_t leftRearCurrent = torqueToCurrent(leftRearTorque);
+    int16_t leftFrontCurrent = torqueToCurrent(leftFrontTorque);
+    int16_t rightRearCurrent = torqueToCurrent(rightRearTorque);
+    int16_t rightFrontCurrent = torqueToCurrent(rightFrontTorque);
+
+
+    //Step II: Send commands to motors
+    ROS_DEBUG("[Motors]: Setting torques %f, %f, %f, %f",
+                                         leftRearTorque,
+                                         leftFrontTorque,
+                                         rightRearTorque,
+                                         rightFrontTorque);
+
+    epos2Gateway_->set_targetCurrent(leftRearMotor_->nodeId_, leftRearCurrent);
+    epos2Gateway_->set_targetCurrent(leftFrontMotor_->nodeId_, leftFrontCurrent);
+    epos2Gateway_->set_targetCurrent(rightRearMotor_->nodeId_, rightRearCurrent);
+    epos2Gateway_->set_targetCurrent(rightFrontMotor_->nodeId_, rightFrontCurrent);
+
+    return 1;
+  }
+
+
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface

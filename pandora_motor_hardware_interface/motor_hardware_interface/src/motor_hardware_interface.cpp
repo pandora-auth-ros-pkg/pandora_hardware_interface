@@ -114,7 +114,10 @@ namespace motor
       &currFeed[3]);
     /*-------------------------------------------------------------*/
 
-    /*--<Read motors actual current value from EPOS controllers>---*/
+    /*
+    CHECK AGAIN  !!!!
+    */
+    /*--<Read motors actual torque value from EPOS controllers>---*/
     motors_->getTorque(&effortFeed[0], &effortFeed[1], &effortFeed[2],
       &effortFeed[3]);
     /*-------------------------------------------------------------*/
@@ -139,6 +142,7 @@ namespace motor
 
   void MotorHardwareInterface::write()
   {
+    //Velocity Control Mode 
     double RPMCommand[2];
     for (int ii = 0; ii < 2; ii++)
     {
@@ -151,6 +155,7 @@ namespace motor
     }
     ROS_DEBUG_STREAM("Commands: " << RPMCommand[0] << ", " << RPMCommand[1]);
     motors_->writeRPM(RPMCommand[0], RPMCommand[1]);
+
   }
 
   void MotorHardwareInterface::readJointNameFromParamServer()
