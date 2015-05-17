@@ -89,25 +89,8 @@ namespace arm
     // read thermal image from grideye sensors
     for (int ii = 0; ii < thermalSensorName_.size(); ii++)
     {
-      bool validReading = true;
-
-      while (true)
-      {
-        // ROS_INFO("Will read GEYE loop/n");
-        arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
-
-        for (int jj = 0; jj < GEYE_NBYTES; jj++)
-        {
-          if (thermalData_[ii][jj] == 0)
-          {
-            validReading = false;
-            break;
-          }
-        }
-
-        if (validReading)
-          break;
-      }
+      // ROS_INFO("Will read GEYE loop/n");
+      arm_->readGrideyeValues(thermalSensorCode_[ii], thermalData_[ii]);
     }
 
     ROS_INFO("Will read SONARS/n");
