@@ -51,7 +51,7 @@ namespace arm
   ArmUsbInterface::~ArmUsbInterface()
   {
     close(fd);
-    ROS_INFO("[Head]: USB port closed because of program termination\n");
+    ROS_INFO("[Arm]: USB port closed because of program termination\n");
   }
 
 
@@ -61,21 +61,21 @@ namespace arm
   {
     int timeout = 0;
     // To make read non-blocking use the following:
-    // fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY);
-    while ((fd = open("/dev/head", O_RDWR | O_NOCTTY | O_NDELAY)) == -1)
+    // fd = open("/dev/arm", O_RDWR | O_NOCTTY | O_NDELAY);
+    while ((fd = open("/dev/arm", O_RDWR | O_NOCTTY | O_NDELAY)) == -1)
     {
-      ROS_ERROR("[Head]: cannot open USB port\n");
-      ROS_ERROR("[Head]: open() failed with error [%s]\n", strerror(errno));
+      ROS_ERROR("[Arm]: cannot open USB port\n");
+      ROS_ERROR("[Arm]: open() failed with error [%s]\n", strerror(errno));
 
       ros::Duration(0.5).sleep();
 
       if (timeout > 100)
-        throw std::runtime_error("[Head]: cannot open USB port");
+        throw std::runtime_error("[Arm]: cannot open USB port");
       else
         timeout++;
     }
 
-    ROS_INFO("[Head]: USB port successfully opened\n");
+    ROS_INFO("[Arm]: USB port successfully opened\n");
 
     // Needs some time to initialize, even though it opens succesfully.
     // tcflush() didn't work without waiting at least 8 ms
@@ -139,7 +139,7 @@ namespace arm
     nr = write(fd, &bufOut, 1);
     if (nr != 1)
     {
-      ROS_ERROR("[Head]: Write Error\n");
+      ROS_ERROR("[Arm]: Write Error\n");
       reconnectUsb();
       return WRITE_ERROR;
     }
@@ -170,13 +170,13 @@ namespace arm
 	ROS_INFO("After NACK read");
     if (nr < 0)
     {
-      ROS_ERROR("[Head]: Read Error\n");
+      ROS_ERROR("[Arm]: Read Error\n");
       reconnectUsb();
       return READ_ERROR;
     }
     //else if (nr != NACK_NBYTES)
     //{
-    //  ROS_ERROR("[Head]: Wrong number of bytes read\n");
+    //  ROS_ERROR("[Arm]: Wrong number of bytes read\n");
     //  reconnectUsb();
     //  return INCORRECT_NUM_OF_BYTES;
     //}
@@ -184,7 +184,7 @@ namespace arm
 /*
     if (!(nackBufInUint8[1] == 0x01))
     {
-      ROS_ERROR("[Head]: Received NACK: %x%x",nackBufInUint8[0],nackBufInUint8[1]);
+      ROS_ERROR("[Arm]: Received NACK: %x%x",nackBufInUint8[0],nackBufInUint8[1]);
       return RECEIVED_NACK;
      }
 */     
@@ -205,7 +205,7 @@ namespace arm
 	ROS_INFO("After BUFFER READ");
     if (nr < 0)
     {
-      ROS_ERROR("[Head]: Read Error\n");
+      ROS_ERROR("[Arm]: Read Error\n");
       reconnectUsb();
       return READ_ERROR;
     }
@@ -215,7 +215,7 @@ namespace arm
     }
    // else if (nr != read_bytes)
    // {
-   //   ROS_ERROR("[Head]: Wrong number of bytes read, nr = %d, read = %d",nr,read_bytes);
+   //   ROS_ERROR("[Arm]: Wrong number of bytes read, nr = %d, read = %d",nr,read_bytes);
    //   reconnectUsb();
    //   return INCORRECT_NUM_OF_BYTES;
    // }
@@ -353,12 +353,12 @@ namespace arm
   {
     // reconnectUsb() should be called until communication is restored.
     close(fd);
-    ROS_INFO("[Head]: USB port closed\n");
+    ROS_INFO("[Arm]: USB port closed\n");
     ros::Duration(1.5).sleep();
 
     openUsbPort();
 
-    ROS_INFO("[Head]: USB port reconnected successfully");
+    ROS_INFO("[Arm]: USB port reconnected successfully");
   }
 
 }  // namespace arm
