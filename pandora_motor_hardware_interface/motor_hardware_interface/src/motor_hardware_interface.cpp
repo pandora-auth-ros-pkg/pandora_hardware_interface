@@ -69,15 +69,31 @@ namespace motor
     }
     registerInterface(&jointStateInterface_);
 
+
+
     // connect and register the joint velocity interface
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
       hardware_interface::JointHandle jointVelocityHandle(
         jointStateInterface_.getHandle(jointNames_[ii]),
-        &command_[ii]);
+        &vel_command_[ii]);
       velocityJointInterface_.registerHandle(jointVelocityHandle);
     }
     registerInterface(&velocityJointInterface_);
+
+
+    //connect and register the joint EFFORT interface
+    //Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
+    for (int ii = 0; ii < jointNames_.size(); ii++)
+    {
+      hardware_interface::JointHandle jointEffortHandle(
+        jointStateInterface_.getHandle(jointNames_[ii]),
+        &torque_command_[ii]);
+      effortJointInterface_.registerHandle(jointEffortHandle);
+    }
+    registerInterface(&effortJointInterface_);
+
+
 
     motorCurrentsMsg_.name.push_back(
       "Node 1, Left_Front Motor, EPOS2 Gateway");
@@ -149,7 +165,7 @@ namespace motor
       double RPMCommand[2];
       for (int ii = 0; ii < 2; ii++)
       {
-        RPMCommand[ii] = command_[ii] * gearboxRatio_ * 30 / 3.14;
+        RPMCommand[ii] = vel_command_[ii] * gearboxRatio_ * 30 / 3.14;
         if (fabs(RPMCommand[ii]) > maxRPM_)
         {
           ROS_DEBUG_STREAM("Limiting wheel speed, it's to high");

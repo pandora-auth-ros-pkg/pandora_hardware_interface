@@ -62,10 +62,17 @@ namespace motor
 
       MotorCurrentsMsg motorCurrentsMsg_;
 
+
+      //ROS Control interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
+      
+      hardware_interface::EffortJointInterface effortJointInterface_;
+
+
       std::vector<std::string> jointNames_;
-      double command_[4];
+      double torque_command_[4];
+      double vel_command_[4];
       double position_[4];
       double velocity_[4];
       double effort_[4];
