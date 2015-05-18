@@ -1,0 +1,40 @@
+
+
+
+add_definitions(-D__LINUX__)
+
+
+file(STRINGS "cmake/VERSION" LIBPIXY_VERSION)
+add_definitions(-D__LIBPIXY_VERSION__="${LIBPIXY_VERSION}")
+
+
+add_library (pixyusb STATIC src/libpixyusb/chirpreceiver.cpp
+                            src/libpixyusb/pixyinterpreter.cpp
+                            src/libpixyusb/pixy.cpp
+                            src/libpixyusb/usblink.cpp
+                            src/common/chirp.cpp)
+
+
+set(BOOST_LIBRARIES
+	#/home/petros/boost_1_49_0/lib/libboost_chrono.so.1.49.0
+	/home/petros/boost_1_49_0/lib/libboost_system.so.1.49.0
+        /home/petros/boost_1_49_0/lib/libboost_thread.so.1.49.0
+)
+
+target_link_libraries(pixyusb
+	${LIBUSB_1_LIBRARIES}
+	${BOOST_LIBRARIES}
+)
+
+
+
+
+
+
+set (THIS_LIB libpixyusb)
+
+
+
+
+
+
