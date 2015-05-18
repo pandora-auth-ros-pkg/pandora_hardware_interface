@@ -13,6 +13,11 @@
   
   <author>Evangelos Apostolidis</author>
   <author>Chris Zalidis</author>
+  <author>George Kouros</author>
+  <author>Konstantinos Panayiotou</author>
+  <author>Nikos Taras</author>
+  <author>Petros Evangelakos</author>
+  <author>Orestis Zachariadis</author>
   
   <buildtool_depend>catkin</buildtool_depend>
 
