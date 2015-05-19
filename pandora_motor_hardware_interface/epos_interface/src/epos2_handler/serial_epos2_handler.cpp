@@ -201,7 +201,7 @@ namespace motor
     epos2Gateway_->read_currentActual(rightRearMotor_->nodeId_,
       &rightRearMotor_->current_);
     epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_,
-      &rightFrontMotor_->current_);
+      &leftFrontMotor_->current_);
     epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_,
       &leftRearMotor_->current_);
     *rightFrontCurrent = static_cast<int>(rightFrontMotor_->current_);
