@@ -180,18 +180,18 @@ namespace motor
     else if (motors_->getMode()==1)
     {
       //Current control Modes
-      double torque_command[4];  //Temp :later will be filled by ros control
+      //Temp :later will be filled by ros control
 
       //Probably add if else struct for controlling torque limits
       //!!! IMPORTANT : Make sure that torque commands are given in the correct order
       motors_->writeTorques(
-                            torque_command[0],
-                            torque_command[1],
-                            torque_command[2],
-                            torque_command[3]);
+                            torque_command_[0],
+                            torque_command_[1],
+                            torque_command_[2],
+                            torque_command_[3]);
 
-      ROS_DEBUG_STREAM("Torque Commands: " << torque_command[0] << ", " << torque_command[1]
-                                    << ", "<<torque_command[2] << ", " << torque_command[3]);
+      ROS_DEBUG_STREAM("Torque Commands: " << torque_command_[0] << ", " << torque_command_[1]
+                                    << ", "<<torque_command_[2] << ", " << torque_command_[3]);
 
     }
   }

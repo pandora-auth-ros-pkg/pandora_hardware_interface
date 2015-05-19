@@ -252,23 +252,20 @@ namespace motor
     double* rightRearTorque,
     double* rightFrontTorque)
   {
-    //Define new pointers to current
-    int* leftRearCurrent;
-    int* leftFrontCurrent;
-    int* rightRearCurrent; 
-    int* rightFrontCurrent;
+    //Define new array to store current values
+    int _currentFeed[4];
 
     //Fill with current values using getCurrent method
-    this->getCurrent(leftRearCurrent,
-                    leftFrontCurrent,
-                    rightRearCurrent,
-                    rightFrontCurrent);
+    this->getCurrent(&_currentFeed[0],
+                    &_currentFeed[1],
+                    &_currentFeed[2],
+                    &_currentFeed[3]);
 
     //Convert to Torques
-    *leftRearTorque = this->currentToTorque(*leftRearCurrent);
-    *leftFrontTorque = this->currentToTorque(*leftFrontCurrent);
-    *rightRearTorque = this->currentToTorque(*rightRearCurrent);
-    *rightFrontTorque = this->currentToTorque(*rightFrontCurrent);
+    *leftRearTorque = this->currentToTorque(_currentFeed[0]);
+    *leftFrontTorque = this->currentToTorque(_currentFeed[1]);
+    *rightRearTorque = this->currentToTorque(_currentFeed[2]);
+    *rightFrontTorque = this->currentToTorque(_currentFeed[3]);
 
   }
 
