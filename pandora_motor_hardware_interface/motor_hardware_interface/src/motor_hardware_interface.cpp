@@ -84,14 +84,14 @@ namespace motor
 
     //connect and register the joint EFFORT interface
     //Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
-    for (int ii = 0; ii < jointNames_.size(); ii++)
+    /*for (int ii = 0; ii < jointNames_.size(); ii++)
     {
       hardware_interface::JointHandle jointEffortHandle(
         jointStateInterface_.getHandle(jointNames_[ii]),
         &torque_command_[ii]);
       effortJointInterface_.registerHandle(jointEffortHandle);
     }
-    registerInterface(&effortJointInterface_);
+    registerInterface(&effortJointInterface_);*/
 
 
 

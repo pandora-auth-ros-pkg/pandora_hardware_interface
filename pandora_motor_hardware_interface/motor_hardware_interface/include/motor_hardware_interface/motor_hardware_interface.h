@@ -67,7 +67,7 @@ namespace motor
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
       
-      hardware_interface::EffortJointInterface effortJointInterface_;
+      //hardware_interface::EffortJointInterface effortJointInterface_;
 
 
       std::vector<std::string> jointNames_;
