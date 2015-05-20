@@ -109,7 +109,7 @@ namespace motor
     epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
     epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
 
-    //Setting operation mode to velocity_mode
+    // Setting operation mode to velocity_mode
     operation_mode_ = 0;
   }
 
@@ -246,27 +246,26 @@ namespace motor
   }
 
 
-  void SerialEpos2Handler::getTorque( 
+  void SerialEpos2Handler::getTorque(
     double* leftRearTorque,
     double* leftFrontTorque,
     double* rightRearTorque,
     double* rightFrontTorque)
   {
-    //Define new array to store current values
+    // Define new array to store current values
     int _currentFeed[4];
 
-    //Fill with current values using getCurrent method
+    // Fill with current values using getCurrent method
     this->getCurrent(&_currentFeed[0],
                     &_currentFeed[1],
                     &_currentFeed[2],
                     &_currentFeed[3]);
 
-    //Convert to Torques
+    // Convert to Torques
     *leftRearTorque = this->currentToTorque(_currentFeed[0]);
     *leftFrontTorque = this->currentToTorque(_currentFeed[1]);
     *rightRearTorque = this->currentToTorque(_currentFeed[2]);
     *rightFrontTorque = this->currentToTorque(_currentFeed[3]);
-
   }
 
 
@@ -304,14 +303,14 @@ namespace motor
         double rightRearTorque,
         double rightFrontTorque)
   {
-    //Step I :Convert Torques to currents
+    // Step I :Convert Torques to currents
     int16_t leftRearCurrent = torqueToCurrent(leftRearTorque);
     int16_t leftFrontCurrent = torqueToCurrent(leftFrontTorque);
     int16_t rightRearCurrent = torqueToCurrent(rightRearTorque);
     int16_t rightFrontCurrent = torqueToCurrent(rightFrontTorque);
 
 
-    //Step II: Send commands to motors
+    // Step II: Send commands to motors
     ROS_DEBUG("[Motors]: Setting torques %f, %f, %f, %f",
                                          leftRearTorque,
                                          leftFrontTorque,
@@ -328,7 +327,6 @@ namespace motor
 
   void SerialEpos2Handler::setMode(int mode)
   {
-
     switch (mode)
     {
       case 0:

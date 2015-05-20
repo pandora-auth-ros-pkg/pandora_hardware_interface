@@ -57,7 +57,7 @@ namespace motor
   };
 
 
-  //====================Serial Epos2 Handler Class========================
+  // ====================Serial Epos2 Handler Class========================
 
   class SerialEpos2Handler: public AbstractEposHandler
   {
@@ -174,9 +174,7 @@ namespace motor
       void setMode(int mode);
 
       int getMode(void);
-
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
-#endif  
-// EPOS2_HANDLER_SERIAL_EPOS2_HANDLER_H
+#endif  // EPOS2_HANDLER_SERIAL_EPOS2_HANDLER_H

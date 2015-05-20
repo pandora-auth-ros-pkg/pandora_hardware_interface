@@ -1,3 +1,4 @@
+
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -82,8 +83,8 @@ namespace motor
     registerInterface(&velocityJointInterface_);
 
 
-    //connect and register the joint EFFORT interface
-    //Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
+    // connect and register the joint EFFORT interface
+    // Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
     /*for (int ii = 0; ii < jointNames_.size(); ii++)
     {
       hardware_interface::JointHandle jointEffortHandle(
@@ -158,10 +159,9 @@ namespace motor
 
   void MotorHardwareInterface::write()
   {
-   
-    if (motors_->getMode()==0)
+    if (motors_->getMode() == 0)
     {
-      //Velocity Control Mode 
+      // Velocity Control Mode
       double RPMCommand[2];
       for (int ii = 0; ii < 2; ii++)
       {
@@ -177,13 +177,13 @@ namespace motor
     }
 
 
-    else if (motors_->getMode()==1)
+    else if (motors_->getMode() == 1)
     {
-      //Current control Modes
-      //Temp :later will be filled by ros control
+      // Current control Modes
+      // Temp :later will be filled by ros control
 
-      //Probably add if else struct for controlling torque limits
-      //!!! IMPORTANT : Make sure that torque commands are given in the correct order
+      // Probably add if else struct for controlling torque limits
+      // !!! IMPORTANT : Make sure that torque commands are given in the correct order
       motors_->writeTorques(
                             torque_command_[0],
                             torque_command_[1],
@@ -191,8 +191,7 @@ namespace motor
                             torque_command_[3]);
 
       ROS_DEBUG_STREAM("Torque Commands: " << torque_command_[0] << ", " << torque_command_[1]
-                                    << ", "<<torque_command_[2] << ", " << torque_command_[3]);
-
+                                    << ", "  <<  torque_command_[2] << ", " << torque_command_[3]);
     }
   }
 

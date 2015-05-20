@@ -1,3 +1,4 @@
+
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -38,13 +39,15 @@
 #ifndef MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 
-#include "ros/ros.h"
+
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include "epos2_handler/serial_epos2_handler.h"
 #include <pandora_sensor_msgs/MotorCurrents.h>
+
+#include "epos2_handler/serial_epos2_handler.h"
+#include "ros/ros.h"
 
 typedef pandora_sensor_msgs::MotorCurrents MotorCurrentsMsg;
 
@@ -63,11 +66,11 @@ namespace motor
       MotorCurrentsMsg motorCurrentsMsg_;
 
 
-      //ROS Control interfaces
+      // ROS Control interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
-      
-      //hardware_interface::EffortJointInterface effortJointInterface_;
+
+      // hardware_interface::EffortJointInterface effortJointInterface_;
 
 
       std::vector<std::string> jointNames_;
