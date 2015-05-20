@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   pandora_sensor_msgs
   pandora_cmake_tools
+  dynamic_reconfigure
 )
 
 find_package(PkgConfig)
@@ -27,6 +28,10 @@ set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include
     motor_hardware_interface/include
     epos_interface/include
+)
+
+generate_dynamic_reconfigure_options(
+  motor_hardware_interface/cfg/torqueControl.cfg
 )
 
 catkin_package(
@@ -46,6 +51,7 @@ catkin_package(
     nav_msgs
     std_msgs
     pandora_sensor_msgs
+    dynamic_reconfigure
   LIBRARIES
     skid_steer_drive_controller
 #  DEPENDS

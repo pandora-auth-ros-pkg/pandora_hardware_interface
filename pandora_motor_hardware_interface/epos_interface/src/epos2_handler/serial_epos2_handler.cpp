@@ -288,13 +288,13 @@ namespace motor
 
   double SerialEpos2Handler::currentToTorque(int _input_current)
   {
-    return static_cast<double>(_input_current * 33.5 * 113);
+    return static_cast<double>(_input_current * 33.5 * 113 / 10 / 10 / 10 );
   }
 
 
   int16_t SerialEpos2Handler::torqueToCurrent(double _input_torque)
   {
-    return static_cast<int16_t>(_input_torque / 33.5 / 113);
+    return static_cast<int16_t>(_input_torque / 33.5 / 113 * 1000 );
   }
 
   uint16_t SerialEpos2Handler::writeTorques(
