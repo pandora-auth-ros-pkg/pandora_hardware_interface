@@ -45,6 +45,8 @@
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_sensor_msgs/MotorCurrents.h>
+#include <dynamic_reconfigure/server.h>
+#include <pandora_motor_hardware_interface/TorqueConfig.h>
 
 #include "epos2_handler/serial_epos2_handler.h"
 #include "ros/ros.h"
@@ -72,6 +74,10 @@ namespace motor
 
       // hardware_interface::EffortJointInterface effortJointInterface_;
 
+      // Dynamic reconfigure server
+      dynamic_reconfigure::Server<pandora_motor_hardware_interface::TorqueConfig> server;
+      dynamic_reconfigure::Server<pandora_motor_hardware_interface::TorqueConfig>::CallbackType f;
+
 
       std::vector<std::string> jointNames_;
       double torque_command_[4];
@@ -91,6 +97,7 @@ namespace motor
       ~MotorHardwareInterface();
       void read(const ros::Duration& period);
       void write();
+      void reconfigCallback(pandora_motor_hardware_interface::TorqueConfig &config, uint32_t level);
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

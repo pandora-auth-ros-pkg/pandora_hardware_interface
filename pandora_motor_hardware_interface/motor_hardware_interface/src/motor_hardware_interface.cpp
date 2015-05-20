@@ -94,6 +94,12 @@ namespace motor
     }
     registerInterface(&effortJointInterface_);*/
 
+    // Set mode to torque control for writeTorques() test
+    motors_->setMode(1);
+
+    // Dynamic reconfig settings
+    f = boost::bind(&MotorHardwareInterface::reconfigCallback,this, _1, _2);  // Check again
+    server.setCallback(f);
 
 
     motorCurrentsMsg_.name.push_back(
@@ -215,5 +221,17 @@ namespace motor
       name);
     jointNames_.push_back(name);
   }
+
+  void MotorHardwareInterface::reconfigCallback(
+                                                pandora_motor_hardware_interface::TorqueConfig &config,
+                                                uint32_t level)
+  {
+    ROS_INFO("Reconfigure Callback");
+    torque_command_[0] = config.left_rear_torque;
+    torque_command_[1] = config.left_front_torque;
+    torque_command_[2] = config.right_rear_torque;
+    torque_command_[3] = config.right_front_torque;
+  }
+
 }  // namespace motor
 }  // namespace pandora_hardware_interface
