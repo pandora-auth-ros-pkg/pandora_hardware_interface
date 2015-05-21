@@ -405,7 +405,7 @@ void CBlobAssembler::MergeLists(CBlob *&old1, CBlob *&old2,
 
 #ifdef DEBUG
 void len_error() {
-    printf("len error, wedging!\n");
+    //~ printf("len error, wedging!\n");
     while(1);
 }
 #endif
@@ -421,8 +421,8 @@ void CBlobAssembler::SortFinished() {
     }
 
     DBG_BLOB(int initial_len= ListLength(finishedBlobs));
-    DBG_BLOB(printf("BSort: Start 0x%x, len=%d\n", finishedBlobs,
-               initial_len));
+    //~ DBG_BLOB(printf("BSort: Start 0x%x, len=%d\n", finishedBlobs,
+               //~ initial_len));
     SplitList(finishedBlobs, old1, old2);
 
     // First merge lists of length 1 into sorted lists of length 2
@@ -433,10 +433,10 @@ void CBlobAssembler::SortFinished() {
     for (int blocksize= 1; old2; blocksize <<= 1) {
         CBlob *new1=NULL, *new2=NULL, **newptr1= &new1, **newptr2= &new2;
         while (old1 || old2) {
-            DBG_BLOB(printf("BSort: o1 0x%x, o2 0x%x, bs=%d\n",
-                       old1, old2, blocksize));
-            DBG_BLOB(printf("       n1 0x%x, n2 0x%x\n",
-                       new1, new2));
+            //~ DBG_BLOB(printf("BSort: o1 0x%x, o2 0x%x, bs=%d\n",
+                       //~ old1, old2, blocksize));
+            //~ DBG_BLOB(printf("       n1 0x%x, n2 0x%x\n",
+                       //~ new1, new2));
             MergeLists(old1, old2, newptr1, blocksize);
             MergeLists(old1, old2, newptr2, blocksize);
         }
@@ -447,8 +447,8 @@ void CBlobAssembler::SortFinished() {
     finishedBlobs= old1;
     DBG_BLOB(AssertFinishedSorted());
     DBG_BLOB(int final_len= ListLength(finishedBlobs));
-    DBG_BLOB(printf("BSort: DONE  0x%x, len=%d\n", finishedBlobs,
-               ListLength(finishedBlobs)));
+    //~ DBG_BLOB(printf("BSort: DONE  0x%x, len=%d\n", finishedBlobs,
+               //~ ListLength(finishedBlobs)));
     DBG_BLOB(if (final_len != initial_len) len_error());
 }
 
@@ -474,7 +474,7 @@ void CBlobAssembler::Reset() {
         delete finishedBlobs;
         finishedBlobs= tmp;
     }
-    DBG_BLOB(printf("after CBlobAssember::Reset, leakcheck=%d\n", CBlob::leakcheck));
+    //~ DBG_BLOB(printf("after CBlobAssember::Reset, leakcheck=%d\n", CBlob::leakcheck));
 }
 
 // Manage currentBlob

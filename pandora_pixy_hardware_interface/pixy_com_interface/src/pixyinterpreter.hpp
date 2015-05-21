@@ -122,21 +122,21 @@ class PixyInterpreter : public Interpreter
 
       @param[in] data  Incoming Chirp protocol data from Pixy.
     */
-    void interpret_data( void * chrip_data[]);
+    void interpret_data(const void * chrip_data[]);
 
     /**
       @brief Interprets CCB1 messages sent from Pixy.
 
       @param[in] data  Incoming Chirp protocol data from Pixy.
     */
-    void interpret_CCB1( void * data[]);
+    void interpret_CCB1(const void * data[]);
 
     /**
       @brief Interprets CCB2 messages sent from Pixy.
 
       @param[in] data  Incoming Chirp protocol data from Pixy.
     */
-    void interpret_CCB2(void * data[]);
+    void interpret_CCB2(const void * data[]);
 
     /**
       @brief Adds blocks with normal signatures to the PixyInterpreter

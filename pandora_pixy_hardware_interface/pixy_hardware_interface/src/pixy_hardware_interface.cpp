@@ -8,23 +8,22 @@ namespace pandora_hardware_interface
   namespace pixy
   {
     
+   
     PixyHardwareInterface::PixyHardwareInterface(
-    ros::NodeHandle nodeHandle,PixyCam* cam)
+    ros::NodeHandle nodeHandle)
     :
       nodeHandle_(nodeHandle),
-      it_(nodeHandle),
-      cam_(cam)
+      it_(nodeHandle)
     {
-      
       readJointNameFromParamServer();
-      image_pub = it_.advertise("image_raw", 1);
-      //~ int ret = pixy_init();
-      //~ if (ret != 0)
-      //~ {
-        //~ ROS_FATAL("PixyNode - %s - Failed to open with the USB error %d!",
-        //~ __FUNCTION__, ret);
-        //~ ROS_BREAK();
-      //~ }
+      image_pub = it_.advertise("pixy_image", 1);
+      int ret = pixy_init();
+      if (ret != 0)
+      {
+        ROS_FATAL("PixyNode - %s - Failed to open with the USB error %d!",
+        __FUNCTION__, ret);
+        ROS_BREAK();
+      }
       
     
 
@@ -52,6 +51,8 @@ namespace pandora_hardware_interface
       positionJointInterface_.registerHandle(jointPositionHandle);
     }
     registerInterface(&positionJointInterface_);
+    pixy_rcs_set_position(0, 100);
+    pixy_rcs_set_position(1, 100);
     }
     
     PixyHardwareInterface::~PixyHardwareInterface()
@@ -70,6 +71,7 @@ namespace pandora_hardware_interface
     
     void PixyHardwareInterface::write()
     {
+      pixy_get_frame(frame_);
       uint16_t target[2];
       target[0] = static_cast<uint16_t>(command_[0]);
       target[1] = static_cast<uint16_t>(command_[1]);
@@ -83,28 +85,30 @@ namespace pandora_hardware_interface
         ROS_DEBUG_STREAM("Pixy servo command out of bounds");
       }
     }
-    
-    void PixyHardwareInterface::get_frame()
-    {
-      cv::Mat frame = cam_->getImage();
-      fillImage(img_, "bgr8", frame.rows, frame.cols, frame.channels() * frame.cols, frame.data);
-
-      image_pub.publish(img_);
-      
-    }
+    //~ void get_frame()
+  //~ {
+    //~ ROS_INFO("YOOOOOOOOOOO");
+    //~ pixy_get_frame(frame_);
+    //~ fillImage(img_, "bgr8", frame_.rows, frame_.cols, frame_.channels() * frame_.cols, frame_.data);
+//~ 
+    //~ image_pub.publish(img_);
+  //~ }
     
     void PixyHardwareInterface::readJointNameFromParamServer()
   {
     std::string name;
     nodeHandle_.getParam(
-      "pixy_servo_joint/pan_joint",
+      "pixy_pitch_joint",
       name);
     jointNames_.push_back(name);
     nodeHandle_.getParam(
-      "pixy_servo_joint/tilt_joint",
+      "pixy_yaw_joint",
       name);
     jointNames_.push_back(name);
   }
+  
+  
+  
     
     
   }

@@ -19,6 +19,10 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <pixydefs.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <boost/thread/mutex.hpp>
 
 // Pixy C API //
 
@@ -63,10 +67,11 @@ extern "C"
             sig[j++] = d + '0';
         }
         sig[j] = '\0';	
-        //sprintf(buf, "CC block! sig: %s (%d decimal) x: %d y: %d width: %d height: %d angle %d", sig, signature, x, y, width, height, angle);
+        //~ sprintf(buf, "CC block! sig: %s (%d decimal) x: %d y: %d width: %d height: %d angle %d", sig, signature, x, y, width, height, angle);
       }
-      else ; // regular block.  Note, angle is always zero, so no need to print
-       //sprintf(buf, "sig: %d x: %d y: %d width: %d height: %d", signature, x, y, width, height);		
+      else // regular block.  Note, angle is always zero, so no need to print
+        //~ sprintf(buf, "sig: %d x: %d y: %d width: %d height: %d", signature, x, y, width, height);		
+        ;
     }
 
     uint16_t type;
@@ -274,7 +279,17 @@ extern "C"
     @return      Negative  Error
   */
   int pixy_get_firmware_version(uint16_t * major, uint16_t * minor, uint16_t * build);
+  
+  
+  int pixy_get_frame(cv::Mat &imagen);
+  
+inline void interpolateBayer(unsigned int width, unsigned int x, unsigned int y, unsigned char *pixel, unsigned int &r, unsigned int &g, unsigned int &b);
+  
+  int renderBA81(uint8_t renderFlags, uint16_t width, uint16_t height, uint32_t frameLen, uint8_t *frame,cv::Mat &imagen);
 
+  int pixy_run();
+  
+  int pixy_stop();
 
 #ifdef __cplusplus
 }

@@ -21,9 +21,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
-    pixy_com_interface/include/pixy_com_interface/common
-    pixy_com_interface/include/pixy_com_interface/libpixyusb
-    pixy_hardware_interface/include/pixy_hardware_interface/pixy_cam
+    pixy_com_interface/include
+    pixy_com_interface/include/common
+    pixy_com_interface/src
     pixy_hardware_interface/include/pixy_hardware_interface
 )
 

@@ -35,7 +35,7 @@ int PixyInterpreter::init()
 
   if(thread_dead_ == false) 
   {
-    fprintf(stderr, "libpixy: Already initialized.");
+    //~ fprintf(stderr, "libpixy: Already initialized.");
     return 0;
   }
 
@@ -168,7 +168,7 @@ void PixyInterpreter::interpreter_thread()
 }
 
 
-void PixyInterpreter::interpret_data(void * chirp_data[])
+void PixyInterpreter::interpret_data(const void * chirp_data[])
 {
   uint8_t  chirp_message;
   uint32_t chirp_type;
@@ -197,7 +197,7 @@ void PixyInterpreter::interpret_data(void * chirp_data[])
           case FOURCC('C', 'M', 'V', '1'):
             break;
           default:
-            printf("libpixy: Chirp hint [%u] not recognized.\n", chirp_type);
+            //~ printf("libpixy: Chirp hint [%u] not recognized.\n", chirp_type);
             break;
         }
 
@@ -209,13 +209,13 @@ void PixyInterpreter::interpret_data(void * chirp_data[])
       
       default:
        
-       fprintf(stderr, "libpixy: Unknown message received from Pixy: [%u]\n", chirp_message);
+       //~ fprintf(stderr, "libpixy: Unknown message received from Pixy: [%u]\n", chirp_message);
        break;
     }
   } 
 }
 
-void PixyInterpreter::interpret_CCB1( void * CCB1_data[])
+void PixyInterpreter::interpret_CCB1(const void * CCB1_data[])
 {
   uint32_t       number_of_blobs;
   const BlobA *  blobs;
@@ -237,7 +237,7 @@ void PixyInterpreter::interpret_CCB1( void * CCB1_data[])
 }
 
 
-void PixyInterpreter::interpret_CCB2( void * CCB2_data[])
+void PixyInterpreter::interpret_CCB2(const void * CCB2_data[])
 {
   uint32_t       number_of_blobs;
   const BlobA *  A_blobs;

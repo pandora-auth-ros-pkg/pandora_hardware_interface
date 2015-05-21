@@ -1,0 +1,23 @@
+<launch>
+  <!-- load configuration -->
+  <rosparam
+    command="load"
+    file="$(find pandora_pixy_hardware_interface)/pixy_hardware_interface/config/pixy_hardware_interface.yaml"
+    ns="/pixy"/>
+
+  <!-- Launch controller manager with pandora hardware interface-->
+  <node
+    name="pixy_hardware_interface_node"
+    pkg="pandora_pixy_hardware_interface"
+    type="pixy_hardware_interface_node"
+    output="screen"
+    ns="/pixy">
+    <remap
+      to="/pixy_pitch_controller/command"
+      from="/pixy/pixy_pitch_controller/command"/>
+    <remap
+      to="/pixy_yaw_controller/command"
+      from="/pixy/pixy_yaw_controller/command"/>
+  </node>
+    
+</launch>

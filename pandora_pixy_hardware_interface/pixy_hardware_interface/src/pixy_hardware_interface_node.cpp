@@ -1,6 +1,5 @@
 #include "ros/ros.h"
 #include "pixy_hardware_interface.h"
-#include <sensor_msgs/fill_image.h>
 #include <self_test/self_test.h>
 #include <image_transport/image_transport.h>
 
@@ -10,7 +9,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "pixycam.h"
+
 
 
 int main(int argc, char **argv)
@@ -20,11 +19,10 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nodeHandle;
   
-  PixyCam cam;
   
-  pandora_hardware_interface::pixy::PixyHardwareInterface
+    pandora_hardware_interface::pixy::PixyHardwareInterface
     pixyHardwareInterface(
-    nodeHandle,&cam);
+    nodeHandle);
   controller_manager::ControllerManager controllerManager(
     &pixyHardwareInterface,
     nodeHandle);
@@ -42,17 +40,16 @@ int main(int argc, char **argv)
 
   ros::Rate loop_rate(10);
 
-  boost::thread workerThread(&PixyCam::run, pixyHardwareInterface.cam_);
-//    cam.run();
+
 
   int count = 0;
   while (ros::ok()){
-
+      
       pixyHardwareInterface.get_frame();
 
-      //~ pixyHardwareInterface.read();
-      //~ controllerManager.update(now, period);
-      //~ pixyHardwareInterface.write();
+      pixyHardwareInterface.read();
+      controllerManager.update(now, period);
+      pixyHardwareInterface.write();
 
       loop_rate.sleep();
       ++count;

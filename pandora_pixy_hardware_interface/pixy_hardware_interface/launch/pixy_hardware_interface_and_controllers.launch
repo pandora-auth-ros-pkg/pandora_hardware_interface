@@ -1,0 +1,9 @@
+<launch>
+  <!-- Launch controller manager with pandora hardware interface-->
+  <include
+    file="$(find pandora_pixy_hardware_interface)/pixy_hardware_interface/launch/pixy_hardware_interface.launch" />
+
+  <!-- spawn controllers -->
+  <include
+    file="$(find pandora_pixy_hardware_interface)/pixy_hardware_interface/launch/pixy_controller.launch" />
+</launch>

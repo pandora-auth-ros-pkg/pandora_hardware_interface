@@ -284,9 +284,9 @@ int Blobs::blobify()
 #if 0
     static int frame = 0;
     if (m_numBlobs>0)
-        cprintf("%d: blobs %d %d %d %d %d\n", frame, m_numBlobs, m_blobs[1], m_blobs[2], m_blobs[3], m_blobs[4]);
+        //~ cprintf("%d: blobs %d %d %d %d %d\n", frame, m_numBlobs, m_blobs[1], m_blobs[2], m_blobs[3], m_blobs[4]);
     else
-        cprintf("%d: blobs 0\n", frame);
+        //~ cprintf("%d: blobs 0\n", frame);
     frame++;
 #endif
 	return 0;
