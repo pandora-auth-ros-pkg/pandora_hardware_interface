@@ -54,6 +54,7 @@ catkin_package(
     dynamic_reconfigure
   LIBRARIES
     skid_steer_drive_controller
+    skid_steer_new_controller
 #  DEPENDS
 )
 
