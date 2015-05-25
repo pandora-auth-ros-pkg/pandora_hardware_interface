@@ -2,9 +2,10 @@
   <arg name="robot" default="woody" />
   <arg name="namespace" default="motor" />
 
+  <!-- load configuration -->
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_new_controller.yaml"
+    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/joint_state_controller.yaml"
     ns="$(arg namespace)"/>
 
   <rosparam
@@ -12,8 +13,7 @@
     file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_new_controller.yaml"
     ns="$(arg namespace)"/>
 
- <!-- TEST IF NEEDED -->
- <param
+  <param
     name="robot_description"
     command="$(find xacro)/xacro.py '$(find pandora_robots_description)/urdf/$(arg robot)/bringup.urdf.xacro'"/>
 
@@ -26,5 +26,5 @@
     args="
       spawn
       joint_state_controller
-      skid_steer_new_controller" />
-  </launch>
+      skid_steer_test_controller" />
+</launch>

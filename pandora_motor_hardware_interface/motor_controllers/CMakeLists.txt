@@ -9,8 +9,8 @@ target_link_libraries(
 
 #Add new controller as library
 add_library(
-  skid_steer_new_controller
+  skid_steer_test_controller
   src/skid_steer_new_controller.cpp)
 target_link_libraries(
-  skid_steer_new_controller
+  skid_steer_test_controller
   ${catkin_LIBRARIES})
