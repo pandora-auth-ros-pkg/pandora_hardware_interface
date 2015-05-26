@@ -67,7 +67,7 @@ namespace motor
      * \param controller_nh Node handle inside the controller namespace
      */
       bool init(hardware_interface::VelocityJointInterface* hw,
-                ros::NodeHandle ns);
+                ros::NodeHandle &ns);
 
       void update(const ros::Time& time, const ros::Duration& period);
       void starting(const ros::Time& time) { }
