@@ -95,7 +95,7 @@ namespace motor
     registerInterface(&effortJointInterface_);*/
 
     // Set mode to torque control for writeTorques() test
-    motors_->setMode(1);
+    motors_->setMode(0);
 
     // Dynamic reconfig settings
     f = boost::bind(&MotorHardwareInterface::reconfigCallback,this, _1, _2);  // Check again

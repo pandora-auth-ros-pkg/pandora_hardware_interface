@@ -7,7 +7,7 @@
 
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_drive_controller.yaml"
+    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_test_controller.yaml"
     ns="$(arg namespace)"/>
 
   <param
@@ -20,5 +20,5 @@
     pkg="controller_manager"
     type="controller_manager" output="screen"
     ns="$(arg namespace)"
-    args="spawn skid_steer_drive_controller" />
+    args="spawn skid_steer_test_controller" />
 </launch>
