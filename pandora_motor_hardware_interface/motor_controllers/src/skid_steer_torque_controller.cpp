@@ -38,36 +38,35 @@
  * Author: Elisabet Papadopoulou     <papaelisabet@gmail.com >
  */
 
-#include "motor_controllers/skid_steer_new_controller.h"
+#include "motor_controllers/skid_steer_torque_controller.h"
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
 
-  bool SkidSteerTestController::init(hardware_interface::VelocityJointInterface* hw,
-                                                                  ros::NodeHandle &ns)
+  bool SkidSteerTorqueController::init(hardware_interface::EffortJointInterface* hw,
+                ros::NodeHandle &nh)
   {
-
     // Load Joints from HW Interface , load joint NAMES from YAML
     std::string left_front_wheel_joint_name, right_front_wheel_joint_name;
     std::string left_rear_wheel_joint_name, right_rear_wheel_joint_name;
 
     ROS_INFO("STARTING CONTROLLER");
    
-    if (!ns.getParam("left_front_wheel", left_front_wheel_joint_name)){
+    if (!nh.getParam("left_front_wheel", left_front_wheel_joint_name)){
       ROS_ERROR("Could not find left fron wheel joint name");
       return false;
     }
-    if (!ns.getParam("right_front_wheel",right_front_wheel_joint_name )){
+    if (!nh.getParam("right_front_wheel",right_front_wheel_joint_name )){
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("left_rear_wheel",left_rear_wheel_joint_name )){
+    if (!nh.getParam("left_rear_wheel",left_rear_wheel_joint_name )){
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("right_rear_wheel",right_rear_wheel_joint_name)){
+    if (!nh.getParam("right_rear_wheel",right_rear_wheel_joint_name)){
       ROS_ERROR("Could not find joint name");
       return false;
     }
@@ -79,44 +78,31 @@ namespace motor
     right_rear_wheel_joint_ = hw->getHandle(right_rear_wheel_joint_name);
 
     // Subscirbe to cmd_vel
-    command_listener_ = ns.subscribe("/cmd_vel",
+    command_listener_ = nh.subscribe("/cmd_trq",
                                        1,
-                                       &SkidSteerTestController::commandCallback,
+                                       &SkidSteerTorqueController::commandCallback,
                                        this);
-    
+
     ROS_INFO("Successfully Initiallized controller!");
     return true;
   }
 
-  void SkidSteerTestController::update(const ros::Time& time, const ros::Duration& period)
+  void SkidSteerTorqueController::update(const ros::Time& time, const ros::Duration& period)
   {
-    // Update with latest cmd_vel commands
-    double w = command_struct_.ang;
-    double v = command_struct_.lin;
-    double a = 1.5;
-    double B = 0.35;
-    double wheel_radius = 0.0975;
-
-    // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
-    const double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
-    const double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w;
-    // BEWARE!! : invert axes !! (paper vs URDF)
-
-    // Set Joint Commands
-    ROS_INFO("%f %f",vel_left,vel_right);
-
-    left_front_wheel_joint_.setCommand(vel_left);
-    left_rear_wheel_joint_.setCommand(vel_left);
-    right_front_wheel_joint_.setCommand(vel_right);
-    right_rear_wheel_joint_.setCommand(vel_right);
+    left_front_wheel_joint_.setCommand(command_struct_.left_rear_wheel_torque);
+    left_rear_wheel_joint_.setCommand(command_struct_.left_front_wheel_torque);
+    right_front_wheel_joint_.setCommand(command_struct_.right_rear_wheel_torque);
+    right_rear_wheel_joint_.setCommand(command_struct_.right_front_wheel_torque);
   }
 
-  void SkidSteerTestController::commandCallback(const geometry_msgs::Twist& command)
+  void SkidSteerTorqueController::commandCallback(const pandora_sensor_msgs::TorqueMsg & command)
   {
-    // Update command struct
-    command_struct_.ang   = command.angular.z;
-    command_struct_.lin   = command.linear.x;
-    command_struct_.stamp = ros::Time::now();
+    // Update command_struct_ with latest information
+    command_struct_.left_rear_wheel_torque   = command.left_rear_wheel_torque;
+    command_struct_.left_front_wheel_torque  = command.left_front_wheel_torque;
+    command_struct_.right_rear_wheel_torque  = command.right_rear_wheel_torque;
+    command_struct_.right_front_wheel_torque = command.right_front_wheel_torque;
+    command_struct_.stamp                    = ros::Time::now();
   }
 
 }  // namespace motor
