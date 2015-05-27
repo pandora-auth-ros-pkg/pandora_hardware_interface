@@ -103,11 +103,11 @@ namespace pandora_hardware_interface
     {
       uint16_t target[2];
       float cmd[2];
-      cmd[0] = (command_[0] / 90.0) * 500 + 500;
-      cmd[1] = (command_[1] / 90.0) * 500 + 500;
+      cmd[0] = (command_[0] / (3.14*65.0/180)) * 500 + 500;
+      cmd[1] = (command_[1] / (3.14*90.0/180)) * 500 + 500;
       target[0] = static_cast<uint16_t>(cmd[0]);
       target[1] = static_cast<uint16_t>(cmd[1]);
-      if (target[0] >= 0 && target[0] <= 999   &&  target[1] >= 0 && target[1] <= 999)
+      if (target[0] >= 0 && target[0] <= 1000   &&  target[1] >= 0 && target[1] <= 1000)
       {
         pixy_rcs_set_position(0, target[0]);
         pixy_rcs_set_position(1, target[1]);
