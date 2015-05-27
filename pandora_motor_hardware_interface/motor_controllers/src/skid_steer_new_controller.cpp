@@ -55,19 +55,19 @@ namespace motor
 
     ROS_INFO("STARTING CONTROLLER");
    
-    if (!ns.getParam("left_front_wheel_joint", left_front_wheel_joint_name)){
+    if (!ns.getParam("left_front_wheel", left_front_wheel_joint_name)){
+      ROS_ERROR("Could not find left fron wheel joint name");
+      return false;
+    }
+    if (!ns.getParam("right_front_wheel",right_front_wheel_joint_name )){
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("right_front_wheel_joint",right_front_wheel_joint_name )){
+    if (!ns.getParam("left_rear_wheel",left_rear_wheel_joint_name )){
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("left_rear_wheel_joint",left_rear_wheel_joint_name )){
-      ROS_ERROR("Could not find joint name");
-      return false;
-    }
-    if (!ns.getParam("right_rear_wheel_joint",right_rear_wheel_joint_name)){
+    if (!ns.getParam("right_rear_wheel",right_rear_wheel_joint_name)){
       ROS_ERROR("Could not find joint name");
       return false;
     }
@@ -79,7 +79,6 @@ namespace motor
     right_rear_wheel_joint_ = hw->getHandle(right_rear_wheel_joint_name);
 
     // Subscirbe to cmd_vel
-    
     command_listener_ = ns.subscribe("/cmd_vel",
                                        1,
                                        &SkidSteerTestController::commandCallback,
@@ -99,8 +98,9 @@ namespace motor
     double wheel_radius = 0.0975;
 
     // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
-    const double vel_left  = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w;
-    const double vel_right = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+    const double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+    const double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w;
+    // BEWARE!! : invert axes !! (paper vs URDF)
 
     // Set Joint Commands
     ROS_INFO("%f %f",vel_left,vel_right);

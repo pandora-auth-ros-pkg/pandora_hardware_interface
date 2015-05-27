@@ -72,7 +72,7 @@ namespace motor
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
 
-      // hardware_interface::EffortJointInterface effortJointInterface_;
+      hardware_interface::EffortJointInterface effortJointInterface_;
 
       // Dynamic reconfigure server
       dynamic_reconfigure::Server<pandora_motor_hardware_interface::TorqueConfig> server;
