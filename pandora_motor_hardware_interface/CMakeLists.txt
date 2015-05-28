@@ -32,6 +32,7 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 
 generate_dynamic_reconfigure_options(
   motor_hardware_interface/cfg/torqueControl.cfg
+  motor_controllers/config/frictionCoefficient.cfg
 )
 
 catkin_package(
