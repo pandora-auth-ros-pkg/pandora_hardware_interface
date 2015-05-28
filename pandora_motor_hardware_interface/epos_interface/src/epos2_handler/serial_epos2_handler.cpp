@@ -179,13 +179,13 @@ namespace motor
   void SerialEpos2Handler::getRPM(int* leftRearRpm, int* leftFrontRpm,
     int* rightRearRpm, int* rightFrontRpm)
   {
-    epos2Gateway_->read_velocityActual(rightFrontMotor_->nodeId_,
+    epos2Gateway_->read_velocityAvg(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->rpm_);
-    epos2Gateway_->read_velocityActual(rightRearMotor_->nodeId_,
+    epos2Gateway_->read_velocityAvg(rightRearMotor_->nodeId_,
       &rightRearMotor_->rpm_);
-    epos2Gateway_->read_velocityActual(leftFrontMotor_->nodeId_,
+    epos2Gateway_->read_velocityAvg(leftFrontMotor_->nodeId_,
       &leftFrontMotor_->rpm_);
-    epos2Gateway_->read_velocityActual(leftRearMotor_->nodeId_,
+    epos2Gateway_->read_velocityAvg(leftRearMotor_->nodeId_,
       &leftRearMotor_->rpm_);
     *rightFrontRpm = rightFrontMotor_->rpm_;
     *rightRearRpm = rightRearMotor_->rpm_;
@@ -196,13 +196,13 @@ namespace motor
   void SerialEpos2Handler::getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
     int* rightRearCurrent, int* rightFrontCurrent)
   {
-    epos2Gateway_->read_currentActual(rightFrontMotor_->nodeId_,
+    epos2Gateway_->read_currentAvg(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->current_);
-    epos2Gateway_->read_currentActual(rightRearMotor_->nodeId_,
+    epos2Gateway_->read_currentAvg(rightRearMotor_->nodeId_,
       &rightRearMotor_->current_);
-    epos2Gateway_->read_currentActual(leftFrontMotor_->nodeId_,
+    epos2Gateway_->read_currentAvg(leftFrontMotor_->nodeId_,
       &leftFrontMotor_->current_);
-    epos2Gateway_->read_currentActual(leftRearMotor_->nodeId_,
+    epos2Gateway_->read_currentAvg(leftRearMotor_->nodeId_,
       &leftRearMotor_->current_);
     *rightFrontCurrent = static_cast<int>(rightFrontMotor_->current_);
     *rightRearCurrent = static_cast<int>(rightRearMotor_->current_);
