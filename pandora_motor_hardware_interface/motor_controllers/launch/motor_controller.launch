@@ -10,7 +10,7 @@
 
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_drive_controller.yaml"
+    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_test_controller.yaml"
     ns="$(arg namespace)"/>
 
   <param
@@ -26,5 +26,5 @@
     args="
       spawn
       joint_state_controller
-      skid_steer_drive_controller" />
+      skid_steer_test_controller" />
 </launch>
