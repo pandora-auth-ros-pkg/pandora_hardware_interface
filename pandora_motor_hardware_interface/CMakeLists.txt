@@ -55,6 +55,7 @@ catkin_package(
   LIBRARIES
     skid_steer_drive_controller
     skid_steer_new_controller
+    skid_steer_torque_controller
 #  DEPENDS
 )
 
