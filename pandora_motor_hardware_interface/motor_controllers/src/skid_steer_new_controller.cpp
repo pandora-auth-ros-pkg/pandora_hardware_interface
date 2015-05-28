@@ -103,7 +103,7 @@ namespace motor
     // BEWARE!! : invert axes !! (paper vs URDF)
 
     // Set Joint Commands
-    ROS_INFO("%f %f",vel_left,vel_right);
+    // ROS_INFO("%f %f",vel_left,vel_right);
 
     left_front_wheel_joint_.setCommand(vel_left);
     left_rear_wheel_joint_.setCommand(vel_left);
