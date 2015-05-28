@@ -73,7 +73,7 @@ namespace motor
       void update(const ros::Time& time, const ros::Duration& period);
       void starting(const ros::Time& time) { }
       void stopping(const ros::Time& time) { }
-      void commandCallback(const pandora_sensor_msgs::TorqueMsg & command);
+      void commandCallback(const pandora_sensor_msgs::TorqueMsg& command);
 
     private:  
       /// Hardware joint handles:

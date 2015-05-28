@@ -26,5 +26,5 @@
     args="
       spawn
       joint_state_controller
-      skid_steer_test_controller" />
+      skid_steer_torque_controller" />
 </launch>
