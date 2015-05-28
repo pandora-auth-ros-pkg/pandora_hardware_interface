@@ -46,6 +46,7 @@
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
+// #include <>
 
 #include <geometry_msgs/Twist.h>
 
@@ -64,7 +65,6 @@ namespace motor
      /**
      * \brief Initialize controller
      * \param hw            Velocity joint interface for the wheels
-     * \param root_nh       Node handle at root namespace
      * \param controller_nh Node handle inside the controller namespace
      */
       bool init(hardware_interface::VelocityJointInterface* hw,
