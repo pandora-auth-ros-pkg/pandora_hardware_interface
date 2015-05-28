@@ -1,4 +1,4 @@
-<library path="lib/libskid_steer_test_controller">
+<library path="lib/libskid_steer_test_controller  ">
   <class
     name="pandora_motor/SkidSteerTestController"
     type="pandora_hardware_interface::motor::SkidSteerTestController"

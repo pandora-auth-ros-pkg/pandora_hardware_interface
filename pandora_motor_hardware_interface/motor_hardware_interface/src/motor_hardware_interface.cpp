@@ -71,6 +71,11 @@ namespace motor
     registerInterface(&jointStateInterface_);
 
 
+    torque_command_[0] = 0;
+    torque_command_[1] = 0;
+    torque_command_[2] = 0;
+    torque_command_[3] = 0;
+
 
     // connect and register the joint velocity interface
     for (int ii = 0; ii < jointNames_.size(); ii++)
@@ -95,7 +100,7 @@ namespace motor
     registerInterface(&effortJointInterface_);
 
     // Set mode to torque control for writeTorques() test
-    motors_->setMode(0);
+    motors_->setMode(1);
 
     // Dynamic reconfig settings
     f = boost::bind(&MotorHardwareInterface::reconfigCallback,this, _1, _2);  // Check again

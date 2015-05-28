@@ -103,6 +103,7 @@ namespace motor
     command_struct_.right_rear_wheel_torque  = command.right_rear_wheel_torque;
     command_struct_.right_front_wheel_torque = command.right_front_wheel_torque;
     command_struct_.stamp                    = ros::Time::now();
+
   }
 
 }  // namespace motor
