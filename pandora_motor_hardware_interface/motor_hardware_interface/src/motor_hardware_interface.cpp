@@ -1,4 +1,3 @@
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -70,11 +69,14 @@ namespace motor
     }
     registerInterface(&jointStateInterface_);
 
-
+    // Initiallize Torque Commands
     torque_command_[0] = 0;
     torque_command_[1] = 0;
     torque_command_[2] = 0;
     torque_command_[3] = 0;
+
+    // Register Joint Mode Interface
+    // JointModeInterface_.registerHandle(hardware_interface::JointModeHandle("control_mode", &control_mode_));
 
 
     // connect and register the joint velocity interface
@@ -100,7 +102,7 @@ namespace motor
     registerInterface(&effortJointInterface_);
 
     // Set mode to torque control for writeTorques() test
-    motors_->setMode(1);
+    motors_->setMode(0);
 
     // Dynamic reconfig settings
     f = boost::bind(&MotorHardwareInterface::reconfigCallback,this, _1, _2);  // Check again
@@ -204,6 +206,19 @@ namespace motor
       ROS_DEBUG_STREAM("Torque Commands: " << torque_command_[0] << ", " << torque_command_[1]
                                     << ", "  <<  torque_command_[2] << ", " << torque_command_[3]);
     }
+
+/*  switch (*control_mode_)
+  {
+    case hardware_interface::MODE_POSITION:
+      // Send position command
+      break;
+    case hardware_interface::MODE_VELOCITY:
+      // Send velocity command
+      break;
+    case hardware_interface::MODE_EFFORT:
+      // Send effort command
+      break;
+  }*/
   }
 
   void MotorHardwareInterface::readJointNameFromParamServer()

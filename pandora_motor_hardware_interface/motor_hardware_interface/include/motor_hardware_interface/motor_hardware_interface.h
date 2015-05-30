@@ -1,4 +1,3 @@
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -71,9 +70,12 @@ namespace motor
       // ROS Control interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
-
       hardware_interface::EffortJointInterface effortJointInterface_;
 
+/*      // Switch Mode Interface
+      hardware_interface::JointModeInterface JointModeInterface_;
+      int control_mode_;
+*/
       // Dynamic reconfigure server
       dynamic_reconfigure::Server<pandora_motor_hardware_interface::TorqueConfig> server;
       dynamic_reconfigure::Server<pandora_motor_hardware_interface::TorqueConfig>::CallbackType f;
