@@ -38,14 +38,14 @@
  * Author: Elisabet Papadopoulou     <papaelisabet@gmail.com >
  */
 
-#include "motor_controllers/skid_steer_new_controller.h"
+#include "motor_controllers/skid_steer_velocity_controller.h"
 
 namespace pandora_hardware_interface
 {
 namespace motor
 {
 
-  bool SkidSteerTestController::init(hardware_interface::VelocityJointInterface* hw,
+  bool SkidSteerVelocityController::init(hardware_interface::VelocityJointInterface* hw,
                                                                   ros::NodeHandle &ns)
   {
 
@@ -81,14 +81,14 @@ namespace motor
     // Subscirbe to cmd_vel
     command_listener_ = ns.subscribe("/cmd_vel",
                                        1,
-                                       &SkidSteerTestController::commandCallback,
+                                       &SkidSteerVelocityController::commandCallback,
                                        this);
     
     ROS_INFO("Successfully Initiallized controller!");
     return true;
   }
 
-  void SkidSteerTestController::update(const ros::Time& time, const ros::Duration& period)
+  void SkidSteerVelocityController::update(const ros::Time& time, const ros::Duration& period)
   {
     // Update with latest cmd_vel commands
     double w = command_struct_.ang;
@@ -111,7 +111,7 @@ namespace motor
     right_rear_wheel_joint_.setCommand(vel_right);
   }
 
-  void SkidSteerTestController::commandCallback(const geometry_msgs::Twist& command)
+  void SkidSteerVelocityController::commandCallback(const geometry_msgs::Twist& command)
   {
     // Update command struct
     command_struct_.ang   = command.angular.z;

@@ -39,14 +39,13 @@
  * Author: Elisabet Papadopoulou     <papaelisabet@gmail.com >
  */
 
-#ifndef PANDORA_TEST_SKID_STEER_CONTROLLER_H
-#define PANDORA_TEST_SKID_STEER_CONTROLLER_H
+#ifndef PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H
+#define PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H
 
 #include <ros/ros.h>
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
-// #include <>
 
 #include <geometry_msgs/Twist.h>
 
@@ -54,13 +53,13 @@ namespace pandora_hardware_interface
 {
 namespace motor
 {
-  class SkidSteerTestController
+  class SkidSteerVelocityController
       : public controller_interface::Controller<hardware_interface::VelocityJointInterface>
   {
     public:
       /// Controller Functions
 
-      SkidSteerTestController() {}
+      SkidSteerVelocityController() {}
 
      /**
      * \brief Initialize controller
@@ -98,10 +97,10 @@ namespace motor
   };
 
   PLUGINLIB_EXPORT_CLASS(
-    pandora_hardware_interface::motor::SkidSteerTestController,
+    pandora_hardware_interface::motor::SkidSteerVelocityController,
     controller_interface::ControllerBase);
 
 }  //  namespace motor
 }  //  namespace pandora_hardware_interface
 
-#endif  // PANDORA_TEST_SKID_STEER_CONTROLLER_H
+#endif  // PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H

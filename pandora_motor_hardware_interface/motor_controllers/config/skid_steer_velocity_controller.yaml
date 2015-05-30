@@ -1,5 +1,5 @@
-skid_steer_test_controller:
-  type: pandora_motor/SkidSteerTestController
+skid_steer_velocity_controller:
+  type: pandora_motor/SkidSteerVelocityController
   left_front_wheel: left_front_wheel_joint
   right_front_wheel: right_front_wheel_joint
   left_rear_wheel: left_rear_wheel_joint

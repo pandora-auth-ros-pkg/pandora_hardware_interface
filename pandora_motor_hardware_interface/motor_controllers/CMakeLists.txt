@@ -7,12 +7,12 @@ target_link_libraries(
   skid_steer_drive_controller
   ${catkin_LIBRARIES})
 
-#Add new controller as library
+#Add velocity controller as library
 add_library(
-  skid_steer_test_controller
-  src/skid_steer_new_controller.cpp)
+  skid_steer_velocity_controller
+  src/skid_steer_velocity_controller.cpp)
 target_link_libraries(
-  skid_steer_test_controller
+  skid_steer_velocity_controller
   ${catkin_LIBRARIES})
 
 #Add torque controller as library
