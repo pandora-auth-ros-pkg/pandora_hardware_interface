@@ -69,16 +69,6 @@ namespace motor
     }
     registerInterface(&jointStateInterface_);
 
-    // Initiallize Torque Commands
-    torque_command_[0] = 0;
-    torque_command_[1] = 0;
-    torque_command_[2] = 0;
-    torque_command_[3] = 0;
-
-    // Register Joint Mode Interface
-    // JointModeInterface_.registerHandle(hardware_interface::JointModeHandle("control_mode", &control_mode_));
-
-
     // connect and register the joint velocity interface
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
@@ -89,8 +79,6 @@ namespace motor
     }
     registerInterface(&velocityJointInterface_);
 
-
-    // connect and register the joint EFFORT interface
     // Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
@@ -101,13 +89,8 @@ namespace motor
     }
     registerInterface(&effortJointInterface_);
 
-    // Set mode to torque control for writeTorques() test
+    // Set motor control mode
     motors_->setMode(0);
-
-    // Dynamic reconfig settings
-    f = boost::bind(&MotorHardwareInterface::reconfigCallback,this, _1, _2);  // Check again
-    server.setCallback(f);
-
 
     motorCurrentsMsg_.name.push_back(
       "Node 1, Left_Front Motor, EPOS2 Gateway");
@@ -192,9 +175,6 @@ namespace motor
 
     else if (motors_->getMode() == 1)
     {
-      // Current control Modes
-      // Temp :later will be filled by ros control
-
       // Probably add if else struct for controlling torque limits
       // !!! IMPORTANT : Make sure that torque commands are given in the correct order
       motors_->writeTorques(
@@ -206,20 +186,8 @@ namespace motor
       ROS_DEBUG_STREAM("Torque Commands: " << torque_command_[0] << ", " << torque_command_[1]
                                     << ", "  <<  torque_command_[2] << ", " << torque_command_[3]);
     }
-
-/*  switch (*control_mode_)
-  {
-    case hardware_interface::MODE_POSITION:
-      // Send position command
-      break;
-    case hardware_interface::MODE_VELOCITY:
-      // Send velocity command
-      break;
-    case hardware_interface::MODE_EFFORT:
-      // Send effort command
-      break;
-  }*/
   }
+
 
   void MotorHardwareInterface::readJointNameFromParamServer()
   {
@@ -240,17 +208,6 @@ namespace motor
       "motor_joints/robot_movement_joints/right_rear_joint",
       name);
     jointNames_.push_back(name);
-  }
-
-  void MotorHardwareInterface::reconfigCallback(
-                                                pandora_motor_hardware_interface::TorqueConfig &config,
-                                                uint32_t level)
-  {
-    ROS_INFO("Reconfigure Callback");
-    torque_command_[0] = config.left_rear_torque;
-    torque_command_[1] = config.left_front_torque;
-    torque_command_[2] = config.right_rear_torque;
-    torque_command_[3] = config.right_front_torque;
   }
 
 }  // namespace motor

@@ -53,20 +53,24 @@ namespace motor
     std::string left_rear_wheel_joint_name, right_rear_wheel_joint_name;
 
     ROS_INFO("STARTING CONTROLLER");
-   
-    if (!nh.getParam("left_front_wheel", left_front_wheel_joint_name)){
+
+    if (!nh.getParam("left_front_wheel", left_front_wheel_joint_name))
+    {
       ROS_ERROR("Could not find left fron wheel joint name");
       return false;
     }
-    if (!nh.getParam("right_front_wheel",right_front_wheel_joint_name )){
+    if (!nh.getParam("right_front_wheel", right_front_wheel_joint_name ))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!nh.getParam("left_rear_wheel",left_rear_wheel_joint_name )){
+    if (!nh.getParam("left_rear_wheel", left_rear_wheel_joint_name ))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!nh.getParam("right_rear_wheel",right_rear_wheel_joint_name)){
+    if (!nh.getParam("right_rear_wheel", right_rear_wheel_joint_name))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
@@ -103,7 +107,6 @@ namespace motor
     command_struct_.right_rear_wheel_torque  = command.right_rear_wheel_torque;
     command_struct_.right_front_wheel_torque = command.right_front_wheel_torque;
     command_struct_.stamp                    = ros::Time::now();
-
   }
 
 }  // namespace motor

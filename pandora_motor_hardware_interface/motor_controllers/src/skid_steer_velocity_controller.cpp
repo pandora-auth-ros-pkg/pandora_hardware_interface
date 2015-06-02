@@ -48,26 +48,29 @@ namespace motor
   bool SkidSteerVelocityController::init(hardware_interface::VelocityJointInterface* hw,
                                                                   ros::NodeHandle &ns)
   {
-
     // Load Joints from HW Interface , load joint NAMES from YAML
     std::string left_front_wheel_joint_name, right_front_wheel_joint_name;
     std::string left_rear_wheel_joint_name, right_rear_wheel_joint_name;
 
     ROS_INFO("STARTING CONTROLLER");
-   
-    if (!ns.getParam("left_front_wheel", left_front_wheel_joint_name)){
+
+    if (!ns.getParam("left_front_wheel", left_front_wheel_joint_name))
+    {
       ROS_ERROR("Could not find left fron wheel joint name");
       return false;
     }
-    if (!ns.getParam("right_front_wheel",right_front_wheel_joint_name )){
+    if (!ns.getParam("right_front_wheel", right_front_wheel_joint_name ))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("left_rear_wheel",left_rear_wheel_joint_name )){
+    if (!ns.getParam("left_rear_wheel", left_rear_wheel_joint_name ))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
-    if (!ns.getParam("right_rear_wheel",right_rear_wheel_joint_name)){
+    if (!ns.getParam("right_rear_wheel", right_rear_wheel_joint_name))
+    {
       ROS_ERROR("Could not find joint name");
       return false;
     }
@@ -83,7 +86,7 @@ namespace motor
                                        1,
                                        &SkidSteerVelocityController::commandCallback,
                                        this);
-    
+
     ROS_INFO("Successfully Initiallized controller!");
     return true;
   }

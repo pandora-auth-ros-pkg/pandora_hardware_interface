@@ -38,9 +38,8 @@
  * Author: Elisabet Papadopoulou     <papaelisabet@gmail.com >
  */
 
-
-#ifndef PANDORA_TORQUE_SKID_STEER_CONTROLLER_H
-#define PANDORA_TORQUE_SKID_STEER_CONTROLLER_H
+#ifndef MOTOR_CONTROLLERS_SKID_STEER_TORQUE_CONTROLLER_H
+#define MOTOR_CONTROLLERS_SKID_STEER_TORQUE_CONTROLLER_H
 
 // Include ros_control specific headers
 #include <controller_interface/controller.h>
@@ -75,17 +74,17 @@ namespace motor
       void stopping(const ros::Time& time) { }
       void commandCallback(const pandora_sensor_msgs::TorqueMsg& command);
 
-    private:  
+    private:
       /// Hardware joint handles:
       hardware_interface::JointHandle left_front_wheel_joint_;
       hardware_interface::JointHandle right_front_wheel_joint_;
       hardware_interface::JointHandle left_rear_wheel_joint_;
       hardware_interface::JointHandle right_rear_wheel_joint_;
 
-      /// ROS subscriber :
+      // ROS subscriber :
       ros::Subscriber command_listener_;
 
-      /// Velocity command related struct
+      // Velocity command related struct
       struct TorqueCommands
       {
         double left_rear_wheel_torque;
@@ -94,14 +93,13 @@ namespace motor
         double right_front_wheel_torque;
         ros::Time stamp;
 
-        TorqueCommands() : left_rear_wheel_torque(0.0), 
-                          left_front_wheel_torque(0.0),
-                          right_rear_wheel_torque(0.0),
-                         right_front_wheel_torque(0.0), 
+        TorqueCommands():left_rear_wheel_torque(0.0),
+                        left_front_wheel_torque(0.0),
+                        right_rear_wheel_torque(0.0),
+                       right_front_wheel_torque(0.0),
                                           stamp(0.0) {}
       };
       TorqueCommands command_struct_;
-
   };
 
   PLUGINLIB_EXPORT_CLASS(
@@ -111,4 +109,4 @@ namespace motor
 }  //  namespace motor
 }  //  namespace pandora_hardware_interface
 
-#endif  // PANDORA_TORQUE_SKID_STEER_CONTROLLER_H
+#endif  // MOTOR_CONTROLLERS_SKID_STEER_TORQUE_CONTROLLER_H

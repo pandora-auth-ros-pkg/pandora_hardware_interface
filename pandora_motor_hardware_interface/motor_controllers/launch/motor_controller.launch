@@ -10,7 +10,7 @@
 
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_torque_velocity.yaml"
+    file="$(find pandora_motor_hardware_interface)/motor_controllers/config/skid_steer_velocity_controller.yaml"
     ns="$(arg namespace)"/>
 
   <param

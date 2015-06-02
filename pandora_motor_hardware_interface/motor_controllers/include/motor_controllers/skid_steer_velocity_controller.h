@@ -1,4 +1,3 @@
-
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
@@ -39,8 +38,8 @@
  * Author: Elisabet Papadopoulou     <papaelisabet@gmail.com >
  */
 
-#ifndef PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H
-#define PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H
+#ifndef MOTOR_CONTROLLERS_SKID_STEER_VELOCITY_CONTROLLER_H
+#define MOTOR_CONTROLLERS_SKID_STEER_VELOCITY_CONTROLLER_H
 
 #include <ros/ros.h>
 #include <controller_interface/controller.h>
@@ -57,8 +56,7 @@ namespace motor
       : public controller_interface::Controller<hardware_interface::VelocityJointInterface>
   {
     public:
-      /// Controller Functions
-
+      // Controller Functions
       SkidSteerVelocityController() {}
 
      /**
@@ -74,7 +72,7 @@ namespace motor
       void stopping(const ros::Time& time) { }
       void commandCallback(const geometry_msgs::Twist & command);
 
-    private:  
+    private:
       /// Hardware joint handles:
       hardware_interface::JointHandle left_front_wheel_joint_;
       hardware_interface::JointHandle right_front_wheel_joint_;
@@ -103,4 +101,4 @@ namespace motor
 }  //  namespace motor
 }  //  namespace pandora_hardware_interface
 
-#endif  // PANDORA_VELOCITY_SKID_STEER_CONTROLLER_H
+#endif  // MOTOR_CONTROLLERS_SKID_STEER_VELOCITY_CONTROLLER_H
