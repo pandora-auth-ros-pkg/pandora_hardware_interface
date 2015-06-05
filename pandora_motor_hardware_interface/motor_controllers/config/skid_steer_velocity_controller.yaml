@@ -6,4 +6,7 @@ skid_steer_velocity_controller:
   right_rear_wheel: right_rear_wheel_joint
   publish_rate: 50
   terrain:1.2
+
+ 
+ 
   

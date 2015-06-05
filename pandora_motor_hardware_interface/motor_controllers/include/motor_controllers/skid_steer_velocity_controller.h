@@ -45,6 +45,8 @@
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
+//#include <joint_limits_interface/joint_limits.h>
+//#include <joint_limits_interface/joint_limits_rosparam.h>
 
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
@@ -80,6 +82,10 @@ namespace motor
       hardware_interface::JointHandle right_front_wheel_joint_;
       hardware_interface::JointHandle left_rear_wheel_joint_;
       hardware_interface::JointHandle right_rear_wheel_joint_;
+
+      
+      //Joint limits
+      //hardware_interface::JointLimits limits;
 
       // cmd_vel ROS subscriber
       ros::Subscriber command_listener_;

@@ -41,6 +41,7 @@
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
+//#include <hardware_interface/joint_limits_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_sensor_msgs/MotorCurrents.h>
@@ -71,8 +72,12 @@ namespace motor
       hardware_interface::EffortJointInterface effortJointInterface_;
 
 
-       // ROS Control joint limits
-      // TODO 
+     // ROS Control joint limits
+
+      //hardware_interface::JointLimitsInterface jointLimitsInterface_;
+
+
+      
 
       // Interface Variables
       std::vector<std::string> jointNames_;
@@ -84,6 +89,7 @@ namespace motor
       double current_[4];
       double maxRPM_;
       double gearboxRatio_;
+      //double limits_;
 
       void readJointNameFromParamServer();
 

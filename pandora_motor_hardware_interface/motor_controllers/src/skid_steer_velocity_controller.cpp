@@ -40,6 +40,17 @@
 
 #include "motor_controllers/skid_steer_velocity_controller.h"
 
+#include <algorithm>
+
+
+template<typename T>
+T clamp(T x, T min, T max)
+{
+  return std::min(std::max(min, x), max);
+}
+
+
+
 namespace pandora_hardware_interface
 {
 namespace motor
@@ -75,6 +86,11 @@ namespace motor
       return false;
     }
 
+    //const bool rosparam_limits_ok = hardware_interface::JointLimitsInterface::agetJointLimits("skid_steer_velocity_controller/linear", ns, joint_limits);
+
+    
+
+
     // Get joint Handles from hw interface
     left_front_wheel_joint_ = hw->getHandle(left_front_wheel_joint_name);
     right_front_wheel_joint_ = hw->getHandle(right_front_wheel_joint_name);
@@ -99,11 +115,40 @@ namespace motor
     double a = command_struct_.terrain_parameter;
     double B = 0.35;
     double wheel_radius = 0.0975;
+    
+    //Add acceleration and velocity limits.
+    double max_velocity=5500;
+    double min_velocity=-5500;
+    double max_acceleration=5000;
+    double min_acceleration=5000;
+
 
     // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
-    const double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
-    const double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w;
+     double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+     double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
     // BEWARE!! : invert axes !! (paper vs URDF)
+    
+   
+  if(vel_left>max_velocity)
+   {  
+    vel_left=clamp(vel_left,min_velocity,max_velocity);
+   }
+  else if (vel_left<min_velocity)
+   {
+   
+    vel_left=clamp(vel_left,min_velocity,max_velocity);
+   }
+
+  if(vel_right>max_velocity)
+   {  
+    vel_right=clamp(vel_right,min_velocity,max_velocity);
+   }
+  else if (vel_right<min_velocity)
+   {
+   
+    vel_right=clamp(vel_right,min_velocity,max_velocity);
+   }
+   
 
     // Set Joint Commands
     // ROS_INFO("%f %f",vel_left,vel_right);
@@ -127,7 +172,9 @@ namespace motor
   void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
   {
     command_struct_.terrain_parameter = terrain.data;
+    ROS_INFO("I GOT IN");
   }
+
 
 
 
