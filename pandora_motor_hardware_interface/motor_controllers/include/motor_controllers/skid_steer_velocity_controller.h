@@ -47,6 +47,7 @@
 #include <pluginlib/class_list_macros.h>
 
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64.h>
 
 namespace pandora_hardware_interface
 {
@@ -71,6 +72,7 @@ namespace motor
       void starting(const ros::Time& time) { }
       void stopping(const ros::Time& time) { }
       void commandCallback(const geometry_msgs::Twist & command);
+      void terrainCallback(const std_msgs::Float64& terrain);
 
     private:
       /// Hardware joint handles:
@@ -87,9 +89,10 @@ namespace motor
       {
         double lin;
         double ang;
+        float terrain_parameter;
         ros::Time stamp;
 
-        Commands() : lin(0.0), ang(0.0), stamp(0.0) {}
+        Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(0) {}
       };
       Commands command_struct_;
   };

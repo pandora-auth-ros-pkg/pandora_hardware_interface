@@ -92,6 +92,10 @@ namespace motor
     // Set motor control mode
     motors_->setMode(0);
 
+
+    // Initiallize jointLimits 
+    // TODO   (use YAML files  (ros_control wiki example))
+
     motorCurrentsMsg_.name.push_back(
       "Node 1, Left_Front Motor, EPOS2 Gateway");
     motorCurrentsMsg_.current.push_back(0);

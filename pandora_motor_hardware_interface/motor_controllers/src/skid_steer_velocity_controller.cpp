@@ -96,7 +96,7 @@ namespace motor
     // Update with latest cmd_vel commands
     double w = command_struct_.ang;
     double v = command_struct_.lin;
-    double a = 1.5;
+    double a = command_struct_.terrain_parameter;
     double B = 0.35;
     double wheel_radius = 0.0975;
 
@@ -117,10 +117,19 @@ namespace motor
   void SkidSteerVelocityController::commandCallback(const geometry_msgs::Twist& command)
   {
     // Update command struct
+    // Update command struct
+    //add terrain_parameter
     command_struct_.ang   = command.angular.z;
     command_struct_.lin   = command.linear.x;
     command_struct_.stamp = ros::Time::now();
   }
+
+  void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
+  {
+    command_struct_.terrain_parameter = terrain.data;
+  }
+
+
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface

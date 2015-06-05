@@ -71,9 +71,6 @@ namespace motor
       hardware_interface::EffortJointInterface effortJointInterface_;
 
 
-       // ROS Control joint limits
-      // TODO 
-
       // Interface Variables
       std::vector<std::string> jointNames_;
       double torque_command_[4];
