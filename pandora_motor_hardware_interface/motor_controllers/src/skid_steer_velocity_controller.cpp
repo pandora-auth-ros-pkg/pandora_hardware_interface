@@ -115,20 +115,57 @@ namespace motor
     double a = command_struct_.terrain_parameter;
     double B = 0.35;
     double wheel_radius = 0.0975;
-    
-    //Add acceleration and velocity limits.
-    double max_velocity=5500;
-    double min_velocity=-5500;
-    double max_acceleration=5000;
-    double min_acceleration=5000;
 
 
-    // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
-     double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
-     double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
-    // BEWARE!! : invert axes !! (paper vs URDF)
+
+  //Add  velocity limits (m/s and m/s^2) linear.
+   double max_vel=0.5;
+   double min_vel=-0.5;
+
+
+//Add velocity limits (rpm) angular.
+   double max_ang=0.8;
+   double min_ang=-0.8;
+
+
+    //Add acceleration and velocity limits(rpm and rpm/s values)
+    double max_velocity=5500 / 113;
+    double min_velocity=-5500 / 113;
+    double max_acceleration=5000 / 113;
+    double min_acceleration=5000 / 113;
+
+  //Simple implementation to limit linear speeds.
+  if(v>max_vel)
+  {
+   v=clamp(v,min_vel,max_vel);
+  }
+ else if (v<min_vel)
+   {
+   
+    v=clamp(v,min_vel,max_vel);
+   }
+
+//Simple implementation to limit angular speeds.
+
+if (w>max_ang)
+{
+w=clamp(w,min_ang,max_ang);
+
+}
+else if(w<min_ang)
+{
+w=clamp(w,min_ang,max_ang);
+
+}
+
+// Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
+ double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
+ // BEWARE!! : invert axes !! (paper vs URDF)
     
    
+
+//Simple implementation to limit speeds.
   if(vel_left>max_velocity)
    {  
     vel_left=clamp(vel_left,min_velocity,max_velocity);
