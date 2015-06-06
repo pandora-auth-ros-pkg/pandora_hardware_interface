@@ -126,18 +126,26 @@ namespace motor
 
 
 
-  //Add  velocity limits (m/s and m/s^2) linear.
+  //velocity limits (m/s and m/s^2) linear.
    double max_vel=0.5;
    double min_vel=-0.5;
 
 
-//Add velocity limits (rpm) angular.
+//velocity limits (rpm) angular.
    double max_ang=0.8;
    double min_ang=-0.8;
 
-  //LImiti cmd_vel.
+
+//motor velocity limits (rpm).
+   double min_velocity=-5500;
+   double max_velocity=55500;
 
 
+//Limiting cmd_vel.
+//If velocities over the limits,clamp.
+
+v=clamp(v,min_vel,max_vel);
+w=clamp(w,min_ang,max_ang);
 
 
 // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
@@ -145,44 +153,12 @@ namespace motor
  double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
 
-double min_velocity=-5500;
-double max_velocity=55500;
-double hasvelocitylimits=false;
 
-//LImiting velocities
-
-if (hasvelocitylimits)
-{
+//Limiting motor velocities
 
 vel_left=clamp(vel_left, min_velocity, max_velocity);  
 vel_right=clamp(vel_right, min_velocity, max_velocity);
-hasvelocitylimits=true;
 
-}
-
-
-//Simple implementation to limit speeds.
- /* if(vel_left>max_velocity_value)
-   {  
-    vel_left=clamp(vel_left,min_velocity_value,max_velocity_value);
-   }
-  else if (vel_left<min_velocity_value)
-   {
-
-   
-    vel_left=clamp(vel_left,min_velocity_value,max_velocity_value);
-   }
-
-  if(vel_right>max_velocity_value)
-   {  
-    vel_right=clamp(vel_right,min_velocity_value,max_velocity_value);
-   }
-  else if (vel_right<min_velocity_value)
-   {
-   
-    vel_right=clamp(vel_right,min_velocity_value,max_velocity_value);
-   }*/
-   
 
     // Set Joint Commands
     // ROS_INFO("%f %f",vel_left,vel_right);
