@@ -7,6 +7,9 @@ skid_steer_velocity_controller:
   publish_rate: 50
   terrain:1.2
 
+   has_velocity_limits: false
+   max_velocity: 5500
+   min_velocity: -5500
  
  
   

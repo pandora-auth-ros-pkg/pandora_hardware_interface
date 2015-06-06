@@ -62,6 +62,7 @@ namespace motor
     // Load Joints from HW Interface , load joint NAMES from YAML
     std::string left_front_wheel_joint_name, right_front_wheel_joint_name;
     std::string left_rear_wheel_joint_name, right_rear_wheel_joint_name;
+    //std::string min_velocity_value, max_velocity_value;
 
     ROS_INFO("STARTING CONTROLLER");
 
@@ -86,9 +87,16 @@ namespace motor
       return false;
     }
 
-    //const bool rosparam_limits_ok = hardware_interface::JointLimitsInterface::agetJointLimits("skid_steer_velocity_controller/linear", ns, joint_limits);
+  
 
-    
+   /*ns.getParam("min_velocity", min_velocity_value);
+        ROS_INFO("Min velocity loaded");
+   ns.getParam("max_velocity", max_velocity_value);
+        ROS_INFO("Max velocity loaded");*/
+
+    //const bool rosparam_limits_ok = hardware_interface::JointLimitsInterface::agetJointLimits("skid_steer_velocity_controller/linear", ns, joint_limits);
+    //Load min_max_velocities.
+
 
 
     // Get joint Handles from hw interface
@@ -127,64 +135,53 @@ namespace motor
    double max_ang=0.8;
    double min_ang=-0.8;
 
+  //LImiti cmd_vel.
 
-    //Add acceleration and velocity limits(rpm and rpm/s values)
-    double max_velocity=5500 / 113;
-    double min_velocity=-5500 / 113;
-    double max_acceleration=5000 / 113;
-    double min_acceleration=5000 / 113;
 
-  //Simple implementation to limit linear speeds.
-  if(v>max_vel)
-  {
-   v=clamp(v,min_vel,max_vel);
-  }
- else if (v<min_vel)
-   {
-   
-    v=clamp(v,min_vel,max_vel);
-   }
 
-//Simple implementation to limit angular speeds.
-
-if (w>max_ang)
-{
-w=clamp(w,min_ang,max_ang);
-
-}
-else if(w<min_ang)
-{
-w=clamp(w,min_ang,max_ang);
-
-}
 
 // Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
  double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
-double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
- // BEWARE!! : invert axes !! (paper vs URDF)
-    
-   
+ double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
+// BEWARE!! : invert axes !! (paper vs URDF)
+
+double min_velocity=-5500;
+double max_velocity=55500;
+double hasvelocitylimits=false;
+
+//LImiting velocities
+
+if (hasvelocitylimits)
+{
+
+vel_left=clamp(vel_left, min_velocity, max_velocity);  
+vel_right=clamp(vel_right, min_velocity, max_velocity);
+hasvelocitylimits=true;
+
+}
+
 
 //Simple implementation to limit speeds.
-  if(vel_left>max_velocity)
+ /* if(vel_left>max_velocity_value)
    {  
-    vel_left=clamp(vel_left,min_velocity,max_velocity);
+    vel_left=clamp(vel_left,min_velocity_value,max_velocity_value);
    }
-  else if (vel_left<min_velocity)
+  else if (vel_left<min_velocity_value)
    {
+
    
-    vel_left=clamp(vel_left,min_velocity,max_velocity);
+    vel_left=clamp(vel_left,min_velocity_value,max_velocity_value);
    }
 
-  if(vel_right>max_velocity)
+  if(vel_right>max_velocity_value)
    {  
-    vel_right=clamp(vel_right,min_velocity,max_velocity);
+    vel_right=clamp(vel_right,min_velocity_value,max_velocity_value);
    }
-  else if (vel_right<min_velocity)
+  else if (vel_right<min_velocity_value)
    {
    
-    vel_right=clamp(vel_right,min_velocity,max_velocity);
-   }
+    vel_right=clamp(vel_right,min_velocity_value,max_velocity_value);
+   }*/
    
 
     // Set Joint Commands
