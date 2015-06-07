@@ -288,6 +288,7 @@ namespace motor
 
   double SerialEpos2Handler::currentToTorque(int _input_current)
   {
+    
     return static_cast<double>(_input_current * 33.5 * 113 / 10 / 10 / 10 );
   }
 

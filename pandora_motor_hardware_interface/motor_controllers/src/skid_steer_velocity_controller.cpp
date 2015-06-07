@@ -89,9 +89,6 @@ namespace motor
       return false;
     }
 
-  
-
-
    /*ns.getParam("min_velocity", min_velocity_value);
         ROS_INFO("Min velocity loaded");
    ns.getParam("max_velocity", max_velocity_value);
@@ -136,14 +133,14 @@ namespace motor
    double min_vel=-0.5;
 
 
-//velocity limits (rpm) angular.
+//velocity limits (r/s) angular.
    double max_ang=0.8;
    double min_ang=-0.8;
 
 
-//motor velocity limits (rpm).
-   double min_velocity=-5500;
-   double max_velocity=55500;
+//motor velocity limits (r/s) (5500 motor rpm->5.09 wheel r/s)
+   double min_velocity=-5.09;
+   double max_velocity=5.09;
 
 
 //Limiting cmd_vel.
@@ -154,16 +151,16 @@ w=clamp(w,min_ang,max_ang);
 
 
 // Compute wheels velocities:  (1.Equations pandora_skid_steering.pdf )
- //double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
- //double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
+ double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+ double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
 
 
 
 // Compute wheels velocities:  (2.Equations pandora_skid_steering.pdf )
  
-double vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
-double vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
+/*double*/ vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
+/*double*/ vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
 
 
 

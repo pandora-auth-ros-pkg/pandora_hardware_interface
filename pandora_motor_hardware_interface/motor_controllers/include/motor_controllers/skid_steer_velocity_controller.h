@@ -74,6 +74,7 @@ namespace motor
       void update(const ros::Time& time, const ros::Duration& period);
       void starting(const ros::Time& time) { }
       void stopping(const ros::Time& time) { }
+      //Callback message changed to new tsirigotis message.
       void commandCallback(const pandora_motion_control::KinodynamicCommand & command);
       void terrainCallback(const std_msgs::Float64& terrain);
 
@@ -97,9 +98,9 @@ namespace motor
       {
         double lin;
         double ang;
-        float terrain_parameter;
-        float slip_factor_left;
-        float slip_factor_right;
+        float terrain_parameter;//Parameter a 1.Equation Zyganitidis
+        float slip_factor_left;//il 2.Equotation Zyganitidis
+        float slip_factor_right;//ir 2.Equation Zyganitidis
         ros::Time stamp;
 
         Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(0), slip_factor_left(0), slip_factor_right(0){}
