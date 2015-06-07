@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   pandora_sensor_msgs
+  pandora_motion_control
   pandora_cmake_tools
   dynamic_reconfigure
 )
@@ -53,6 +54,7 @@ catkin_package(
     std_msgs
     pandora_sensor_msgs
     dynamic_reconfigure
+    pandora_motion_control
   LIBRARIES
     skid_steer_drive_controller
     skid_steer_new_controller

@@ -36,6 +36,7 @@
   <depend>std_msgs</depend>
   <depend>pandora_sensor_msgs</depend>
   <depend>dynamic_reconfigure</depend>
+  <depend>pandora_motion_control</depend>
 
   <export>
     <controller_interface plugin="${prefix}/skid_steer_drive_controller_plugins.xml"/>

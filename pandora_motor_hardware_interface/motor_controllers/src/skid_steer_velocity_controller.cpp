@@ -43,6 +43,8 @@
 #include <algorithm>
 
 
+
+//min(max(x, minVal), maxVal).
 template<typename T>
 T clamp(T x, T min, T max)
 {
@@ -176,14 +178,20 @@ vel_right=clamp(vel_right, min_velocity, max_velocity);
     //add terrain_parameter
     command_struct_.ang   = command.angular.z;
     command_struct_.lin   = command.linear.x;
+    command_struct_.terrain_parameter = command.terrain_param;
     command_struct_.stamp = ros::Time::now();
   }
 
-  void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
+  
+
+
+
+
+  /*void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
   {
     command_struct_.terrain_parameter = terrain.data;
     ROS_INFO("I GOT IN");
-  }
+  }*/
 
 
 
