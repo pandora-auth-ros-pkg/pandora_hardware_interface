@@ -5,7 +5,7 @@ skid_steer_velocity_controller:
   left_rear_wheel: left_rear_wheel_joint
   right_rear_wheel: right_rear_wheel_joint
   publish_rate: 50
-  terrain:1.2
+  terrain_param:1.2
 
    has_velocity_limits: false
    max_velocity: 5500

@@ -155,6 +155,9 @@ w=clamp(w,min_ang,max_ang);
  double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
 
+//Add second zyganitidis equations.
+ 
+
 
 //Limiting motor velocities
 
@@ -171,21 +174,18 @@ vel_right=clamp(vel_right, min_velocity, max_velocity);
     right_rear_wheel_joint_.setCommand(vel_right);
   }
 
-  void SkidSteerVelocityController::commandCallback(const geometry_msgs::Twist& command)
+  void SkidSteerVelocityController::commandCallback(const pandora_motion_control::KinodynamicCommand& command)
   {
     // Update command struct
     // Update command struct
     //add terrain_parameter
-    command_struct_.ang   = command.angular.z;
-    command_struct_.lin   = command.linear.x;
+    command_struct_.ang   = command.cmd_vel.angular.z;
+    command_struct_.lin   = command.cmd_vel.linear.x;
     command_struct_.terrain_parameter = command.terrain_param;
     command_struct_.stamp = ros::Time::now();
   }
 
   
-
-
-
 
   /*void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
   {
