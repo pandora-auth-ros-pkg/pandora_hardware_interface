@@ -15,13 +15,13 @@ target_link_libraries(
   skid_steer_velocity_controller
   ${catkin_LIBRARIES})
 
+add_dependencies(skid_steer_velocity_controller pandora_motion_control)
+
 #Add torque controller as library
 add_library(
   skid_steer_torque_controller
   src/skid_steer_torque_controller.cpp)
-add_dependencies(skid_steer_torque_controller pandora_sensor_msgs)  #Check Again!!!
-
-add_dependencies(pandora_motion_control geometry_msgs)
+add_dependencies(skid_steer_torque_controller pandora_sensor_msgs)
 
 target_link_libraries(
   skid_steer_torque_controller
