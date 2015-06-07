@@ -91,6 +91,7 @@ namespace motor
 
   
 
+
    /*ns.getParam("min_velocity", min_velocity_value);
         ROS_INFO("Min velocity loaded");
    ns.getParam("max_velocity", max_velocity_value);
@@ -124,6 +125,8 @@ namespace motor
     double v = command_struct_.lin;
     double a = command_struct_.terrain_parameter;
     double B = 0.35;
+    double il = command_struct_.slip_factor_left;
+    double ir = command_struct_.slip_factor_right;
     double wheel_radius = 0.0975;
 
 
@@ -150,13 +153,18 @@ v=clamp(v,min_vel,max_vel);
 w=clamp(w,min_ang,max_ang);
 
 
-// Compute wheels velocities:  (Equations pandora_skid_steering.pdf )
- double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
- double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
+// Compute wheels velocities:  (1.Equations pandora_skid_steering.pdf )
+ //double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+ //double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
 
-//Add second zyganitidis equations.
+
+
+// Compute wheels velocities:  (2.Equations pandora_skid_steering.pdf )
  
+double vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
+double vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
+
 
 
 //Limiting motor velocities
@@ -182,10 +190,12 @@ vel_right=clamp(vel_right, min_velocity, max_velocity);
     command_struct_.ang   = command.cmd_vel.angular.z;
     command_struct_.lin   = command.cmd_vel.linear.x;
     command_struct_.terrain_parameter = command.terrain_param;
+    command_struct_.slip_factor_left = command.scale_left;
+    command_struct_.slip_factor_right = command.scale_right;
+
     command_struct_.stamp = ros::Time::now();
   }
 
-  
 
   /*void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
   {

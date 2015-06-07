@@ -98,9 +98,11 @@ namespace motor
         double lin;
         double ang;
         float terrain_parameter;
+        float slip_factor_left;
+        float slip_factor_right;
         ros::Time stamp;
 
-        Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(0) {}
+        Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(0), slip_factor_left(0), slip_factor_right(0){}
       };
       Commands command_struct_;
   };
