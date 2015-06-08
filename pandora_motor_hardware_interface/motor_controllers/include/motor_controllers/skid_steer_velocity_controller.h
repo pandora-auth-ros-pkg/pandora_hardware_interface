@@ -45,8 +45,10 @@
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
-//#include <joint_limits_interface/joint_limits.h>
-//#include <joint_limits_interface/joint_limits_rosparam.h>
+
+//Include joint limits interface. 
+//#include <hardware_interface/joint_limits_interface.h>
+//#include <hardware_interface/joint_limits_interface.h>
 
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
@@ -70,10 +72,13 @@ namespace motor
      */
       bool init(hardware_interface::VelocityJointInterface* hw,
                 ros::NodeHandle &ns);
+     // bool init(hardware_interface::JointLimitsINterface* hw,
+                //ros::NodeHandle &ns);
 
       void update(const ros::Time& time, const ros::Duration& period);
       void starting(const ros::Time& time) { }
       void stopping(const ros::Time& time) { }
+      
       //Callback message changed to new tsirigotis message.
       void commandCallback(const pandora_motion_control::KinodynamicCommand & command);
       void terrainCallback(const std_msgs::Float64& terrain);
@@ -85,11 +90,12 @@ namespace motor
       hardware_interface::JointHandle right_front_wheel_joint_;
       hardware_interface::JointHandle left_rear_wheel_joint_;
       hardware_interface::JointHandle right_rear_wheel_joint_;
-
       
-      //Joint limits
+          //Joint limits
       //hardware_interface::JointLimits limits;
 
+     // hardware_interface::JointLimits joint_limits_interface_;
+      
       // cmd_vel ROS subscriber
       ros::Subscriber command_listener_;
 

@@ -89,14 +89,11 @@ namespace motor
       return false;
     }
 
+
    /*ns.getParam("min_velocity", min_velocity_value);
         ROS_INFO("Min velocity loaded");
    ns.getParam("max_velocity", max_velocity_value);
         ROS_INFO("Max velocity loaded");*/
-
-    //const bool rosparam_limits_ok = hardware_interface::JointLimitsInterface::agetJointLimits("skid_steer_velocity_controller/linear", ns, joint_limits);
-    //Load min_max_velocities.
-
 
 
     // Get joint Handles from hw interface
@@ -146,28 +143,28 @@ namespace motor
 //Limiting cmd_vel.
 //If velocities over the limits,clamp.
 
-v=clamp(v,min_vel,max_vel);
-w=clamp(w,min_ang,max_ang);
+   v=clamp(v,min_vel,max_vel);
+   w=clamp(w,min_ang,max_ang);
 
 
 // Compute wheels velocities:  (1.Equations pandora_skid_steering.pdf )
- double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
- double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
+   double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
+   double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
 
 
 
-// Compute wheels velocities:  (2.Equations pandora_skid_steering.pdf )
+  // Compute wheels velocities:  (2.Equations pandora_skid_steering.pdf )
  
-/*double*/ vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
-/*double*/ vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
+   //vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
+   //vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
 
 
 
-//Limiting motor velocities
+   //Limiting motor velocities
 
-vel_left=clamp(vel_left, min_velocity, max_velocity);  
-vel_right=clamp(vel_right, min_velocity, max_velocity);
+    vel_left=clamp(vel_left, min_velocity, max_velocity);  
+    vel_right=clamp(vel_right, min_velocity, max_velocity);
 
 
     // Set Joint Commands

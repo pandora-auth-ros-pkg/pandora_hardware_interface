@@ -41,7 +41,11 @@
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
+
+
+//Include joint limits interface.
 //#include <hardware_interface/joint_limits_interface.h>
+
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_sensor_msgs/MotorCurrents.h>
@@ -74,7 +78,7 @@ namespace motor
 
      // ROS Control joint limits
 
-      //hardware_interface::JointLimitsInterface jointLimitsInterface_;
+     // hardware_interface::JointLimitsInterface jointLimitsInterface_;
 
      
       

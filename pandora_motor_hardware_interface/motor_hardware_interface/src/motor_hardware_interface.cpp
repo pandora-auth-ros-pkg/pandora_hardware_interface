@@ -35,6 +35,7 @@
 * Author:  Evangelos Apostolidis
 *********************************************************************/
 #include "motor_hardware_interface/motor_hardware_interface.h"
+//#include "motor_hardware_interface/joint_limits_interface.h"
 
 namespace pandora_hardware_interface
 {
@@ -95,6 +96,17 @@ namespace motor
 
     // Initiallize jointLimits 
     // TODO   (use YAML files  (ros_control wiki example))
+
+    /*  for (int ii = 0; ii < jointNames_.size(); ii++)
+    {
+      hardware_interface::JointHandle jointLimitsHandle(
+        jointLimitsInterface_.getHandle("joint_limits");
+      effortJointInterface_.registerHandle(jointLimitsHandle);
+    }
+    registerInterface(&JointLimitsInterface_);*/
+
+
+
 
     motorCurrentsMsg_.name.push_back(
       "Node 1, Left_Front Motor, EPOS2 Gateway");
