@@ -38,18 +38,13 @@
 #ifndef MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 
-
+#include <joint_limits_interface/joint_limits_interface.h>
+#include <joint_limits_interface/joint_limits_rosparam.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
-
-
-//Include joint limits interface.
-//#include <hardware_interface/joint_limits_interface.h>
-
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_sensor_msgs/MotorCurrents.h>
-
 #include "epos2_handler/serial_epos2_handler.h"
 #include "ros/ros.h"
 
@@ -62,6 +57,15 @@ namespace motor
   class MotorHardwareInterface : public hardware_interface::RobotHW
   {
     private:
+      void readJointNameFromParamServer();
+
+    public:
+      explicit MotorHardwareInterface(ros::NodeHandle nodeHandle);
+      ~MotorHardwareInterface();
+      void read(const ros::Duration& period);
+      void write();
+
+    private:
       SerialEpos2Handler *motors_;
 
       ros::NodeHandle nodeHandle_;
@@ -69,19 +73,18 @@ namespace motor
 
       MotorCurrentsMsg motorCurrentsMsg_;
 
-
-      // ROS Control interfaces
+      // interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
       hardware_interface::VelocityJointInterface velocityJointInterface_;
       hardware_interface::EffortJointInterface effortJointInterface_;
 
+      // joint limits interfaces
+      joint_limits_interface::VelocityJointSoftLimitsInterface
+        velocityLimitsInterface_;
 
-     // ROS Control joint limits
-
-     // hardware_interface::JointLimitsInterface jointLimitsInterface_;
-
-     
-      
+      // joint limits
+      joint_limits_interface::JointLimits limits_;
+      joint_limits_interface::SoftJointLimits softLimits_;
 
       // Interface Variables
       std::vector<std::string> jointNames_;
@@ -93,16 +96,6 @@ namespace motor
       double current_[4];
       double maxRPM_;
       double gearboxRatio_;
-      //double limits_;
-
-      void readJointNameFromParamServer();
-
-    public:
-      explicit MotorHardwareInterface(
-        ros::NodeHandle nodeHandle);
-      ~MotorHardwareInterface();
-      void read(const ros::Duration& period);
-      void write();
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

@@ -35,7 +35,6 @@
 * Author:  Evangelos Apostolidis
 *********************************************************************/
 #include "motor_hardware_interface/motor_hardware_interface.h"
-//#include "motor_hardware_interface/joint_limits_interface.h"
 
 namespace pandora_hardware_interface
 {
@@ -46,10 +45,6 @@ namespace motor
   :
     nodeHandle_(nodeHandle)
   {
-    std::string _portName;
-    int _baudrate;
-    int _timeout;
-
     motors_ = new SerialEpos2Handler();
     readJointNameFromParamServer();
     nodeHandle_.getParam("max_RPM", maxRPM_);
@@ -80,7 +75,8 @@ namespace motor
     }
     registerInterface(&velocityJointInterface_);
 
-    // Add effortJointInterface!  !!!CHANGE COMMAND_VECTOR
+    // Add effortJointInterface!
+    // TODO(zisikons): CHANGE COMMAND_VECTOR
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
       hardware_interface::JointHandle jointEffortHandle(
@@ -90,22 +86,30 @@ namespace motor
     }
     registerInterface(&effortJointInterface_);
 
-    // Set motor control mode
+    // Set motor control mode to velocity control mode
     motors_->setMode(0);
 
-
-    // Initiallize jointLimits 
-    // TODO   (use YAML files  (ros_control wiki example))
-
-    /*  for (int ii = 0; ii < jointNames_.size(); ii++)
+    //Initiallize jointLimits 
+    for (int ii = 0; ii < jointNames_.size(); ii++)
     {
-      hardware_interface::JointHandle jointLimitsHandle(
-        jointLimitsInterface_.getHandle("joint_limits");
-      effortJointInterface_.registerHandle(jointLimitsHandle);
+      hardware_interface::JointHandle jointLimitsHandle =
+        velocityJointInterface_.getHandle(jointNames_[ii]);
+
+      // TODO(gkouros): initialize softLimits_
+      if (joint_limits_interface::getJointLimits(jointNames_[ii], nodeHandle_ , limits_))
+      {
+        ROS_FATAL("[MOTORS]: Joint Limits not specified in the parameter server");
+        exit(-1);
+      }
+      //Register handle in joint limits interface
+      joint_limits_interface::VelocityJointSoftLimitsHandle handle(
+        jointLimitsHandle,  // We read the state and read/write the command
+        limits_,  // Limits spec
+        softLimits_);  // Soft limits spec
+
+      velocityLimitsInterface_.registerHandle(handle);
     }
-    registerInterface(&JointLimitsInterface_);*/
-
-
+    registerInterface(&velocityLimitsInterface_);  // to do or not to do ???
 
 
     motorCurrentsMsg_.name.push_back(
