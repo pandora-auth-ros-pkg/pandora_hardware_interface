@@ -143,8 +143,8 @@ namespace motor
 //Limiting cmd_vel.
 //If velocities over the limits,clamp.
 
-   v=clamp(v,min_vel,max_vel);
-   w=clamp(w,min_ang,max_ang);
+   //v=clamp(v,min_vel,max_vel);
+   //w=clamp(w,min_ang,max_ang);
 
 
 // Compute wheels velocities:  (1.Equations pandora_skid_steering.pdf )

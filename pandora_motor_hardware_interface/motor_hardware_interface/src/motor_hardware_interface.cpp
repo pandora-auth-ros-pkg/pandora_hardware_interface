@@ -33,6 +33,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *
 * Author:  Evangelos Apostolidis
+* Author:  Elisavet Papadopoulou
+* Author:  Kostantinos Zisis
 *********************************************************************/
 #include "motor_hardware_interface/motor_hardware_interface.h"
 
