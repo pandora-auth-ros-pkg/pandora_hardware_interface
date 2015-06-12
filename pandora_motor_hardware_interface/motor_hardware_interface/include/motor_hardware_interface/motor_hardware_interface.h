@@ -38,14 +38,15 @@
 #ifndef MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_MOTOR_HARDWARE_INTERFACE_H
 
-#include <joint_limits_interface/joint_limits_interface.h>
-#include <joint_limits_interface/joint_limits_rosparam.h>
+
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 #include <pandora_sensor_msgs/MotorCurrents.h>
 #include "epos2_handler/serial_epos2_handler.h"
+#include <joint_limits_interface/joint_limits_interface.h>
+#include <joint_limits_interface/joint_limits_rosparam.h>
 #include "ros/ros.h"
 
 typedef pandora_sensor_msgs::MotorCurrents MotorCurrentsMsg;

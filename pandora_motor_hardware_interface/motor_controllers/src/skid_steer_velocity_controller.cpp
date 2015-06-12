@@ -117,10 +117,11 @@ namespace motor
     // Update with latest cmd_vel commands
     double w = command_struct_.ang;
     double v = command_struct_.lin;
-    double a = command_struct_.terrain_parameter;
+    double a= 1.5;
+    //double a = command_struct_.terrain_parameter;
     double B = 0.35;
-    double il = command_struct_.slip_factor_left;
-    double ir = command_struct_.slip_factor_right;
+    //double il = command_struct_.slip_factor_left;
+   // double ir = command_struct_.slip_factor_right;
     double wheel_radius = 0.0975;
 
 
@@ -159,8 +160,6 @@ namespace motor
    //vel_right = v/(wheel_radius*(1-il)) + w/(2*wheel_radius*(1-il));
    //vel_left = v/(wheel_radius*(1-ir)) - w/(2*wheel_radius*(1-ir));
 
-
-
    //Limiting motor velocities
 
     vel_left=clamp(vel_left, min_velocity, max_velocity);  
@@ -176,16 +175,16 @@ namespace motor
     right_rear_wheel_joint_.setCommand(vel_right);
   }
 
-  void SkidSteerVelocityController::commandCallback(const pandora_motion_control::KinodynamicCommand& command)
+  void SkidSteerVelocityController::commandCallback(const geometry_msgs::Twist& command)
   {
     // Update command struct
     // Update command struct
     //add terrain_parameter
-    command_struct_.ang   = command.cmd_vel.angular.z;
-    command_struct_.lin   = command.cmd_vel.linear.x;
-    command_struct_.terrain_parameter = command.terrain_param;
-    command_struct_.slip_factor_left = command.scale_left;
-    command_struct_.slip_factor_right = command.scale_right;
+    command_struct_.ang   = command.angular.z;
+    command_struct_.lin   = command.linear.x;
+    //command_struct_.terrain_parameter = command.terrain_param;
+    //command_struct_.slip_factor_left = command.scale_left;
+    //command_struct_.slip_factor_right = command.scale_right;
 
     command_struct_.stamp = ros::Time::now();
   }
