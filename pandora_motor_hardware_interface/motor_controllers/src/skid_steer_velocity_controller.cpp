@@ -89,12 +89,10 @@ namespace motor
       return false;
     }
 
-
    /*ns.getParam("min_velocity", min_velocity_value);
         ROS_INFO("Min velocity loaded");
    ns.getParam("max_velocity", max_velocity_value);
         ROS_INFO("Max velocity loaded");*/
-
 
     // Get joint Handles from hw interface
     left_front_wheel_joint_ = hw->getHandle(left_front_wheel_joint_name);
@@ -114,6 +112,7 @@ namespace motor
 
   void SkidSteerVelocityController::update(const ros::Time& time, const ros::Duration& period)
   {
+
     // Update with latest cmd_vel commands
     double w = command_struct_.ang;
     double v = command_struct_.lin;
@@ -124,36 +123,29 @@ namespace motor
    // double ir = command_struct_.slip_factor_right;
     double wheel_radius = 0.0975;
 
-
-
   //velocity limits (m/s and m/s^2) linear.
    double max_vel=0.5;
    double min_vel=-0.5;
-
 
 //velocity limits (r/s) angular.
    double max_ang=0.8;
    double min_ang=-0.8;
 
-
 //motor velocity limits (r/s) (5500 motor rpm->5.09 wheel r/s)
-   double min_velocity=-5.09;
-   double max_velocity=5.09;
-
+   double min_velocity= -5.09;
+   double max_velocity= 5.09;
 
 //Limiting cmd_vel.
 //If velocities over the limits,clamp.
 
-   //v=clamp(v,min_vel,max_vel);
-   //w=clamp(w,min_ang,max_ang);
+   v=clamp(v,min_vel,max_vel);
+   w=clamp(w,min_ang,max_ang);
 
 
 // Compute wheels velocities:  (1.Equations pandora_skid_steering.pdf )
    double vel_left  = (1/wheel_radius)*v-((a*B)/(2*wheel_radius))*w;
    double vel_right = (1/wheel_radius)*v+((a*B)/(2*wheel_radius))*w; 
 // BEWARE!! : invert axes !! (paper vs URDF)
-
-
 
   // Compute wheels velocities:  (2.Equations pandora_skid_steering.pdf )
  
@@ -162,9 +154,8 @@ namespace motor
 
    //Limiting motor velocities
 
-    vel_left=clamp(vel_left, min_velocity, max_velocity);  
-    vel_right=clamp(vel_right, min_velocity, max_velocity);
-
+    //vel_left=clamp(vel_left, min_velocity, max_velocity);  
+    //vel_right=clamp(vel_right, min_velocity, max_velocity);
 
     // Set Joint Commands
     // ROS_INFO("%f %f",vel_left,vel_right);
@@ -189,15 +180,11 @@ namespace motor
     command_struct_.stamp = ros::Time::now();
   }
 
-
   /*void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
   {
     command_struct_.terrain_parameter = terrain.data;
     ROS_INFO("I GOT IN");
   }*/
-
-
-
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface

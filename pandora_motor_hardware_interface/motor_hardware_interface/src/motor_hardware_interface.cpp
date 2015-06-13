@@ -179,6 +179,10 @@ namespace motor
   {
     if (motors_->getMode() == 0)
     {
+      // Le parangue
+      ros::Duration yolo_period(0.1);
+      velocityLimitsInterface_.enforceLimits(yolo_period);
+
       // Velocity Control Mode
       double RPMCommand[2];
       for (int ii = 0; ii < 2; ii++)
