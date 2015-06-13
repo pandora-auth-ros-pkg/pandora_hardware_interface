@@ -94,11 +94,13 @@ namespace motor
     //Initiallize jointLimits 
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
+
+
       hardware_interface::JointHandle jointLimitsHandle =
         velocityJointInterface_.getHandle(jointNames_[ii]);
 
       // TODO(gkouros): initialize softLimits_
-      if (joint_limits_interface::getJointLimits(jointNames_[ii], nodeHandle_ , limits_))
+      if (!joint_limits_interface::getJointLimits(jointNames_[ii], nodeHandle_ , limits_))
       {
         ROS_FATAL("[MOTORS]: Joint Limits not specified in the parameter server");
         exit(-1);
@@ -179,9 +181,9 @@ namespace motor
   {
     if (motors_->getMode() == 0)
     {
-      // Le parangue
-      ros::Duration yolo_period(0.1);
-      velocityLimitsInterface_.enforceLimits(yolo_period);
+      // why period needed ?
+      ros::Duration period(0.1);
+      velocityLimitsInterface_.enforceLimits(period);
 
       // Velocity Control Mode
       double RPMCommand[2];
