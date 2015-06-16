@@ -1,0 +1,8 @@
+batteries:
+  - name: '/electronics_battery'
+    code: 'S'
+    max_voltage: 25.2
+  - name: '/motors_battery'
+    code: 'M'
+    max_voltage: 25.2
+

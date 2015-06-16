@@ -1,0 +1,15 @@
+<launch>
+  <!-- load configuration -->
+  <rosparam
+    command="load"
+    file="$(find pandora_arduino_hardware_interface)/arduino_hardware_interface/config/arduino_hardware_interface.yaml"
+    ns = "arduino"/>
+    
+  <!-- Launch controller manager with pandora hardware interface-->
+  <node
+    name="arduino_hardware_interface_node"
+    pkg="pandora_arduino_hardware_interface"
+    type="arduino_hardware_interface_node"
+    output="screen"
+    ns = "arduino"/>
+</launch>

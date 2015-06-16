@@ -1,0 +1,21 @@
+<launch>
+  <arg name="namespace" default="arduino" />
+
+  <!-- load configuration -->
+  
+  <rosparam
+    command="load"
+    file="$(find pandora_arduino_hardware_interface)/arduino_controllers/config/battery_controller.yaml"
+    ns = "$(arg namespace)"/>
+
+
+  <!-- spawn controllers -->
+  <node
+    name="arduino_controller_spawner"
+    pkg="controller_manager"
+    type="controller_manager" output="screen"
+    args="
+      spawn
+      arduino_battery_controller"
+    ns = "$(arg namespace)"/>
+</launch>

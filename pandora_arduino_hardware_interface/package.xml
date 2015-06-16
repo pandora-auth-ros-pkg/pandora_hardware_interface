@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pandora_arduino_hardware_interface</name>
+  <version>0.0.0</version>
+  <description>Contains pandora arduino hardware interface</description>
+
+  <maintainer email="gkourosg@yahoo.gr">George Kouros</maintainer>
+
+  <license>BSD</license>
+  
+  <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
+  <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>  
+
+  <author>Chris Zalidis</author>
+  <author>Evangelos Apostolidis</author>
+  <author>George Kouros</author>
+  <author>Nikos Taras</author>
+  <author>Orestis Zachariadis</author>
+
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslint</build_depend>
+
+  <depend>roscpp</depend>
+  <depend>controller_manager</depend>
+  <depend>controller_interface</depend>
+  <depend>sensor_msgs</depend>
+  <depend>pandora_sensor_msgs</depend>
+  <depend>pluginlib</depend>
+
+  <export>
+    <controller_interface plugin="${prefix}/battery_controller.xml"/>
+  </export>
+</package>

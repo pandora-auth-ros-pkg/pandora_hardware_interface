@@ -1,0 +1,11 @@
+<package>
+  <node>
+    /arduino_hardware_interface_node
+
+    <publisher>/sensors/battery</publisher>
+  </node>
+  
+  <node>
+    /arduino_controllers_spawner
+  </node>
+</package>

@@ -1,0 +1,9 @@
+<launch>
+  <!-- Launch controller manager with pandora hardware interface-->
+  <include
+    file="$(find pandora_arduino_hardware_interface)/arduino_hardware_interface/launch/arduino_hardware_interface.launch" />
+
+  <!-- spawn arduino controllers -->
+  <include
+    file="$(find pandora_arduino_hardware_interface)/arduino_controllers/launch/arduino_controllers.launch" />
+</launch>
