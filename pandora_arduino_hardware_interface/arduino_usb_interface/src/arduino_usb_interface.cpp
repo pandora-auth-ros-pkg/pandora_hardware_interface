@@ -169,7 +169,41 @@ namespace arduino
     return NO_ERROR;
   }
 
+  int ArduinoUsbInterface::sendServoCommand(
+    const char& servoSelect, int value)
+  {
+    //int value is int because it is in the range of -100-100
+    uint8_t bufOut;
+    bufOut = servoValueToCommand(servoSelect, value);
+    //value is mapped to an appropriate bufOut
+    tcflush(fd, TCIOFLUSH);
 
+    int nr = write(fd, &bufOut, 1);
+    if (nr != 1)
+    {
+      ROS_ERROR("[arduino]: Write Error\n");
+      reconnectUsb();
+      return WRITE_ERROR;
+    }
+    return NO_ERROR;
+  }
+
+  int ArduinoUsbInterface::servoValueToCommand(
+    const char& servoSelect, int value)
+  {
+    int positive = value + 100;
+    switch(servoSelect)
+    {
+      case 'F':
+        return (positive/200)*60;
+        break;
+      case 'R':
+        return (positive/200)*60 + 60;
+        break;
+      default:
+      break;
+    }
+  }
 
   int ArduinoUsbInterface::readBatteryValues(
     const char& batterySelect, uint16_t* value)

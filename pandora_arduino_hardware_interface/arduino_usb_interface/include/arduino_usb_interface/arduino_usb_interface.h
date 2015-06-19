@@ -32,9 +32,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * Author: George Kouros
  * Author: Nikos Taras
- * Author: Orestis Zachariadis
  *********************************************************************/
 
 #ifndef ARDUINO_USB_INTERFACE_ARDUINO_USB_INTERFACE_H
@@ -99,8 +97,8 @@ class ArduinoUsbInterface : private boost::noncopyable
   void openUsbPort();
 
   int readData(int fd, uint8_t bufOut, uint8_t command_bytes, uint8_t* readBuf);
-
-
+  int servoValueToCommand(const char& servoSelect, int value);
+  int sendServoCommand(const char& servoSelect, int value);
 
   /**
    * @brief Reads a voltage measurement from the selected battery
