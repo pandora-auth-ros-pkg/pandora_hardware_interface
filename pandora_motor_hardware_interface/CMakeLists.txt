@@ -2,28 +2,36 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pandora_motor_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
-  cmake_modules
   roscpp
+  message_generation
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
   roslint
   controller_manager
   controller_interface
   serial
-  geometry_msgs
   pluginlib
   urdf
   angles
   tf
-  nav_msgs
-  std_msgs
-  sensor_msgs
   pandora_sensor_msgs
   pandora_motion_control
   pandora_cmake_tools
   dynamic_reconfigure
 )
 
-find_package(PkgConfig)
-pkg_check_modules(gsl REQUIRED gsl)
+add_message_files(
+  FILES
+   KinodynamicCommand.msg
+   )
+
+generate_messages(
+  DEPENDENCIES
+    std_msgs
+    geometry_msgs
+  )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include
@@ -38,23 +46,21 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
-  DEPENDS
-    gsl
   CATKIN_DEPENDS
     roscpp
+    std_msgs
+    geometry_msgs
+    nav_msgs
+    pandora_sensor_msgs
     controller_manager
     controller_interface
     serial
-    geometry_msgs
     pluginlib
     urdf
     angles
     tf
-    nav_msgs
-    std_msgs
-    pandora_sensor_msgs
     dynamic_reconfigure
-    pandora_motion_control
+    message_runtime
   LIBRARIES
     skid_steer_drive_controller
     skid_steer_new_controller
