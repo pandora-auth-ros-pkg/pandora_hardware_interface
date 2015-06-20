@@ -29,6 +29,7 @@
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>joint_limits_interface</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
   <depend>serial</depend>

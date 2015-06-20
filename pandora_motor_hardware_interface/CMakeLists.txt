@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   nav_msgs
   roslint
+  joint_limits_interface
   controller_manager
   controller_interface
   serial
@@ -52,6 +53,7 @@ catkin_package(
     geometry_msgs
     nav_msgs
     pandora_sensor_msgs
+    joint_limits_interface
     controller_manager
     controller_interface
     serial
