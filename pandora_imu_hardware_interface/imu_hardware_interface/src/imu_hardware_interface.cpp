@@ -161,11 +161,6 @@ namespace imu
     const pandora_imu_hardware_interface::ImuHardwareInterfaceConfig& config,
     uint32_t level)
   {
-    ROS_INFO("Reconfigure Request:  roll[%f]  pitch[%f]",
-      config.roll_offset,
-      config.pitch_offset,
-      config.yaw_offset);
-
     rollOffset_ = config.roll_offset;
     pitchOffset_ = config.pitch_offset;
     yawOffset_ = config.yaw_offset;
