@@ -130,16 +130,17 @@ namespace imu
       aV,
       lA);
 
-    // apply offsets to pitch and roll
+    // apply offsets to pitch, roll and yaw
     roll = roll + rollOffset_;
     pitch = pitch + pitchOffset_;
+    yaw = yaw + yawOffset_;
 
     *imuYaw_ = static_cast<double>(yaw);
     *imuPitch_ = static_cast<double>(pitch);
     *imuRoll_ = static_cast<double>(roll);
 
-    yaw = (yaw - 180) * (2 * boost::math::constants::pi<double>()) / 360;
-    pitch = -pitch * (2 * boost::math::constants::pi<double>()) / 360;
+    yaw = yaw * (2 * boost::math::constants::pi<double>()) / 360;
+    pitch = pitch * (2 * boost::math::constants::pi<double>()) / 360;
     roll = roll * (2 * boost::math::constants::pi<double>()) / 360;
 
     geometry_msgs::Quaternion orientation;
@@ -162,10 +163,12 @@ namespace imu
   {
     ROS_INFO("Reconfigure Request:  roll[%f]  pitch[%f]",
       config.roll_offset,
-      config.pitch_offset);
+      config.pitch_offset,
+      config.yaw_offset);
 
     rollOffset_ = config.roll_offset;
     pitchOffset_ = config.pitch_offset;
+    yawOffset_ = config.yaw_offset;
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface
