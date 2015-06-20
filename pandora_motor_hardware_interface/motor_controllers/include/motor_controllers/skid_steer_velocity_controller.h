@@ -52,7 +52,7 @@
 
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
-#include <pandora_motion_control/KinodynamicCommand.h>
+#include <pandora_motor_hardware_interface/KinodynamicCommand.h>
 
 namespace pandora_hardware_interface
 {
@@ -81,7 +81,7 @@ namespace motor
       
       //Callback message changed to new tsirigotis message.
       //void commandCallback(const geometry_msgs::Twist& command); if callback Twist enabled it doesnt run.
-      void commandCallback(const pandora_motion_control::KinodynamicCommand& command);
+      void commandCallback(const pandora_motor_hardware_interface::KinodynamicCommand& command);
       //void terrainCallback(const std_msgs::Float64& terrain);
 
 

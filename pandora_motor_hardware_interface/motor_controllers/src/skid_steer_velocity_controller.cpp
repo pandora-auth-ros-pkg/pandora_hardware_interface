@@ -166,7 +166,7 @@ namespace motor
     right_rear_wheel_joint_.setCommand(vel_right);
   }
 
-  void SkidSteerVelocityController::commandCallback(const pandora_motion_control::KinodynamicCommand& command)
+  void SkidSteerVelocityController::commandCallback(const pandora_motor_hardware_interface::KinodynamicCommand& command)
   {
     // Update command struct
     // Update command struct
