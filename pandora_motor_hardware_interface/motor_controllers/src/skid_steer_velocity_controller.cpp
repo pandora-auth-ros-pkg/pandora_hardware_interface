@@ -116,8 +116,8 @@ namespace motor
     // Update with latest cmd_vel commands
     double w = command_struct_.ang;
     double v = command_struct_.lin;
-    double a= 1.5;
-    //double a = command_struct_.terrain_parameter;
+    //double a= 1.5;
+    double a = command_struct_.terrain_parameter;
     double B = 0.35;
     //double il = command_struct_.slip_factor_left;
    // double ir = command_struct_.slip_factor_right;
@@ -154,7 +154,7 @@ namespace motor
 
    //Limiting motor velocities
 
-   // vel_left=clamp(vel_left, min_velocity, max_velocity);  
+    //vel_left=clamp(vel_left, min_velocity, max_velocity);  
     //vel_right=clamp(vel_right, min_velocity, max_velocity);
 
     // Set Joint Commands
@@ -166,14 +166,14 @@ namespace motor
     right_rear_wheel_joint_.setCommand(vel_right);
   }
 
-  void SkidSteerVelocityController::commandCallback(const geometry_msgs::Twist& command)
+  void SkidSteerVelocityController::commandCallback(const pandora_motion_control::KinodynamicCommand& command)
   {
     // Update command struct
     // Update command struct
     //add terrain_parameter
-    command_struct_.ang   = command.angular.z;
-    command_struct_.lin   = command.linear.x;
-    //command_struct_.terrain_parameter = command.terrain_param;
+    command_struct_.ang   = command.cmd_vel.angular.z;
+    command_struct_.lin   = command.cmd_vel.linear.x;
+    command_struct_.terrain_parameter = command.terrain_param;
     //command_struct_.slip_factor_left = command.scale_left;
     //command_struct_.slip_factor_right = command.scale_right;
 
