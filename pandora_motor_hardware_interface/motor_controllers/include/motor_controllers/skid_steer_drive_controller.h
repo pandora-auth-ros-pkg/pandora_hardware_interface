@@ -145,7 +145,6 @@ namespace motor
     /// Wheel separation and radius calibration multipliers:
     double wheel_separation_multiplier_;
     double wheel_radius_multiplier_;
-    double slipFactor_;
 
     /// Timeout to consider cmd_vel commands old:
     double cmd_vel_timeout_;
@@ -161,9 +160,15 @@ namespace motor
     // True when running in simulation
     bool sim_;
 
-    bool hasSlippage_;
+    std::vector<double> expectedLinear_;
+    std::vector<double> actualLinear_;
     std::vector<double> expectedAngular_;
     std::vector<double> actualAngular_;
+
+    int linearFitDegree_;
+    int angularFitDegree_;
+    std::vector<double> linearFitCoefficients_;
+    std::vector<double> angularFitCoefficients_;
 
   private:
     /**
@@ -198,12 +203,11 @@ namespace motor
         const double& linear,
         const double& angular);
 
-    void polynomialfit(
-        int obs,
-        int degree, 
-        double* dx,
-        double* dy,
-        double* store);
+    void polynomialFit(
+        const int& degree, 
+        const std::vector<double>& actualValues,
+        const std::vector<double>& expectedValues,
+        std::vector<double>& coefficients);
   };
 
   PLUGINLIB_EXPORT_CLASS(
