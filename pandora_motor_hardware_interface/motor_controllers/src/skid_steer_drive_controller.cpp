@@ -307,7 +307,7 @@ namespace motor
   {
     // COMPUTE AND PUBLISH ODOMETRY
     // Estimate linear and angular velocity using joint information
-    odometry_.update(left_front_wheel_joint_.getPosition(), right_front_wheel_joint_.getPosition(), time, slipFactor_);
+    odometry_.update(left_front_wheel_joint_.getPosition(), right_front_wheel_joint_.getPosition(), time, 1);
 
     // Publish odometry message
     if (last_state_publish_time_ + publish_period_ < time)
@@ -328,6 +328,7 @@ namespace motor
         odom_pub_->msg_.twist.twist.angular.z = odometry_.getAngularEstimated();
         odom_pub_->unlockAndPublish();
       }
+    }
 
     // MOVE ROBOT
     // Retreive current velocity command and time step:
@@ -358,9 +359,6 @@ namespace motor
     {
       // Remap velocities according to the polynomial function
       remapVelocities(newLinearVel, newAngularVel);
-
-      // slipFactor_ = getAngularMultiplier(curr_cmd.ang);
-      // ws = ws * slipFactor_;
     }
 
     // Compute wheels velocities:
@@ -564,18 +562,18 @@ namespace motor
     odom_frame_.header.frame_id = "odom";
   }
 
-  double SkidSteerDriveController::remapVelocities(
-      const double& linear,
-      const double& angular);
+  void SkidSteerDriveController::remapVelocities(
+      double& linear,
+      double& angular)
   {
     double new_linear = 0;
-    for(int i=0; i <= linearFitDegree; i++)
+    for (int i = 0; i <= linearFitDegree_; i++)
     {
       new_linear += linearFitCoefficients_[i] * pow(linear, i);
     }
 
     double new_angular = 0;
-    for(int i=0; i <= angularFitDegree; i++)
+    for (int i = 0; i <= angularFitDegree_; i++)
     {
       new_angular += angularFitCoefficients_[i] * pow(angular, i);
     }
@@ -585,46 +583,46 @@ namespace motor
   }
 
   void SkidSteerDriveController::polynomialFit(
-      const int& degree, 
+      const int& degree,
       const std::vector<double>& actualValues,
       const std::vector<double>& expectedValues,
-      std::vector<double>& coefficients);
+      std::vector<double>& coefficients)
   {
-    int obs = actual_values.size();
+    int obs = actualValues.size();
 
     gsl_multifit_linear_workspace *ws;
     gsl_matrix *cov, *X;
     gsl_vector *y, *c;
     double chisq;
-   
+
     X = gsl_matrix_alloc(obs, degree);
     y = gsl_vector_alloc(obs);
     c = gsl_vector_alloc(degree);
     cov = gsl_matrix_alloc(degree, degree);
-   
-    for(int i=0; i < obs; i++)
+
+    for (int i = 0; i < obs; i++)
     {
       gsl_matrix_set(X, i, 0, 1.0);
-      for(int j=0; j < degree; j++)
+      for (int j = 0; j < degree; j++)
       {
         gsl_matrix_set(X, i, j, pow(actualValues[i], j));
       }
       gsl_vector_set(y, i, expectedValues[i]);
     }
-   
+
     ws = gsl_multifit_linear_alloc(obs, degree);
     gsl_multifit_linear(X, y, c, cov, &chisq, ws);
-   
-    for(int i=0; i < degree; i++)
+
+    for (int i = 0; i < degree; i++)
     {
-      store[i] = gsl_vector_get(c, i);
+      coefficients[i] = gsl_vector_get(c, i);
     }
-   
+
     gsl_multifit_linear_free(ws);
     gsl_matrix_free(X);
     gsl_matrix_free(cov);
     gsl_vector_free(y);
     gsl_vector_free(c);
-  } 
+  }
 }  // namespace motor
 }  // namespace pandora_hardware_interface

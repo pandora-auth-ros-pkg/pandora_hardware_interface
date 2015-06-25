@@ -200,11 +200,11 @@ namespace motor
     void setOdomPubFields(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
 
     void remapVelocities(
-        const double& linear,
-        const double& angular);
+        double& linear,
+        double& angular);
 
     void polynomialFit(
-        const int& degree, 
+        const int& degree,
         const std::vector<double>& actualValues,
         const std::vector<double>& expectedValues,
         std::vector<double>& coefficients);
