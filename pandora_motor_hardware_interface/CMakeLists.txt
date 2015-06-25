@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pandora_motor_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
+  cmake_modules
   roscpp
   roslint
   controller_manager
@@ -18,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   pandora_sensor_msgs
   pandora_cmake_tools
 )
+
+find_package(GSL REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include

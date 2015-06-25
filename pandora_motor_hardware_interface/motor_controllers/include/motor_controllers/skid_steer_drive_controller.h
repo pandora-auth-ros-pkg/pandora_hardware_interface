@@ -40,6 +40,8 @@
 #ifndef MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
 #define MOTOR_CONTROLLERS_SKID_STEER_DRIVE_CONTROLLER_H
 
+#include <gsl/gsl_multifit.h>
+
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
@@ -192,7 +194,16 @@ namespace motor
      */
     void setOdomPubFields(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
 
-    double getAngularMultiplier(double velocity);
+    void remapVelocities(
+        const double& linear,
+        const double& angular);
+
+    void polynomialfit(
+        int obs,
+        int degree, 
+        double* dx,
+        double* dy,
+        double* store);
   };
 
   PLUGINLIB_EXPORT_CLASS(
