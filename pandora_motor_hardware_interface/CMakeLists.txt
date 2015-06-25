@@ -20,7 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   pandora_cmake_tools
 )
 
-find_package(GSL REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(gsl REQUIRED gsl)
 
 set(THIS_PACKAGE_INCLUDE_DIRS
     motor_controllers/include
@@ -30,6 +31,8 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
+  DEPENDS
+    gsl
   CATKIN_DEPENDS
     roscpp
     controller_manager
