@@ -220,7 +220,9 @@ namespace motor
       limiter_ang_.min_acceleration, -limiter_ang_.max_acceleration);
 
     controller_nh.param("linear_fit_degree", linearFitDegree_, 5);
+    linearFitDegree_++;
     controller_nh.param("angular_fit_degree", angularFitDegree_, 7);
+    angularFitDegree_++;
 
     if (!setOdomParamsFromUrdf(root_nh, left_front_wheel_name, right_front_wheel_name))
       return false;
@@ -567,13 +569,13 @@ namespace motor
       double& angular)
   {
     double new_linear = 0;
-    for (int i = 0; i <= linearFitDegree_; i++)
+    for (int i = 0; i < linearFitDegree_; i++)
     {
       new_linear += linearFitCoefficients_[i] * pow(linear, i);
     }
 
     double new_angular = 0;
-    for (int i = 0; i <= angularFitDegree_; i++)
+    for (int i = 0; i < angularFitDegree_; i++)
     {
       new_angular += angularFitCoefficients_[i] * pow(angular, i);
     }
