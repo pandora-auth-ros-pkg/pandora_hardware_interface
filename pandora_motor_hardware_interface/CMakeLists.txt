@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_motor_hardware_interface)
 
+## --- Check for existence of include files --- ##
+include(CheckIncludeFiles)
+
 find_package(catkin REQUIRED COMPONENTS
+  #cmake_modules
   roscpp
   message_generation
   std_msgs
@@ -45,8 +49,26 @@ generate_dynamic_reconfigure_options(
   motor_controllers/config/frictionCoefficient.cfg
 )
 
+
+## -- Link Against gsl library using either pkgconfig or hard-given paths
+## -- Use this method if gsl is not installed under system paths
+## - ROSBUILD architecture holds pkgconfig paths so be aware!
+## - Better use the set() command to set include/lib directorries 
+###############################################################################
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(GSL REQUIRED gsl)
+#set(GSL_INCLUDE_DIRS ~/external_libraries/gsl-1.16_install_asd/include)
+#set(GSL_LIBRARY_DIRS ~/external_libraries/gsl-1.16_install_asd/lib)
+#include_directories(${GSL_INCLUDE_DIRS})
+#message(${GSL_INCLUDE_DIRS})
+#message(${GSL_LIBRARY_DIRS})
+#link_directories(${GSL_LIBRARY_DIRS})
+###############################################################################
+
+
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
+
   CATKIN_DEPENDS
     roscpp
     std_msgs
