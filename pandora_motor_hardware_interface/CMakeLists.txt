@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pandora_motor_hardware_interface)
+#~ set(CMAKE_BUILD_TYPE Debug)
 
-## --- Check for existence of include files --- ##
-include(CheckIncludeFiles)
+find_package(PkgConfig REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  #cmake_modules
   roscpp
   message_generation
   std_msgs
@@ -55,20 +54,18 @@ generate_dynamic_reconfigure_options(
 ## - ROSBUILD architecture holds pkgconfig paths so be aware!
 ## - Better use the set() command to set include/lib directorries 
 ###############################################################################
-#find_package(PkgConfig REQUIRED)
-#pkg_check_modules(GSL REQUIRED gsl)
+pkg_check_modules(GSL REQUIRED gsl)
 #set(GSL_INCLUDE_DIRS ~/external_libraries/gsl-1.16_install_asd/include)
 #set(GSL_LIBRARY_DIRS ~/external_libraries/gsl-1.16_install_asd/lib)
-#include_directories(${GSL_INCLUDE_DIRS})
-#message(${GSL_INCLUDE_DIRS})
-#message(${GSL_LIBRARY_DIRS})
-#link_directories(${GSL_LIBRARY_DIRS})
+include_directories(${GSL_INCLUDE_DIRS})
+link_directories(${GSL_LIBRARY_DIRS})
 ###############################################################################
 
 
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
   DEPENDS
+    libgsl
 
   CATKIN_DEPENDS
     roscpp
@@ -90,10 +87,8 @@ catkin_package(
     skid_steer_drive_controller
     skid_steer_new_controller
     skid_steer_torque_controller
-#  DEPENDS
 )
 
-#~ set(CMAKE_BUILD_TYPE Debug)
 
 include_directories(
   ${THIS_PACKAGE_INCLUDE_DIRS}
