@@ -60,34 +60,6 @@ bool hasSubstr(std::string base_str, std::string token_str)
 
 int main(int argc, char** argv)
 {
-  //std::map<int, std::string> map_;
-  //std::cout << "Hello\n";
-  //std::ifstream file;  
-  //std::string token;
-  //file.open("/home/klpanagi/pandora_ws/src/pandora_hardware_interface/pandora_motor_hardware_interface/epos_interface/src/epos2_gateway/error_codes");
-  //std::string line;
-  //int error_code;
-  //std::string error_str;
-  //std::string error_code_str;
-  //if(file.is_open())
-  //{
-    //while(std::getline(file, line))
-    //{
-      //std::istringstream iss(line);
-      //getline(iss, error_code_str, ',');
-
-      //std::istringstream hex_str(error_code_str);
-      //hex_str >> std::hex >> error_code;
-
-      //getline(iss, error_str, ',');
-      //if(error_str.at(0) == ' ')
-      //{
-        //error_str.erase(0, 1);
-      //}
-      //std::cout << "ErrorCode_int: " << error_code << ", ErrorCode_str: " 
-        //<< error_code_str << ", Error: " << error_str << "\n";
-    //}
-  //}
   pandora_hardware_interface::motor::ErrorCodes err;
   std::string error_codes_file = "/home/klpanagi/pandora_ws/src/pandora_hardware_interface/pandora_motor_hardware_interface/epos_interface/src/epos2_gateway/error_codes";
   err.fillErrorCodesMap(error_codes_file);

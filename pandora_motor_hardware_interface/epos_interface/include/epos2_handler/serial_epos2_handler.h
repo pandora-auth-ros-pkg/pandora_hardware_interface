@@ -117,7 +117,12 @@ namespace motor
         int* rightRearCurrent,
         int* rightFrontCurrent);
 
+
+      /*!
+       * @TODO -- Doxy
+       */
       virtual Error getError();
+
 
       /*!
        * @brief Writes velocity commands (rpm) to motor cotrollers
@@ -127,19 +132,29 @@ namespace motor
        */
       virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
 
+
       /*!
        * @brief Reads motor controller states and stores the values
        *  in a private scope
        */
       void readStates(void);
 
+
+      /*!
+       * @TODO -- Doxy
+       */
       void stateHandle(void);
 
+
+      /*!
+       * TODO -- Doxy
+       */
       void getTorque(
         double* leftRearTorque,
         double* leftFrontTorque,
         double* rightRearTorque,
         double* rightFrontTorque);
+
 
       /*!
        * @brief Converts single WHEEL Torque to motor current
@@ -147,11 +162,13 @@ namespace motor
       int16_t torqueToCurrent(
         double _input_torque);
 
+
       /*!
        * @brief Converts single motor current to WHEEL Torque 
        */
       double currentToTorque(
         int _input_current);
+
 
       /*!
        * @brief Writes torque commands to motor controllers 
@@ -173,6 +190,10 @@ namespace motor
        */
       void setMode(int mode);
 
+
+      /*!
+       * @TODO -- Doxy
+       */
       int getMode(void);
   };
 }  // namespace motor

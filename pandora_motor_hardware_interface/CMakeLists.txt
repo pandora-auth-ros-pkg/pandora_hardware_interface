@@ -68,6 +68,7 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS ${THIS_PACKAGE_INCLUDE_DIRS}
+  DEPENDS
 
   CATKIN_DEPENDS
     roscpp

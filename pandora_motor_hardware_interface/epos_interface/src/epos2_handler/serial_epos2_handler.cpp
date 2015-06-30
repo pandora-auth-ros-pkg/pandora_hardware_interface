@@ -1,4 +1,3 @@
-
 /*********************************************************************
 *
 * Software License Agreement (BSD License)
@@ -35,6 +34,7 @@
 *
 * Author:     Konstantinos Panayiotou   <klpanagi@gmail.com>
 * Maintainer: Konstantinos Panayiotou   <klpanagi@gmail.com>
+*
 *********************************************************************/
 
 #include "epos2_handler/serial_epos2_handler.h"
@@ -45,7 +45,7 @@ namespace motor
 {
 
   SerialEpos2Handler::SerialEpos2Handler():
-    epos2_nh_("~/epos2config")
+    epos2_nh_("/motor/epos2")
   {
     std::string _portName, _deviceName, _protocolStackName, _interfaceName;
     int _baudrate, _timeout, _numControllers, _gatewayId;
@@ -193,8 +193,8 @@ namespace motor
     *leftRearRpm = leftRearMotor_->rpm_;
   }
 
-  void SerialEpos2Handler::getCurrent(int* leftRearCurrent, int* leftFrontCurrent,
-    int* rightRearCurrent, int* rightFrontCurrent)
+  void SerialEpos2Handler::getCurrent(int* leftRearCurrent,
+    int* leftFrontCurrent, int* rightRearCurrent, int* rightFrontCurrent)
   {
     epos2Gateway_->read_currentAvg(rightFrontMotor_->nodeId_,
       &rightFrontMotor_->current_);
@@ -256,10 +256,8 @@ namespace motor
     int _currentFeed[4];
 
     // Fill with current values using getCurrent method
-    this->getCurrent(&_currentFeed[0],
-                    &_currentFeed[1],
-                    &_currentFeed[2],
-                    &_currentFeed[3]);
+    this->getCurrent(&_currentFeed[0], &_currentFeed[1],
+      &_currentFeed[2], &_currentFeed[3]);
 
     // Convert to Torques
     *leftRearTorque = this->currentToTorque(_currentFeed[0]);
@@ -267,23 +265,6 @@ namespace motor
     *rightRearTorque = this->currentToTorque(_currentFeed[2]);
     *rightFrontTorque = this->currentToTorque(_currentFeed[3]);
   }
-
-
-  /*void SerialEpos2Handler::torqueToCurrent(
-      const double rightFrontTorque,
-      const double rightRearTorque,
-      const double leftFrontTorque,
-      const double leftRearTorque)
-  {
-    rightFrontMotor_->current_ =
-      static_cast<uint16_t>(rightFrontTorque / 33.5 / 113);
-    rightRearMotor_->current_ =
-      static_cast<uint16_t>(rightRearTorque / 33.5 / 113);
-    leftFrontMotor_->current_ =
-      static_cast<uint16_t>(leftFrontTorque / 33.5 / 113);
-    leftRearMotor_->current_ =
-      static_cast<uint16_t>(leftRearTorque / 33.5 / 113);
-  }*/
 
 
   double SerialEpos2Handler::currentToTorque(int _input_current)
@@ -313,15 +294,17 @@ namespace motor
 
     // Step II: Send commands to motors
     ROS_DEBUG("[Motors]: Setting torques %f, %f, %f, %f",
-                                         leftRearTorque,
-                                         leftFrontTorque,
-                                         rightRearTorque,
-                                         rightFrontTorque);
+      leftRearTorque, leftFrontTorque, 
+      rightRearTorque, rightFrontTorque);
 
-    epos2Gateway_->set_targetCurrent(leftRearMotor_->nodeId_, leftRearCurrent);
-    epos2Gateway_->set_targetCurrent(leftFrontMotor_->nodeId_, leftFrontCurrent);
-    epos2Gateway_->set_targetCurrent(rightRearMotor_->nodeId_, rightRearCurrent);
-    epos2Gateway_->set_targetCurrent(rightFrontMotor_->nodeId_, rightFrontCurrent);
+    epos2Gateway_->set_targetCurrent(leftRearMotor_->nodeId_,
+      leftRearCurrent);
+    epos2Gateway_->set_targetCurrent(leftFrontMotor_->nodeId_,
+      leftFrontCurrent);
+    epos2Gateway_->set_targetCurrent(rightRearMotor_->nodeId_,
+      rightRearCurrent);
+    epos2Gateway_->set_targetCurrent(rightFrontMotor_->nodeId_,
+      rightFrontCurrent);
 
     return 1;
   }
@@ -331,32 +314,32 @@ namespace motor
     switch (mode)
     {
       case 0:
-              // Activate Velocity Mode
-              ROS_INFO("Entering Velocity Mode");
-              epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
-              epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
-              epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
-              epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
+        // Activate Velocity Mode
+        ROS_INFO("Entering Velocity Mode");
+        epos2Gateway_->activate_profileVelocityMode(rightFrontMotor_->nodeId_);
+        epos2Gateway_->activate_profileVelocityMode(rightRearMotor_->nodeId_);
+        epos2Gateway_->activate_profileVelocityMode(leftFrontMotor_->nodeId_);
+        epos2Gateway_->activate_profileVelocityMode(leftRearMotor_->nodeId_);
 
-              operation_mode_ = 0;
+        operation_mode_ = 0;
 
-              break;
+        break;
 
       case 1:
-              // Activate Current Mode
-              ROS_INFO("Entering Current Mode");
-              epos2Gateway_->activate_currentMode(rightFrontMotor_->nodeId_);
-              epos2Gateway_->activate_currentMode(rightRearMotor_->nodeId_);
-              epos2Gateway_->activate_currentMode(leftFrontMotor_->nodeId_);
-              epos2Gateway_->activate_currentMode(leftRearMotor_->nodeId_);
+        // Activate Current Mode
+        ROS_INFO("Entering Current Mode");
+        epos2Gateway_->activate_currentMode(rightFrontMotor_->nodeId_);
+        epos2Gateway_->activate_currentMode(rightRearMotor_->nodeId_);
+        epos2Gateway_->activate_currentMode(leftFrontMotor_->nodeId_);
+        epos2Gateway_->activate_currentMode(leftRearMotor_->nodeId_);
 
-              operation_mode_ = 1;
+        operation_mode_ = 1;
 
-              break;
+        break;
 
       default:
-              ROS_WARN("There is no such state");
-              break;
+        ROS_WARN("There is no such state");
+        break;
     }
   }
 

@@ -40,9 +40,9 @@
 #include <stdint.h>
 #include <map>
 #include <cstring>
-#include <iostream>  // Input
-#include <fstream>  // Input
-#include <sstream>
+#include <iostream>  // 
+#include <fstream>  // file io streams
+#include <sstream>  // string streams
 
 namespace pandora_hardware_interface
 {
