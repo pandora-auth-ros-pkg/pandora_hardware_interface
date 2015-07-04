@@ -109,7 +109,7 @@ namespace motor
       joint_limits_interface::VelocityJointSoftLimitsHandle handle(
         jointLimitsHandle,  // We read the state and read/write the command
         limits_,  // Limits spec
-        softLimits_);  // Soft limits spec
+        softLimits_);  // Soft limits spec.Not required in our implementation.
 
       velocityLimitsInterface_.registerHandle(handle);
     }

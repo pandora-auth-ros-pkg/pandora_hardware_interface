@@ -46,10 +46,6 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <pluginlib/class_list_macros.h>
 
-//Include joint limits interface. 
-//#include <hardware_interface/joint_limits_interface.h>
-//#include <hardware_interface/joint_limits_interface.h>
-
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
 //#include <pandora_motor_hardware_interface/KinodynamicCommand.h>
@@ -83,8 +79,6 @@ namespace motor
       void commandCallback(const geometry_msgs::Twist& command); 
       //if callback Twist enabled it doesnt run.
       //void commandCallback(const pandora_motor_hardware_interface::KinodynamicCommand& command);
-      //void terrainCallback(const std_msgs::Float64& terrain);
-
 
     private:
       /// Hardware joint handles:

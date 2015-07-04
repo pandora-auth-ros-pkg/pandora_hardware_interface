@@ -64,7 +64,7 @@ namespace motor
     // Load Joints from HW Interface , load joint NAMES from YAML
     std::string left_front_wheel_joint_name, right_front_wheel_joint_name;
     std::string left_rear_wheel_joint_name, right_rear_wheel_joint_name;
-    //std::string min_velocity_value, max_velocity_value;
+   
 
     ROS_INFO("STARTING CONTROLLER");
 
@@ -89,10 +89,6 @@ namespace motor
       return false;
     }
 
-   /*ns.getParam("min_velocity", min_velocity_value);
-        ROS_INFO("Min velocity loaded");
-   ns.getParam("max_velocity", max_velocity_value);
-        ROS_INFO("Max velocity loaded");*/
 
     // Get joint Handles from hw interface
     left_front_wheel_joint_ = hw->getHandle(left_front_wheel_joint_name);
@@ -193,13 +189,9 @@ namespace motor
     //command_struct_.slip_factor_right = command.scale_right;
 
     command_struct_.stamp = ros::Time::now();
-  }
-
-  /*void SkidSteerVelocityController::terrainCallback(const std_msgs::Float64& terrain)
-  {
-    command_struct_.terrain_parameter = terrain.data;
-    ROS_INFO("I GOT IN");
   }*/
+
+  
 
 }  // namespace motor
 }  // namespace pandora_hardware_interface
