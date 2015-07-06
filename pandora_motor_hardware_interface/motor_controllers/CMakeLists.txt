@@ -11,6 +11,7 @@ add_library(
 target_link_libraries(
   skid_steer_drive_controller
   ${catkin_LIBRARIES}
+  ${GSL_LIBRARIES}
 )
 ##########################################
 

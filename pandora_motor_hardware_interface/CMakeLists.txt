@@ -21,15 +21,15 @@ find_package(catkin REQUIRED COMPONENTS
   angles
   tf
   pandora_sensor_msgs
-  pandora_motion_control
+  # pandora_motion_control
   pandora_cmake_tools
   dynamic_reconfigure
 )
 
-add_message_files(
-  FILES
-   KinodynamicCommand.msg
-   )
+# add_message_files(
+#   FILES
+#    KinodynamicCommand.msg
+#    )
 
 generate_messages(
   DEPENDENCIES
@@ -52,7 +52,7 @@ generate_dynamic_reconfigure_options(
 ## -- Link Against gsl library using either pkgconfig or hard-given paths
 ## -- Use this method if gsl is not installed under system paths
 ## - ROSBUILD architecture holds pkgconfig paths so be aware!
-## - Better use the set() command to set include/lib directorries 
+## - Better use the set() command to set include/lib directorries
 ###############################################################################
 pkg_check_modules(GSL REQUIRED gsl)
 #set(GSL_INCLUDE_DIRS ~/external_libraries/gsl-1.16_install_asd/include)
