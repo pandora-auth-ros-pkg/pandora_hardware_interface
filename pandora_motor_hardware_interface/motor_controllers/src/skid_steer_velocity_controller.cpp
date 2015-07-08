@@ -197,10 +197,10 @@ namespace motor
 
     // Subscirbe to cmd_vel
     command_listener_ = ns.subscribe(
-        "/cmd_vel",
+        "/enhanced_cmd_vel",
         1,
-        &SkidSteerVelocityController::commandCallbackTwist,
-        // &SkidSteerVelocityController::commandCallbackKinodynamic,
+        // &SkidSteerVelocityController::commandCallbackTwist,
+        &SkidSteerVelocityController::commandCallbackKinodynamic,
         this);
 
     ROS_INFO("Successfully initiallized velocity controller!");
