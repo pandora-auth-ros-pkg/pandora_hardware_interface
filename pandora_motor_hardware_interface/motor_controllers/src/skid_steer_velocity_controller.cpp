@@ -242,17 +242,8 @@ namespace motor
     command_struct_.stamp = ros::Time::now();
   }
 
-  // void SkidSteerVelocityController::commandCallbackKinodynamic(
-  //     const pandora_motor_hardware_interface::KinodynamicCommand& command)
-  // {
-  //   command_struct_.ang   = command.cmd_vel.angular.z;
-  //   command_struct_.lin   = command.cmd_vel.linear.x;
-  //   command_struct_.terrain_parameter = command.terrain_param;
-  //
-  //   command_struct_.stamp = ros::Time::now();
-  // }
-
-  void SkidSteerVelocityController::updateParameters(const pandora_motor_hardware_interface::KinematicParameters& command)
+  void SkidSteerVelocityController::updateParameters(
+                                            const pandora_motor_hardware_interface::KinematicParameters& command)
   {
     command_struct_.terrain_parameter = command.terrain_param;
   }
