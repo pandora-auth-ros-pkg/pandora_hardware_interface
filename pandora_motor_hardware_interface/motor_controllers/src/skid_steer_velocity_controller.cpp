@@ -201,12 +201,12 @@ namespace motor
     ros::NodeHandle private_nh("~");
     nodeName_ = boost::to_upper_copy<std::string>(private_nh.getNamespace());
 
-    if (!ns.getParam("using_rl", usingRL_))
+    if (!ns.getParam("/using_rl", usingRL_))
     {
       ROS_FATAL("[%s] Cound not find using rl param!", nodeName_.c_str());
       ROS_BREAK();
     }
-
+    
     command_listener_ = ns.subscribe(
         "/cmd_vel",
         1,
@@ -255,7 +255,7 @@ namespace motor
     velocitiesCommand_ = command;
 
     pandora_motor_hardware_interface::KinematicParametersPtr defaultParameters;
-    if (usingRL_)
+    if (!usingRL_)
     {
       defaultParameters.reset( new pandora_motor_hardware_interface::KinematicParameters );
       defaultParameters->terrain_param = 1.0;
