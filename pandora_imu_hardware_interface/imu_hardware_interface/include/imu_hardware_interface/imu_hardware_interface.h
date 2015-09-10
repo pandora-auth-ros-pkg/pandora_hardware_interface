@@ -51,6 +51,7 @@
 #include "imu_com_interface/imu_com_interface.h"
 #include "imu_com_interface/ahrs_com_interface.h"
 #include "imu_com_interface/abstract_imu_com_interface.h"
+#include <diagnostic_updater/diagnostic_updater.h>
 
 namespace pandora_hardware_interface
 {
@@ -88,6 +89,56 @@ namespace imu
       void dynamicReconfigureCallback(
         const pandora_imu_hardware_interface::ImuHardwareInterfaceConfig &config,
         uint32_t level);
+
+      /**
+      @brief Checks if roll is below its upper bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void rollUpperBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      /**
+      @brief Checks if roll is over its lower bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void rollLowerBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      /**
+      @brief Checks if pitch is below its upper bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void pitchUpperBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      /**
+      @brief Checks if pitch is over its lower bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void pitchLowerBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      /**
+      @brief Checks if yaw is below its upper bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void yawUpperBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      /**
+      @brief Checks if yaw is over its lower bound
+      @param stat [diagnostic_updater::DiagnosticStatusWrapper &] : Wrapper for the diagnostic_msgs::DiagnosticStatus message that makes it easier to update.
+      @return void
+      **/
+      void yawLowerBoundDiagnostic(
+        diagnostic_updater::DiagnosticStatusWrapper &stat);
+
+      diagnostic_updater::Updater updater_; //!< manages a list of diagnostic tasks
 
     private:
       ros::NodeHandle nodeHandle_;  //!< node handle

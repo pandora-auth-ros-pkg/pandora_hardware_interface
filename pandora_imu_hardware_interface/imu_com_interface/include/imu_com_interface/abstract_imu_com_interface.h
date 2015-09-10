@@ -90,6 +90,18 @@ namespace imu
     virtual void init() = 0;
 
     /**
+     @brief Checks if communication port is open
+     @return bool
+    **/
+    bool isOpen()
+    {
+      if (serialPtr_->isOpen())
+        return true;
+      else
+        return false;
+    }
+
+    /**
      @brief Reads raw data from the IMU and calculates yaw, pitch and roll 
      @details Init must be called first to establish serial communication
      @return void

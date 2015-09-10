@@ -3,6 +3,5 @@
   <include file="$(find pandora_imu_hardware_interface)/imu_hardware_interface/launch/imu_hardware_interface.launch"/>
 
   <!-- spawn controllers -->
-  <include
-    file="$(find pandora_imu_hardware_interface)/imu_controllers/launch/imu_controllers.launch" />
+  <include file="$(find pandora_imu_hardware_interface)/imu_controllers/launch/imu_controllers.launch" />
 </launch>

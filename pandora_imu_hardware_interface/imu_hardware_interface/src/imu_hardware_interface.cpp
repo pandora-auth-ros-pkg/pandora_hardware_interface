@@ -57,9 +57,9 @@ namespace imu
         comInterface_ = new AhrsComInterface("/dev/trax", 38400, 100);
       else
       {
-          ROS_FATAL(
-            "device not set correctly in parameter server.");
-          exit(-1);
+        ROS_FATAL(
+          "device not set correctly in parameter server.");
+        exit(-1);
       }
     }
     else
@@ -107,15 +107,26 @@ namespace imu
     imuRPYInterface_.registerHandle(imuRPYHandle);
     registerInterface(&imuRPYInterface_);
 
+    // initialize dynamic reconfigure
     server_.setCallback(boost::bind(
       &pandora_hardware_interface::imu::ImuHardwareInterface::dynamicReconfigureCallback,
       this,
       _1,
       _2));
+
+    // initialize diagnostics
+    updater_.setHardwareID(device);
+    updater_.add("Roll Upper Bound Check", this, &ImuHardwareInterface::rollUpperBoundDiagnostic);
+    updater_.add("Roll Lower Bound Check", this, &ImuHardwareInterface::rollLowerBoundDiagnostic);
+    updater_.add("Pitch Upper Bound Check", this, &ImuHardwareInterface::pitchUpperBoundDiagnostic);
+    updater_.add("Pitch Lower Bound Check", this, &ImuHardwareInterface::pitchLowerBoundDiagnostic);
+    updater_.add("Yaw Upper Bound Check", this, &ImuHardwareInterface::yawUpperBoundDiagnostic);
+    updater_.add("Yaw Lower Bound Check", this, &ImuHardwareInterface::yawLowerBoundDiagnostic);
   }
 
   ImuHardwareInterface::~ImuHardwareInterface()
   {
+    delete comInterface_;
   }
 
   void ImuHardwareInterface::read()
@@ -164,6 +175,61 @@ namespace imu
     rollOffset_ = config.roll_offset;
     pitchOffset_ = config.pitch_offset;
     yawOffset_ = config.yaw_offset;
+  }
+
+  void ImuHardwareInterface::rollUpperBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostic Name", "Roll upper bound check");
+    // roll bounds check
+    if (*imuRoll_ > 180.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
+  }
+
+  void ImuHardwareInterface::rollLowerBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostics Name", "Roll lower bound check");
+    if (*imuRoll_ < -180.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
+  }
+
+  void ImuHardwareInterface::pitchUpperBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostics Name", "Pitch upper bound check");
+    if (*imuPitch_ > 90.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
+  }
+
+  void ImuHardwareInterface::pitchLowerBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostics Name", "Pitch lower bound check");
+    if (*imuPitch_ < -90.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
+  }
+
+  void ImuHardwareInterface::yawUpperBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostics Name", "Yaw upper bound check");
+    if (*imuYaw_ > 180.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
+  }
+
+  void ImuHardwareInterface::yawLowerBoundDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  {
+    stat.add("Diagnostics Name", "Yaw lower bound check");
+    if (*imuYaw_ < -180.0)
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "ERROR");
+    else
+      stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
   }
 }  // namespace imu
 }  // namespace pandora_hardware_interface

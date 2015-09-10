@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   serial
   pandora_sensor_msgs
   pluginlib
+  diagnostic_updater
 )
 
 generate_dynamic_reconfigure_options(imu_hardware_interface/config/ImuHardwareInterface.cfg)

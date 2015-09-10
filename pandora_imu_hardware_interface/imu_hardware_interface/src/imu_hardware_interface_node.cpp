@@ -64,6 +64,7 @@ int main(int argc, char **argv)
 
     imuHardwareInterface.read();
     controllerManager.update(now, period);
+    imuHardwareInterface.updater_.update();
     // ~ ros::Duration(0.1).sleep();
   }
   spinner.stop();
