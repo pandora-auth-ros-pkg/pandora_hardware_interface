@@ -47,24 +47,22 @@ namespace imu
     nodeHandle_(nodeHandle)
   {
     std::string device;
-    if (nodeHandle_.getParam("device", device))
+    // detect imu device and use its respective driver
+    if (boost::filesystem::exists("/dev/compass"))
     {
-      ROS_INFO("Selected Device: %s", device.c_str());
-
-      if (device == "compass")
-        comInterface_ = new ImuComInterface("/dev/compass", 38400, 100);
-      else if (device == "trax")
-        comInterface_ = new AhrsComInterface("/dev/trax", 38400, 100);
-      else
-      {
-        ROS_FATAL(
-          "device not set correctly in parameter server.");
-        exit(-1);
-      }
+      device = "compass";
+      comInterface_ = new ImuComInterface("/dev/compass", 38400, 100);
+      ROS_INFO("[imu] Detected Ocean Server Compass");
+    }
+    else if(boost::filesystem::exists("/dev/trax"))
+    {
+      device = "trax";
+      comInterface_ = new AhrsComInterface("/dev/trax", 38400, 100);
+      ROS_INFO("[imu] Detected PNI Trax AHRS");
     }
     else
     {
-      ROS_FATAL("device not set in parameter server.");
+      ROS_FATAL("[imu] Could not detect device! Exiting...");
       exit(-1);
     }
 

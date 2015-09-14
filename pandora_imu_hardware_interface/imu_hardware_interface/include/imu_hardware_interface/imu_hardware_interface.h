@@ -48,10 +48,11 @@
 #include <imu_hardware_interface/imu_rpy_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
+#include <diagnostic_updater/diagnostic_updater.h>
+#include <boost/filesystem.hpp>
 #include "imu_com_interface/imu_com_interface.h"
 #include "imu_com_interface/ahrs_com_interface.h"
 #include "imu_com_interface/abstract_imu_com_interface.h"
-#include <diagnostic_updater/diagnostic_updater.h>
 
 namespace pandora_hardware_interface
 {
