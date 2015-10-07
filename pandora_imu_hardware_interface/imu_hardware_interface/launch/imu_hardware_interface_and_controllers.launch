@@ -1,7 +1,14 @@
 <launch>
- <!-- Launch controller manager with pandora hardware interface -->
-  <include file="$(find pandora_imu_hardware_interface)/imu_hardware_interface/launch/imu_hardware_interface.launch"/>
+  <arg name="aggregator" default="false" />
+
+  <!-- Launch controller manager with pandora hardware interface -->
+  <include file="$(find pandora_imu_hardware_interface)/imu_hardware_interface/launch/imu_hardware_interface.launch" />
 
   <!-- spawn controllers -->
   <include file="$(find pandora_imu_hardware_interface)/imu_controllers/launch/imu_controllers.launch" />
+
+  <!-- Launch diagnostic aggregator if argument "aggregator" is true -->
+  <group if="$(arg aggregator)">
+    <include file="$(find pandora_imu_hardware_interface)/imu_hardware_interface/launch/imu_diagnostic_aggregator.launch" />    
+  </group>
 </launch>
