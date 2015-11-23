@@ -37,14 +37,15 @@
 #ifndef MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
 
+#include "epos_handler/serial_epos_handler.h"
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include "epos_handler/serial_epos_handler.h"
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
-#include "ros/ros.h"
+#include <std_msgs/Float64.h>
+#include <ros/ros.h>
 
 namespace pandora_hardware_interface
 {
@@ -59,30 +60,38 @@ namespace motor
       void write();
 
     private:
-      SerialEposHandler motorHandler_;
+      void loadJointConfiguration();
+
+    private:
       ros::NodeHandle nodeHandle_;
+      SerialEposHandler *motorHandler_;
+
+      // steer servo command publishers
+      std::vector<ros::Publisher> steerServoPositionPublishers_;
 
       // interfaces
-      hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::VelocityJointInterface velocityJointInterface_;
+      hardware_interface::JointStateInterface motorJointStateInterface_;
+      hardware_interface::VelocityJointInterface motorVelocityJointInterface_;
+      hardware_interface::PositionJointInterface servoPositionJointInterface_;
 
-      // joint limits interfaces
-      joint_limits_interface::VelocityJointSoftLimitsInterface
-        velocityLimitsInterface_;
+      // motor variables and parameters
+      std::vector<std::string> motorJointNames_;
+      uint16_t* motorNodeId_;
+      double* motorRatio_;
+      double* motorCommand_;
+      double* motorPosition_;
+      double* motorVelocity_;
+      double* motorEffort_;
+      double* motorMinVelocity_;
+      double* motorMaxVelocity_;
 
-      // joint limits
-      joint_limits_interface::JointLimits limits_;
-      joint_limits_interface::SoftJointLimits softLimits_;
-
-      // Interface Variables
-      std::string motorJointName_;
-      double velocityCommand_;
-      double position_;
-      double velocity_;
-      double effort_;
-      double maxRPM_;
-      double gearboxRatio_;
-      double wheelRatio_;
+      // steer servo interface variables
+      std::vector<std::string> servoJointNames_;
+      std::vector<std::string> servoCommandTopics_;
+      double* servoCommand_;
+      double* servoPosition_;
+      double* servoMinPosition_;
+      double* servoMaxPosition_;
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface

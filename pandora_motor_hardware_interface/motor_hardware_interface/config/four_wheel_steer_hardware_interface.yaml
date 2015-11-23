@@ -1,0 +1,16 @@
+motor_joints:
+  - joint_name: drive_shaft_motor_joint
+    node_id: 1
+    min_velocity: # rpm
+    max_velocity: # rpm
+    ratio: # gearbox ratio * drive shaft ratio
+
+servo_joints:
+  - name: front_wheel_steer_servo_joint
+    command_topic: /front_wheel_steer_controller/command
+    min_position: # rads
+    max_position: # rads
+  - name: rear_wheel_steer_servo_joint
+    command_topic: /rear_wheel_steer_controller/command
+    min_position: # rads
+    max_position: # rads
