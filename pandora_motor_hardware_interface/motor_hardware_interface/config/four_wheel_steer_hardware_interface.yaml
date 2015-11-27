@@ -14,3 +14,9 @@ servo_joints:
     command_topic: /rear_wheel_steer_controller/command
     min_position: # rads
     max_position: # rads
+
+trapezoidal_steer_mechanism:
+  offset_arm_length: 0.03  # [m]
+  angle_beta: 0.083426738  # [rad] = 4.88 degrees
+  long_base: 0.23  # [m]
+  short_base: 0.225  # [m]
