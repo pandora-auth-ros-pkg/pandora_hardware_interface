@@ -45,6 +45,7 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <std_msgs/Float64.h>
+#include <dynamixel_msgs/JointState.h>
 #include <ros/ros.h>
 
 namespace pandora_hardware_interface
@@ -60,38 +61,78 @@ namespace motor
       void write();
 
     private:
-      void loadJointConfiguration();
+      void steerActuatorJointStateCallback(
+        const dynamixel_msgs::JointStateConstPtr& msg, int id);
+      bool loadJointConfiguration();
 
     private:
       ros::NodeHandle nodeHandle_;
-      SerialEposHandler *motorHandler_;
+      boost::scoped_ptr<SerialEposHandler> motorHandler_;
 
-      // steer servo command publishers
-      std::vector<ros::Publisher> steerServoPositionPublishers_;
+      // steer actuator command publishers
+      std::vector<std::string> steerActuatorCommandTopics_;
+      std::vector<ros::Publisher> steerActuatorCommandPublishers_;
+      // steer actuator feedback subscribers
+      std::vector<std::string> steerActuatorJointStateTopics_;
+      std::vector<ros::Subscriber> steerActuatorJointStateSubscribers_;
 
-      // interfaces
-      hardware_interface::JointStateInterface motorJointStateInterface_;
-      hardware_interface::VelocityJointInterface motorVelocityJointInterface_;
-      hardware_interface::PositionJointInterface servoPositionJointInterface_;
+      // joint state and velocity joint interfaces for wheel drive joints
+      hardware_interface::JointStateInterface
+        wheelDriveJointStateInterface_;
+      hardware_interface::VelocityJointInterface
+        wheelDriveVelocityJointInterface_;
 
-      // motor variables and parameters
-      std::vector<std::string> motorJointNames_;
-      uint16_t* motorNodeId_;
-      double* motorRatio_;
-      double* motorCommand_;
-      double* motorPosition_;
-      double* motorVelocity_;
-      double* motorEffort_;
-      double* motorMinVelocity_;
-      double* motorMaxVelocity_;
+      // joint state and position joint interfaces for wheel steer joints
+      hardware_interface::JointStateInterface
+        wheelSteerJointStateInterface_;
+      hardware_interface::PositionJointInterface
+        wheelSteerPositionJointInterface_;
 
-      // steer servo interface variables
-      std::vector<std::string> servoJointNames_;
-      std::vector<std::string> servoCommandTopics_;
-      double* servoCommand_;
-      double* servoPosition_;
-      double* servoMinPosition_;
-      double* servoMaxPosition_;
+      // wheel drive joint names, variables and limits
+      std::vector<std::string> wheelDriveJointNames_;
+      boost::shared_array<double> wheelDriveVelocityCommand_;
+      boost::shared_array<double> wheelDrivePosition_;
+      boost::shared_array<double> wheelDriveVelocity_;
+      boost::shared_array<double> wheelDriveEffort_;
+      double wheelDriveMinVelocity_;
+      double wheelDriveMaxVelocity_;
+
+      // wheel steer joint names, variables and limits
+      std::vector<std::string> wheelSteerJointNames_;
+      boost::shared_array<double> wheelSteerPositionCommand_;
+      boost::shared_array<double> wheelSteerPositionFeedback_;
+      boost::shared_array<double> wheelSteerPosition_;
+      boost::shared_array<double> wheelSteerVelocity_;
+      boost::shared_array<double> wheelSteerEffort_;
+      double wheelSteerMinPosition_;
+      double wheelSteerMaxPosition_;
+
+      // drive motor joints and parameters
+      std::vector<std::string> driveMotorJointNames_;
+      std::vector<int> driveMotorNodeId_;
+      std::vector<double> driveMotorRatio_;
+      std::vector<double> driveMotorMinRPM_;
+      std::vector<double> driveMotorMaxRPM_;
+
+      // steer motor joints' names and variables
+      std::vector<std::string> steerActuatorJointNames_;
+      std::vector<double> steerActuatorMinPosition_;
+      std::vector<double> steerActuatorMaxPosition_;
+
+      // Steering Mechanism Polynomial Approximation Coefficients:
+
+      // left to right angle polynomial coefficients
+      std::vector<double> pLRCoeffs_;
+      // right to left angle polynomial coefficients
+      std::vector<double> pRLCoeffs_;
+      // left front angle to front actuator angle
+      std::vector<double> pLFFACoeffs_;
+      // right rear angle to rear actuator angle
+      std::vector<double> pRRRACoeffs_;
+      // front actuator angle to left front angle
+      std::vector<double> pFALFCoeffs_;
+      // rear actuator angle to right rear angle
+      std::vector<double> pRARRCoeffs_;
   };
 }  // namespace motor
 }  // namespace pandora_hardware_interface
