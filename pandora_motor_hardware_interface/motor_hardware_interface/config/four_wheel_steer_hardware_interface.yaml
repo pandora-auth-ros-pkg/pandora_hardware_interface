@@ -1,22 +1,65 @@
-motor_joints:
-  - joint_name: drive_shaft_motor_joint
-    node_id: 1
-    min_velocity: # rpm
-    max_velocity: # rpm
-    ratio: # gearbox ratio * drive shaft ratio
+# Joint Order:  1.left front, 2.left rear, 3.right front, 4.right rear
+# joints must always be listed in the above order
+wheel_drive_joints:
+  names:
+    - left_front_wheel_drive_joint
+    - left_rear_wheel_drive_joint
+    - right_front_wheel_drive_joint
+    - right_rear_wheel_drive_joint
+  limits:
+    min_velocity: -1.0 # [m/s]
+    max_velocity: 1.0 # [m/s]
+wheel_steer_joints:
+  names:
+    - left_front_wheel_steer_joint
+    - left_rear_wheel_steer_joint
+    - right_front_wheel_steer_joint
+    - right_rear_wheel_steer_joint
+  limits:
+    min_position: deg(-22.5)
+    max_position: deg(22.5)
 
-servo_joints:
-  - name: front_wheel_steer_servo_joint
-    command_topic: /front_wheel_steer_controller/command
-    min_position: # rads
-    max_position: # rads
-  - name: rear_wheel_steer_servo_joint
-    command_topic: /rear_wheel_steer_controller/command
-    min_position: # rads
-    max_position: # rads
+drive_motors:
+  joint_names:
+    - drive_shaft_motor_joint # motor joint connected to all wheels
+  node_ids:
+    - 1
+  ratios: # gearbox ratio * drive shaft ratio
+    - 35  # TODO replace random ratio with actual
+  min_rpms:  # [rpm]
+    - -10000.0
+  max_rpms: # [rpm]
+    - 10000.0
 
-trapezoidal_steer_mechanism:
-  offset_arm_length: 0.03  # [m]
-  angle_beta: 0.083426738  # [rad] = 4.88 degrees
-  long_base: 0.23  # [m]
-  short_base: 0.225  # [m]
+steer_actuators:
+  joint_names:
+    - front_steer_actuator_joint
+    - rear_steer_actuator_joint
+  command_topics:
+    - /front_steer_controller/command
+    - /rear_steer_controller/command
+  feedback_topics:
+    - /front_steer_controller/state
+    - /rear_steer_controller/state
+  min_position: # [rads]
+    - -0.349  # -20 degrees
+    - -0.349  # -20 degrees
+  max_position: # [rads]
+    - 0.349  # 20 degrees
+    - 0.349  # 20 degrees
+
+steer_mechanism:
+  polynomial_approximation_coefficients:
+    # left to right steer angle wheel polynomial coefficients
+    p_l_to_r: [0.0126, -0.0432, 0.0067, -0.0851, 0.9997, 0.0035]
+    # right to left steer angle polynomial coefficients
+    p_r_to_l: [0.0106, 0.0432, 0.0067, 0.0851, 0.9997, -0.0035]
+    # left front steer angle to front actuator steer angle
+    p_lf_to_fa: [0.5334, 0.2997, 0.2857, 1.4951, 0.0001]
+    # right rear steer agle to rear actuator steer angle
+    p_rr_to_ra: [0.4225, -0.0959, 0.2930, 0.0668, 1.4949, -0.0]
+    # front actuator to left front steer angle
+    p_fa_to_lf: [-0.0082, -0.0162, -0.00605, -0.0192, 0.6691, 0.0]
+    # rear actuator to right rear steer angle
+    p_ra_to_rr: [-0.0104, 0.0173, -0.0604, -0.0193, 0.6691, 0.0]
+
