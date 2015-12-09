@@ -1,0 +1,25 @@
+<launch>
+  <arg name="namespace" default="motor" />
+
+  <!-- load hardware interface configuration parameters -->
+  <rosparam
+    command="load"
+    file="$(find pandora_motor_hardware_interface)/motor_hardware_interface/config/four_wheel_steer_hardware_interface.yaml"
+    ns="$(arg namespace)" />
+
+
+  <!-- Launch controller manager with pandora hardware interface-->
+  <node
+    name="four_wheel_steer_hardware_interface_node"
+    pkg="pandora_motor_hardware_interface"
+    type="four_wheel_steer_hardware_interface_node"
+    output="screen"
+    ns="$(arg namespace)">
+
+    <!-- Load epos configuration parameters -->
+    <rosparam
+      command="load"
+      file="$(find pandora_motor_hardware_interface)/epos_interface/config/epos_single_motor_configuration.yaml"
+      ns="/$(arg namespace)/epos" />
+  </node>
+</launch>
