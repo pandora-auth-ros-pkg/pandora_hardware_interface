@@ -9,6 +9,20 @@ target_link_libraries(four_wheel_steer_hardware_interface
   ${catkin_LIBRARIES}
 )
 
+add_executable(four_wheel_steer_hardware_interface_node
+  src/four_wheel_steer_hardware_interface_node.cpp
+)
+
+target_link_libraries(four_wheel_steer_hardware_interface_node
+  four_wheel_steer_hardware_interface
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(
+  four_wheel_steer_hardware_interface_node
+  ${catkin_EXPORTED_TARGETS}
+)
+
 add_library(motor_hardware_interface
   src/motor_hardware_interface.cpp
 )
