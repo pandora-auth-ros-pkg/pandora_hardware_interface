@@ -1,0 +1,16 @@
+interface:
+  deviceName: "EPOS"
+  protocolStackName: "MAXON_RS232"
+  interfaceName: "RS232"
+  portName: "/dev/epos"
+  baudrate: 38400
+  timeout: 500
+  connection_attempts: 10
+controllers:
+  epos2Gateway_id: 1
+  names: ["drive_shaft_motor_controller"]
+  node_ids: [1]
+
+  # multiply current with current_to_torque_multiplier to get torque
+  # divide torque with current_to_torque_multiplier to get current
+  current_to_torque_multiplier: 0
