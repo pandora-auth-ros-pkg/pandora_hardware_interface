@@ -37,7 +37,7 @@
 #ifndef MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
 #define MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
 
-#include "epos_handler/serial_epos_handler.h"
+#include "epos2_handler/serial_epos2_handler.h"
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -67,7 +67,7 @@ namespace motor
 
     private:
       ros::NodeHandle nodeHandle_;
-      boost::scoped_ptr<SerialEposHandler> motorHandler_;
+      boost::scoped_ptr<SerialEpos2Handler> motorHandler_;
 
       // steer actuator command publishers
       std::vector<std::string> steerActuatorCommandTopics_;
@@ -76,40 +76,32 @@ namespace motor
       std::vector<std::string> steerActuatorJointStateTopics_;
       std::vector<ros::Subscriber> steerActuatorJointStateSubscribers_;
 
-      // joint state and velocity joint interfaces for wheel drive joints
-      hardware_interface::JointStateInterface
-        wheelDriveJointStateInterface_;
-      hardware_interface::VelocityJointInterface
-        wheelDriveVelocityJointInterface_;
-
-      // joint state and position joint interfaces for wheel steer joints
-      hardware_interface::JointStateInterface
-        wheelSteerJointStateInterface_;
-      hardware_interface::PositionJointInterface
-        wheelSteerPositionJointInterface_;
+      // joint state, velocity and position joint interfaces
+      hardware_interface::JointStateInterface jointStateInterface_;
+      hardware_interface::VelocityJointInterface velocityJointInterface_;
+      hardware_interface::PositionJointInterface positionJointInterface_;
 
       // wheel drive joint names, variables and limits
       std::vector<std::string> wheelDriveJointNames_;
-      boost::shared_array<double> wheelDriveVelocityCommand_;
-      boost::shared_array<double> wheelDrivePosition_;
-      boost::shared_array<double> wheelDriveVelocity_;
-      boost::shared_array<double> wheelDriveEffort_;
+      double* wheelDriveVelocityCommand_;
+      double* wheelDrivePosition_;
+      double* wheelDriveVelocity_;
+      double* wheelDriveEffort_;
       double wheelDriveMinVelocity_;
       double wheelDriveMaxVelocity_;
 
       // wheel steer joint names, variables and limits
       std::vector<std::string> wheelSteerJointNames_;
-      boost::shared_array<double> wheelSteerPositionCommand_;
-      boost::shared_array<double> wheelSteerPositionFeedback_;
-      boost::shared_array<double> wheelSteerPosition_;
-      boost::shared_array<double> wheelSteerVelocity_;
-      boost::shared_array<double> wheelSteerEffort_;
+      double* wheelSteerPositionCommand_;
+      double* wheelSteerPositionFeedback_;
+      double* wheelSteerPosition_;
+      double* wheelSteerVelocity_;
+      double* wheelSteerEffort_;
       double wheelSteerMinPosition_;
       double wheelSteerMaxPosition_;
 
       // drive motor joints and parameters
-      std::vector<std::string> driveMotorJointNames_;
-      std::vector<int> driveMotorNodeId_;
+      std::vector<std::string> driveMotorControllerNames_;
       std::vector<double> driveMotorRatio_;
       std::vector<double> driveMotorMinRPM_;
       std::vector<double> driveMotorMaxRPM_;

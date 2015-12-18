@@ -94,14 +94,14 @@ namespace motor
       }
     }
 
-    for (int ii = 0; ii = _controllerNames.size(); ii++)
+    for (int ii = 0; ii < _controllerNames.size(); ii++)
     {
       Epos2Controller epos2Controller;
       epos2Controller.name_ = _controllerNames[ii];
       epos2Controller.nodeId_ = static_cast<uint16_t>(_nodeIds[ii]);
       epos2Controllers_.push_back(epos2Controller);
       nameToIndexMap_.insert(
-        std::pair<std::string, uint16_t>(_controllerNames[ii], ii));
+        std::pair<std::string, int>(_controllerNames[ii], ii));
     }
 
     epos2Gateway_.reset(new Epos2Gateway(_portName, _baudrate, _timeout,
@@ -125,6 +125,12 @@ namespace motor
         retries++;
         ros::Duration(1).sleep();  // sleep for a second
       }
+    }
+
+    if (retries >= connectionAttempts_)
+    {
+      ROS_ERROR("[Epos2-Handler] Failed to connect to device! Exiting...");
+      exit(1);
     }
 
     // Initialize motor controller states {Enabled}

@@ -48,24 +48,24 @@ namespace motor
    :
     nodeHandle_(nodeHandle)
   {
-    motorHandler_.reset(new SerialEposHandler("/dev/epos", 115200, 500));
+    motorHandler_.reset(new SerialEpos2Handler());
 
     // load joint names from parameter server
     loadJointConfiguration();
 
     // allocate memory for variables of drive and steer joints
-    wheelDriveVelocityCommand_.reset(new double[wheelDriveJointNames_.size()]);
-    wheelDrivePosition_.reset(new double[wheelDriveJointNames_.size()]);
-    wheelDriveVelocity_.reset(new double[wheelDriveJointNames_.size()]);
-    wheelDriveEffort_.reset(new double[wheelDriveJointNames_.size()]);
+    wheelDriveVelocityCommand_ = new double[wheelDriveJointNames_.size()];
+    wheelDrivePosition_ = new double[wheelDriveJointNames_.size()];
+    wheelDriveVelocity_ = new double[wheelDriveJointNames_.size()];
+    wheelDriveEffort_ = new double[wheelDriveJointNames_.size()];
 
-    wheelSteerPositionCommand_.reset(
-      new double[steerActuatorJointNames_.size()]);
-    wheelSteerPositionFeedback_.reset(
-      new double[steerActuatorJointNames_.size()]);
-    wheelSteerPosition_.reset(new double[steerActuatorJointNames_.size()]);
+    wheelSteerPositionCommand_ = new double[wheelSteerJointNames_.size()];
+    wheelSteerPositionFeedback_ = new double[wheelSteerJointNames_.size()];
+    wheelSteerPosition_ = new double[wheelSteerJointNames_.size()];
+    wheelSteerVelocity_ = new double[wheelSteerJointNames_.size()];
+    wheelSteerEffort_ = new double[wheelSteerJointNames_.size()];
 
-    // connect and register the joint state interfaces for the drive joints
+    // create and register the joint state handles for the drive joints
     for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
     {
       wheelDrivePosition_[ii] = 0;
@@ -76,11 +76,10 @@ namespace motor
         &wheelDrivePosition_[ii],
         &wheelDriveVelocity_[ii],
         &wheelDriveEffort_[ii]);
-      wheelDriveJointStateInterface_.registerHandle(jointStateHandle);
-      registerInterface(&wheelDriveJointStateInterface_);
+      jointStateInterface_.registerHandle(jointStateHandle);
     }
 
-    // connect and register the joint state interfaces for the steer joints
+    // create and register the joint state handles for the steer joints
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
     {
       wheelSteerPosition_[ii] = 0;
@@ -91,29 +90,34 @@ namespace motor
         &wheelSteerPosition_[ii],
         &wheelSteerVelocity_[ii],
         &wheelSteerEffort_[ii]);
-      wheelSteerJointStateInterface_.registerHandle(jointStateHandle);
-      registerInterface(&wheelSteerJointStateInterface_);
+      jointStateInterface_.registerHandle(jointStateHandle);
     }
+
+    // register the joint state interface
+    registerInterface(&jointStateInterface_);
 
     // connect and register the joint velocity interface for the drive joints
     for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
     {
+      wheelDriveVelocityCommand_[ii] = 0;
       hardware_interface::JointHandle jointHandle(
-        wheelDriveJointStateInterface_.getHandle(wheelDriveJointNames_[ii]),
+        jointStateInterface_.getHandle(wheelDriveJointNames_[ii]),
         &wheelDriveVelocityCommand_[ii]);
-      wheelDriveVelocityJointInterface_.registerHandle(jointHandle);
-      registerInterface(&wheelDriveVelocityJointInterface_);
+      velocityJointInterface_.registerHandle(jointHandle);
     }
+    registerInterface(&velocityJointInterface_);
 
-    // connect and register the joint position interfaces for the steer joints
+    // connect and register the joint position interface for the steer joints
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
     {
+      wheelSteerPositionCommand_[ii] = 0;
+      wheelSteerPositionFeedback_[ii] = 0;
       hardware_interface::JointHandle jointHandle(
-        wheelSteerJointStateInterface_.getHandle(wheelSteerJointNames_[ii]),
+        jointStateInterface_.getHandle(wheelSteerJointNames_[ii]),
         &wheelSteerPositionCommand_[ii]);
-      wheelSteerPositionJointInterface_.registerHandle(jointHandle);
-      registerInterface(&wheelSteerPositionJointInterface_);
+      positionJointInterface_.registerHandle(jointHandle);
     }
+    registerInterface(&positionJointInterface_);
 
     // generate a command publisher and a feedback subscriber for each actuator
     for (int ii = 0; ii < steerActuatorJointNames_.size(); ii++)
@@ -137,69 +141,84 @@ namespace motor
       // add subscriber to corresponding vector
       steerActuatorJointStateSubscribers_.push_back(sub);
     }
-  }
 
+    ROS_INFO("[MOTORS] Node Initialized");
+  }
 
   FourWheelSteerHardwareInterface::~FourWheelSteerHardwareInterface()
   {
+    delete wheelDriveVelocityCommand_;
+    delete wheelDrivePosition_;
+    delete wheelDriveVelocity_;
+    delete wheelDriveEffort_;
+    delete wheelSteerPositionCommand_;
+    delete wheelSteerPositionFeedback_;
+    delete wheelSteerPosition_;
+    delete wheelSteerVelocity_;
+    delete wheelSteerEffort_;
   }
 
 
   void FourWheelSteerHardwareInterface::read(const ros::Duration& period)
   {
-    double velocity[driveMotorJointNames_.size()];
-    if (motorHandler_->readAllRpms() != driveMotorJointNames_.size())
+    // read wheel drive joint velocities
+    double velocity[driveMotorControllerNames_.size()];
+
+    for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
     {
-      ROS_ERROR("[MOTORS] Failed to read RPM from all motors. Exiting...");
-      exit(-1);
+      int32_t rpm;
+      motorHandler_->getRPM(driveMotorControllerNames_[ii], &rpm);
+      velocity[ii] = rpm / driveMotorRatio_[ii];
+    }
+
+    if (driveMotorControllerNames_.size() == 1)
+    {
+      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+        wheelDriveVelocity_[ii] = velocity[0];
+    }
+    else if (driveMotorControllerNames_.size() == wheelDriveJointNames_.size())
+    {
+      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+        wheelDriveVelocity_[ii] = velocity[ii];
     }
     else
     {
-      for (int ii = 0; ii < driveMotorJointNames_.size(); ii++)
-      {
-        velocity[ii] =
-          motorHandler_->getRpm(driveMotorNodeId_[ii]) / driveMotorRatio_[ii];
-      }
+      ROS_ERROR("[MOTORS] number of motors is %zu (should be 1 or 4)",
+        driveMotorControllerNames_.size());
+      exit(1);
     }
 
-    for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-    {
-      wheelDriveVelocity_[ii] = velocity[0];
-    }
-
+    // read wheel steer joint positions
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
-    {
       wheelSteerPosition_[ii] = wheelSteerPositionFeedback_[ii];
-    }
   }
 
 
   void FourWheelSteerHardwareInterface::write()
   {
-    // compute rpm commands, based on wheel joint velocities and write
-    // them to the motors
-    double meanWheelVelCmd = 0;
+    double velocity[driveMotorControllerNames_.size()];
 
-    for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+    if (driveMotorControllerNames_.size() == 1)
     {
-      meanWheelVelCmd +=
-        fabs(wheelDriveVelocityCommand_[ii]) / wheelDriveJointNames_.size();
+      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+        velocity[0] +=
+          wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size();
+    }
+    else if (driveMotorControllerNames_.size() == wheelDriveJointNames_.size())
+    {
+      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+        velocity[ii] = wheelDriveVelocityCommand_[ii];
+    }
+    else
+    {
+      ROS_ERROR("[MOTORS] number of motors is %zu (should be 1 or 4)",
+        driveMotorControllerNames_.size());
+      exit(1);
     }
 
-    // add sign to motor command
-    meanWheelVelCmd = copysign(meanWheelVelCmd, wheelDriveVelocity_[0]);
-
-    for (int ii = 0; ii < driveMotorJointNames_.size(); ii++)
-    {
-      int32_t motorRPMCmd = meanWheelVelCmd * driveMotorRatio_[ii];
-      motorHandler_->setRpmCommand(driveMotorNodeId_[ii], motorRPMCmd);
-    }
-
-    if (motorHandler_->writeAllRpms() != driveMotorJointNames_.size())
-    {
-      ROS_ERROR("[MOTORS] Failed to write RPM to all motors. Exiting...");
-      exit(EXIT_FAILURE);
-    }
+    for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
+      motorHandler_->writeRPM(driveMotorControllerNames_[ii],
+        static_cast<int32_t>(velocity[ii] * driveMotorRatio_[ii]));
 
     // compute the front actuator steer angle, using the left front wheel steer
     // angle and a polynomial approximation of the relationship between the two
@@ -224,7 +243,7 @@ namespace motor
     {
       std_msgs::Float64 msg;
       msg.data = steerActuatorCmd[ii];
-      // steerActuatorCommandPublishers_[ii].publish(msg);
+      steerActuatorCommandPublishers_[ii].publish(msg);
     }
   }
 
@@ -289,7 +308,7 @@ namespace motor
       && nodeHandle_.getParam("wheel_steer_joints/names", wheelSteerJointNames_)
       && nodeHandle_.getParam("wheel_steer_joints/limits/min_position",
         wheelSteerMinPosition_)
-      && nodeHandle_.getParam("wheel_steer_joints/limits/max_positions",
+      && nodeHandle_.getParam("wheel_steer_joints/limits/max_position",
         wheelSteerMaxPosition_))
     {
       ROS_INFO("[MOTORS] Drive and Steer joints loaded successfully!");
@@ -301,8 +320,8 @@ namespace motor
       exit(EXIT_FAILURE);
     }
 
-    if (nodeHandle_.getParam("drive_motors/joint_names", driveMotorJointNames_)
-      && nodeHandle_.getParam("drive_motors/node_ids", driveMotorNodeId_)
+    if (nodeHandle_.getParam("drive_motors/motor_controller_names",
+        driveMotorControllerNames_)
       && nodeHandle_.getParam("drive_motors/ratios", driveMotorRatio_)
       && nodeHandle_.getParam("drive_motors/min_rpms", driveMotorMinRPM_)
       && nodeHandle_.getParam("drive_motors/max_rpms", driveMotorMaxRPM_))
@@ -320,12 +339,14 @@ namespace motor
         steerActuatorJointNames_)
       && nodeHandle_.getParam("steer_actuators/command_topics",
         steerActuatorCommandTopics_)
+      && nodeHandle_.getParam("steer_actuators/joint_state_topics",
+        steerActuatorJointStateTopics_)
       && nodeHandle_.getParam("steer_actuators/min_position",
         steerActuatorMinPosition_)
       && nodeHandle_.getParam("steer_actuators/max_position",
         steerActuatorMaxPosition_))
     {
-      ROS_INFO("[MOTORS]: Steer actuator parameters loaded successfully!");
+      ROS_INFO("[MOTORS] Steer actuator parameters loaded successfully!");
     }
     else
     {

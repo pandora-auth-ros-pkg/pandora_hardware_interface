@@ -20,10 +20,8 @@ wheel_steer_joints:
     max_position: deg(22.5)
 
 drive_motors:
-  joint_names:
-    - drive_shaft_motor_joint # motor joint connected to all wheels
-  node_ids:
-    - 1
+  motor_controller_names:
+    - drive_shaft_motor_controller # motor joint connected to all wheels
   ratios: # gearbox ratio * drive shaft ratio
     - 35  # TODO replace random ratio with actual
   min_rpms:  # [rpm]
@@ -38,7 +36,7 @@ steer_actuators:
   command_topics:
     - /front_steer_controller/command
     - /rear_steer_controller/command
-  feedback_topics:
+  joint_state_topics:
     - /front_steer_controller/state
     - /rear_steer_controller/state
   min_position: # [rads]
