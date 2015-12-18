@@ -57,9 +57,6 @@ namespace motor
 {
   class MotorHardwareInterface : public hardware_interface::RobotHW
   {
-    private:
-      void readJointNameFromParamServer();
-
     public:
       explicit MotorHardwareInterface(ros::NodeHandle nodeHandle);
       ~MotorHardwareInterface();
@@ -89,13 +86,15 @@ namespace motor
 
       // Interface Variables
       std::vector<std::string> jointNames_;
-      double torque_command_[4];
-      double vel_command_[4];
+      std::map<std::string, std::string> jointToControllerMap_;
+      double torqueCommand_[4];
+      double velCommand_[4];
       double position_[4];
       double velocity_[4];
       double effort_[4];
       double current_[4];
       double maxRPM_;
+      double maxTorque_;
       double gearboxRatio_;
   };
 }  // namespace motor
