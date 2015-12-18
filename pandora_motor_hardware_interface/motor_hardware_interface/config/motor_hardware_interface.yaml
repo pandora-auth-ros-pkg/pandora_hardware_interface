@@ -1,11 +1,18 @@
 max_RPM: 6135.0
+max_torque: 7.57 # max_current(2A) * current_to_torque_multiplier
 gearbox_ratio: 113.0
-motor_joints:
-  robot_movement_joints:
-    left_front_joint: left_front_wheel_joint
-    right_front_joint: right_front_wheel_joint
-    left_rear_joint: left_rear_wheel_joint
-    right_rear_joint: right_rear_wheel_joint
+
+joints:
+  wheel_joints:
+    - left_front_wheel_joint
+    - right_front_wheel_joint
+    - left_rear_wheel_joint
+    - right_rear_wheel_joint
+  joint_to_controller_mapping:
+  - left_front_wheel_joint: left_front_motor_controller
+  - right_front_wheel_joint: right_front_motor_controller
+  - left_rear_wheel_joint: left_rear_motor_controller
+  - right_rear_wheel_joint: right_rear_motor_controller
 
 joint_limits:
   left_front_wheel_joint:
