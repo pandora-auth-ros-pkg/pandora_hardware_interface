@@ -48,9 +48,13 @@ namespace motor
     nodeHandle_(nodeHandle)
   {
     motors_ = new SerialEpos2Handler();
-    readJointNameFromParamServer();
+
     nodeHandle_.getParam("max_RPM", maxRPM_);
     nodeHandle_.getParam("gearbox_ratio", gearboxRatio_);
+    nodeHandle_.getParam("max_torque", maxTorque_);
+    nodeHandle_.getParam("joints/robot_movement_joints", jointNames_);
+    nodeHandle_.getParam("joints/joint_to_controller_mapping",
+      jointToControllerMap_);
 
     // connect and register the joint state interface
     for (int ii = 0; ii < jointNames_.size(); ii++)
@@ -72,18 +76,17 @@ namespace motor
     {
       hardware_interface::JointHandle jointVelocityHandle(
         jointStateInterface_.getHandle(jointNames_[ii]),
-        &vel_command_[ii]);
+        &velCommand_[ii]);
       velocityJointInterface_.registerHandle(jointVelocityHandle);
     }
     registerInterface(&velocityJointInterface_);
 
     // Add effortJointInterface!
-    // TODO(zisikons): CHANGE COMMAND_VECTOR
     for (int ii = 0; ii < jointNames_.size(); ii++)
     {
       hardware_interface::JointHandle jointEffortHandle(
         jointStateInterface_.getHandle(jointNames_[ii]),
-        &torque_command_[ii]);
+        &torqueCommand_[ii]);
       effortJointInterface_.registerHandle(jointEffortHandle);
     }
     registerInterface(&effortJointInterface_);
@@ -97,7 +100,6 @@ namespace motor
       hardware_interface::JointHandle jointLimitsHandle =
         velocityJointInterface_.getHandle(jointNames_[ii]);
 
-      // TODO(gkouros): initialize softLimits_
       if (!joint_limits_interface::getJointLimits(jointNames_[ii], nodeHandle_ , limits_))
       {
         ROS_FATAL("[MOTORS]: Joint Limits not specified in the parameter server");
@@ -136,43 +138,31 @@ namespace motor
 
   void MotorHardwareInterface::read(const ros::Duration& period)
   {
-    int velFeed[4];
-    int currFeed[4];
-    double effortFeed[4];
+    int velFeed[jointNames_.size()];
+    int currFeed[jointNames_.size()];
+    double effortFeed[jointNames_.size()];
 
-    /*--<Read motors actual velocity value from EPOS controllers>--*/
-    motors_->getRPM(&velFeed[2], &velFeed[0], &velFeed[3], &velFeed[1]);
-    /*-------------------------------------------------------------*/
+    for (int ii = 0; ii < jointNames_.size(); ii)
+    {
+      motors_->getRPM(jointToControllerMap_[jointNames_[ii]], &velFeed[ii]);
+      motors_->getCurrent(jointToControllerMap_[jointNames_[ii]], &currFeed[ii]);
+      motors_->getTorque(jointToControllerMap_[jointNames_[ii]], &effortFeed[ii]);
+    }
 
-    /*--<Read motors actual current value from EPOS controllers>---*/
-    motors_->getCurrent(&currFeed[0], &currFeed[1], &currFeed[2],
-      &currFeed[3]);
-    /*-------------------------------------------------------------*/
-
-    /*
-    CHECK AGAIN  !!!!
-    */
-    /*--<Read motors actual torque value from EPOS controllers>---*/
-    motors_->getTorque(&effortFeed[0], &effortFeed[1], &effortFeed[2],
-      &effortFeed[3]);
-    /*-------------------------------------------------------------*/
-
-    /*--<Update local velocity, current, and position values>--*/
+    // Update local velocity, current, and position values
     for (int ii = 0; ii < 4; ii++)
     {
-      velocity_[ii] = static_cast<double>(velFeed[ii]) / gearboxRatio_
-        / 30 * 3.14;
+      velocity_[ii] =
+        static_cast<double>(velFeed[ii]) / gearboxRatio_ / 30 * 3.14;
       current_[ii] = static_cast<double>(currFeed[ii]);
       motorCurrentsMsg_.current[ii] = current_[ii];
       position_[ii] = position_[ii] + period.toSec() * velocity_[ii];
       effort_[ii] = effortFeed[ii];
     }
-    /*---------------------------------------------------------*/
 
-    /*--<Publish motors currents at the specific topic>--*/
+    // Publish motors currents at the corresponding topic
     motorCurrentsMsg_.header.stamp = ros::Time::now();
     currentPub_.publish(motorCurrentsMsg_);
-    /*---------------------------------------------------*/
   }
 
   void MotorHardwareInterface::write()
@@ -184,56 +174,44 @@ namespace motor
       velocityLimitsInterface_.enforceLimits(period);
 
       // Velocity Control Mode
-      double RPMCommand[2];
-      for (int ii = 0; ii < 2; ii++)
+      double RPMCommand[jointNames_.size()];
+
+      for (int ii = 0; ii < jointNames_.size(); ii++)
       {
-        RPMCommand[ii] = vel_command_[ii] * gearboxRatio_ * 30 / 3.14;
+        RPMCommand[ii] = velCommand_[ii] * gearboxRatio_ * 30 / 3.14;
         if (fabs(RPMCommand[ii]) > maxRPM_)
         {
-          ROS_DEBUG_STREAM("Limiting wheel speed, it's to high");
+          ROS_DEBUG_STREAM("Limiting wheel speed, it's too high");
           RPMCommand[ii] = copysign(maxRPM_, RPMCommand[ii]);
         }
       }
-      ROS_DEBUG_STREAM("Commands: " << RPMCommand[0] << ", " << RPMCommand[1]);
-      motors_->writeRPM(RPMCommand[0], RPMCommand[1]);
+      ROS_DEBUG_STREAM("Commands: " <<
+        RPMCommand[0] << ", " <<
+        RPMCommand[1] << "," <<
+        RPMCommand[2] << "," <<
+        RPMCommand[3])
+        ;
+
+      for (int ii = 0; ii < jointNames_.size(); ii++)
+        motors_->writeRPM(jointNames_[ii], RPMCommand[ii]);
     }
 
     else if (motors_->getMode() == 1)
     {
-      // Probably add if else struct for controlling torque limits
-      // !!! IMPORTANT : Make sure that torque commands are given in the correct order
-      motors_->writeTorques(
-                            torque_command_[0],
-                            torque_command_[1],
-                            torque_command_[2],
-                            torque_command_[3]);
+      for (int ii = 0; ii < jointNames_.size(); ii++)
+      {
+        // if torque cmd exceeds limits, limit it to max torque value
+        if (fabs(torqueCommand_[ii] > maxTorque_))
+          torqueCommand_[ii] = copysign(maxTorque_, torqueCommand_[ii]);
 
-      ROS_DEBUG_STREAM("Torque Commands: " << torque_command_[0] << ", " << torque_command_[1]
-                                    << ", "  <<  torque_command_[2] << ", " << torque_command_[3]);
+        motors_->writeTorque(jointNames_[ii], torqueCommand_[ii]);
+      }
+      ROS_DEBUG_STREAM("Torque Commands: " <<
+        torqueCommand_[0] << ", " <<
+        torqueCommand_[1] << ", " <<
+        torqueCommand_[2] << ", " <<
+        torqueCommand_[3]);
     }
   }
-
-
-  void MotorHardwareInterface::readJointNameFromParamServer()
-  {
-    std::string name;
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/left_front_joint",
-      name);
-    jointNames_.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/right_front_joint",
-      name);
-    jointNames_.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/left_rear_joint",
-      name);
-    jointNames_.push_back(name);
-    nodeHandle_.getParam(
-      "motor_joints/robot_movement_joints/right_rear_joint",
-      name);
-    jointNames_.push_back(name);
-  }
-
 }  // namespace motor
 }  // namespace pandora_hardware_interface
