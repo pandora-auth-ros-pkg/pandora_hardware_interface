@@ -168,7 +168,7 @@ namespace motor
     {
       int32_t rpm;
       motorHandler_->getRPM(driveMotorControllerNames_[ii], &rpm);
-      velocity[ii] = rpm / driveMotorRatio_[ii];
+      velocity[ii] = rpm / driveMotorRatio_[ii] / 2 / M_PI;
     }
 
     if (driveMotorControllerNames_.size() == 1)
@@ -202,7 +202,8 @@ namespace motor
     {
       for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
         velocity[0] +=
-          wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size();
+          fabs(wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size());
+        velocity[0] = copysign(velocity[0], wheelDriveVelocityCommand_[0]);
     }
     else if (driveMotorControllerNames_.size() == wheelDriveJointNames_.size())
     {
@@ -215,18 +216,19 @@ namespace motor
         driveMotorControllerNames_.size());
       exit(1);
     }
-
+    // ROS_INFO("velocity: %f rpm: %f", velocity[0], driveMotorRatio_[0] * velocity[0] * 2 * M_PI);
     for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
       motorHandler_->writeRPM(driveMotorControllerNames_[ii],
-        static_cast<int32_t>(velocity[ii] * driveMotorRatio_[ii]));
+        static_cast<int32_t>(driveMotorRatio_[ii] * velocity[ii] * 2 * M_PI));
 
     // compute the front actuator steer angle, using the left front wheel steer
     // angle and a polynomial approximation of the relationship between the two
     double steerActuatorCmd[2] = {0, 0};
+    // ROS_INFO("steerActuatorCmd: %f", wheelSteerPositionCommand_[0]);
     for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
     {
       steerActuatorCmd[0] += pLFFACoeffs_[ii] *
-        pow(wheelSteerPosition_[0], pLFFACoeffs_.size() - ii);
+        pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii);
     }
 
     // compute the rear actuator steer angle, using the right rear wheel steer
@@ -234,7 +236,7 @@ namespace motor
     for (int ii = 0; ii < pRRRACoeffs_.size(); ii++)
     {
       steerActuatorCmd[1] += pRRRACoeffs_[ii] *
-        pow(wheelSteerPosition_[1], pRRRACoeffs_.size() - ii);
+        pow(wheelSteerPositionCommand_[3], pRRRACoeffs_.size() - ii);
     }
 
     // publish the the front and rear steer actuator commands to their
@@ -246,6 +248,7 @@ namespace motor
       steerActuatorCommandPublishers_[ii].publish(msg);
     }
   }
+
 
   void FourWheelSteerHardwareInterface::steerActuatorJointStateCallback(
     const dynamixel_msgs::JointStateConstPtr& msg, int id)
