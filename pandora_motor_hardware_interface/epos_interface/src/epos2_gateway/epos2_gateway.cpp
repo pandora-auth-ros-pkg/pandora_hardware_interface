@@ -58,7 +58,6 @@ namespace motor
     strcpy(comInterface_->portName, port.c_str());
     comInterface_->baudrate = baudrate;
     comInterface_->timeout = timeout;
-    // TODO(klpanagi): --- Read number of Nodes from a yaml
   }
 
   Epos2Gateway::~Epos2Gateway()
@@ -78,7 +77,7 @@ namespace motor
       comInterface_->portName, &error_);
 
     return ( ( comHandler_ != 0 || error_ == 0) &&
-      eval_communicationParameters() == 0);
+      eval_communicationParameters());
   }
 
   bool Epos2Gateway::closeDevice(void)
@@ -93,12 +92,14 @@ namespace motor
     uint32_t _baudrate;
     uint32_t _timeout;
 
-    int condition = ((VCS_GetProtocolStackSettings(comHandler_,
-      &_baudrate, &_timeout, &error_) != 0) &&
-      (VCS_SetProtocolStackSettings(comHandler_,
-      comInterface_->baudrate, comInterface_->timeout, &error_) != 0)
-      && (VCS_GetProtocolStackSettings(comHandler_, &_baudrate,
-      &_timeout, &error_) != 0));
+    bool condition =
+      ((VCS_GetProtocolStackSettings(comHandler_, &_baudrate, &_timeout,
+        &error_) != 0)
+      && (VCS_SetProtocolStackSettings(comHandler_, comInterface_->baudrate,
+          comInterface_->timeout, &error_) != 0)
+      && (VCS_GetProtocolStackSettings(comHandler_, &_baudrate, &_timeout,
+          &error_) != 0)
+      && comInterface_->baudrate == static_cast<int>(_baudrate));
 
     return condition;
   }
