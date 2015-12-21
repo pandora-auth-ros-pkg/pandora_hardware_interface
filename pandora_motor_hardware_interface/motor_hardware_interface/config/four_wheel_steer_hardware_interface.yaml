@@ -9,6 +9,7 @@ wheel_drive_joints:
   limits:
     min_velocity: -1.0 # [m/s]
     max_velocity: 1.0 # [m/s]
+
 wheel_steer_joints:
   names:
     - left_front_wheel_steer_joint
@@ -22,8 +23,8 @@ wheel_steer_joints:
 drive_motors:
   motor_controller_names:
     - drive_shaft_motor_controller # motor joint connected to all wheels
-  ratios: # gearbox ratio * drive shaft ratio
-    - 35  # TODO replace random ratio with actual
+  ratios: # gearbox ratio[111] * drive shaft ratio
+    - 111
   min_rpms:  # [rpm]
     - -10000.0
   max_rpms: # [rpm]
@@ -60,4 +61,3 @@ steer_mechanism:
     p_fa_to_lf: [-0.0082, -0.0162, -0.00605, -0.0192, 0.6691, 0.0]
     # rear actuator to right rear steer angle
     p_ra_to_rr: [-0.0104, 0.0173, -0.0604, -0.0193, 0.6691, 0.0]
-
