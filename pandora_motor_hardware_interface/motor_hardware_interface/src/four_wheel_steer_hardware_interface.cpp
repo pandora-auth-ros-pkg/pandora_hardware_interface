@@ -82,6 +82,8 @@ namespace motor
     // create and register the joint state handles for the steer joints
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
     {
+      wheelSteerPositionFeedback_[ii] = 0;
+
       wheelSteerPosition_[ii] = 0;
       wheelSteerVelocity_[ii] = 0;
       wheelSteerEffort_[ii] = 0;
@@ -111,7 +113,6 @@ namespace motor
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
     {
       wheelSteerPositionCommand_[ii] = 0;
-      wheelSteerPositionFeedback_[ii] = 0;
       hardware_interface::JointHandle jointHandle(
         jointStateInterface_.getHandle(wheelSteerJointNames_[ii]),
         &wheelSteerPositionCommand_[ii]);
@@ -129,11 +130,11 @@ namespace motor
       // add publisher to corresponding vector
       steerActuatorCommandPublishers_.push_back(pub);
 
-      ros::Subscriber sub = nodeHandle_.subscribe<dynamixel_msgs::JointState>(
+      ros::Subscriber sub = nodeHandle_.subscribe<std_msgs::Float64>(
         steerActuatorJointStateTopics_[ii],
         1,
         boost::bind(
-          &FourWheelSteerHardwareInterface::steerActuatorJointStateCallback,
+          &FourWheelSteerHardwareInterface::steerActuatorFeedbackCallback,
           this,
           _1,
           ii));
@@ -168,7 +169,7 @@ namespace motor
     {
       int32_t rpm;
       motorHandler_->getRPM(driveMotorControllerNames_[ii], &rpm);
-      velocity[ii] = rpm / driveMotorRatio_[ii] / 2 / M_PI;
+      velocity[ii] = rpm / driveMotorRatio_[ii] / 60 * 2 * M_PI;
     }
 
     if (driveMotorControllerNames_.size() == 1)
@@ -216,19 +217,18 @@ namespace motor
         driveMotorControllerNames_.size());
       exit(1);
     }
-    // ROS_INFO("velocity: %f rpm: %f", velocity[0], driveMotorRatio_[0] * velocity[0] * 2 * M_PI);
+
     for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
       motorHandler_->writeRPM(driveMotorControllerNames_[ii],
-        static_cast<int32_t>(driveMotorRatio_[ii] * velocity[ii] * 2 * M_PI));
+        static_cast<int32_t>(driveMotorRatio_[ii] * velocity[ii] * 60 / 2 / M_PI));
 
     // compute the front actuator steer angle, using the left front wheel steer
     // angle and a polynomial approximation of the relationship between the two
     double steerActuatorCmd[2] = {0, 0};
-    // ROS_INFO("steerActuatorCmd: %f", wheelSteerPositionCommand_[0]);
     for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
     {
       steerActuatorCmd[0] += pLFFACoeffs_[ii] *
-        pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii);
+        pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii - 1);
     }
 
     // compute the rear actuator steer angle, using the right rear wheel steer
@@ -236,27 +236,35 @@ namespace motor
     for (int ii = 0; ii < pRRRACoeffs_.size(); ii++)
     {
       steerActuatorCmd[1] += pRRRACoeffs_[ii] *
-        pow(wheelSteerPositionCommand_[3], pRRRACoeffs_.size() - ii);
+        pow(wheelSteerPositionCommand_[3], pRRRACoeffs_.size() - ii - 1);
     }
 
-    // publish the the front and rear steer actuator commands to their
+    // publish the front and rear steer actuator commands to their
     // corresponding topics
     for (int ii = 0; ii < steerActuatorJointNames_.size(); ii++)
     {
       std_msgs::Float64 msg;
       msg.data = steerActuatorCmd[ii];
+
+      // enforce steer actuator limits
+      if (steerActuatorCmd[ii] > steerActuatorMaxPosition_[ii])
+        steerActuatorCmd[ii] = steerActuatorMaxPosition_[ii];
+      else if (steerActuatorCmd[ii] < steerActuatorMinPosition_[ii])
+        steerActuatorCmd[ii] = steerActuatorMinPosition_[ii];
+
+      // publish command
       steerActuatorCommandPublishers_[ii].publish(msg);
     }
   }
 
 
-  void FourWheelSteerHardwareInterface::steerActuatorJointStateCallback(
-    const dynamixel_msgs::JointStateConstPtr& msg, int id)
+  void FourWheelSteerHardwareInterface::steerActuatorFeedbackCallback(
+    const std_msgs::Float64ConstPtr& msg, int id)
   {
     double leftAngle = 0, rightAngle = 0;
-    double actuatorSteerAngle = msg->current_pos;  // steering actuator position
+    double actuatorSteerAngle = msg->data;  // steering actuator position
 
-    if (id == 0)  // msg contains front actuator joint state
+    if (id == 0)  // msg contains front actuator position
     {
       // compute left front wheel joint position, using the front actuator
       // angle and a polynomial approximation of the relationship between them
@@ -267,17 +275,17 @@ namespace motor
       }
       // compute right front wheel joint position, using the left front wheel
       // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pLRCoeffs_.size(); ii++)
+      for (int ii = 0; ii < pLFRFCoeffs_.size(); ii++)
       {
-        rightAngle += pLRCoeffs_[ii] *
-          pow(leftAngle, pLRCoeffs_.size() - ii - 1);
+        rightAngle += pLFRFCoeffs_[ii] *
+          pow(leftAngle, pLFRFCoeffs_.size() - ii - 1);
       }
 
       // write results to corresponding contaner
       wheelSteerPositionFeedback_[0] = leftAngle;
       wheelSteerPositionFeedback_[2] = rightAngle;
     }
-    else if (id == 1)  // msg contains rear actuator joint state
+    else if (id == 1)  // msg contains rear actuator position
     {
       // compute right rear wheel joint position, using the rear actuator
       // angle and a polynomial approximation of the relationship between them
@@ -288,15 +296,15 @@ namespace motor
       }
       // compute left rear wheel joint position, using the right rear wheel
       // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pRLCoeffs_.size(); ii++)
+      for (int ii = 0; ii < pRRLRCoeffs_.size(); ii++)
       {
-        leftAngle -= pRLCoeffs_[ii] *
-          pow(-leftAngle, pRLCoeffs_.size() - ii - 1);
+        leftAngle += pRRLRCoeffs_[ii] *
+          pow(rightAngle, pRRLRCoeffs_.size() - ii - 1);
       }
 
-      // write results to corresponding contaner
-      wheelSteerPositionFeedback_[1] = rightAngle;
-      wheelSteerPositionFeedback_[3] = leftAngle;
+      // write results to corresponding container
+      wheelSteerPositionFeedback_[1] = leftAngle;
+      wheelSteerPositionFeedback_[3] = rightAngle;
     }
   }
 
@@ -359,11 +367,11 @@ namespace motor
     }
 
     if (nodeHandle_.getParam(
-        "steer_mechanism/polynomial_approximation_coefficients/p_l_to_r",
-        pLRCoeffs_)
+        "steer_mechanism/polynomial_approximation_coefficients/p_lf_to_rf",
+        pLFRFCoeffs_)
       && nodeHandle_.getParam(
-        "steer_mechanism/polynomial_approximation_coefficients/p_r_to_l",
-        pRLCoeffs_)
+        "steer_mechanism/polynomial_approximation_coefficients/p_rr_to_lr",
+        pRRLRCoeffs_)
       && nodeHandle_.getParam(
         "steer_mechanism/polynomial_approximation_coefficients/p_lf_to_fa",
         pLFFACoeffs_)

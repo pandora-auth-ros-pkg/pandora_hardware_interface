@@ -45,7 +45,6 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <std_msgs/Float64.h>
-#include <dynamixel_msgs/JointState.h>
 #include <ros/ros.h>
 
 namespace pandora_hardware_interface
@@ -61,8 +60,8 @@ namespace motor
       void write();
 
     private:
-      void steerActuatorJointStateCallback(
-        const dynamixel_msgs::JointStateConstPtr& msg, int id);
+      void steerActuatorFeedbackCallback(
+        const std_msgs::Float64ConstPtr& msg, int id);
       bool loadJointConfiguration();
 
     private:
@@ -113,10 +112,10 @@ namespace motor
 
       // Steering Mechanism Polynomial Approximation Coefficients:
 
-      // left to right angle polynomial coefficients
-      std::vector<double> pLRCoeffs_;
-      // right to left angle polynomial coefficients
-      std::vector<double> pRLCoeffs_;
+      // left front to right front angle polynomial coefficients
+      std::vector<double> pLFRFCoeffs_;
+      // right rear to left rear angle polynomial coefficients
+      std::vector<double> pRRLRCoeffs_;
       // left front angle to front actuator angle
       std::vector<double> pLFFACoeffs_;
       // right rear angle to rear actuator angle
