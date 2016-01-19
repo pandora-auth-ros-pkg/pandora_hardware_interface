@@ -149,7 +149,7 @@ namespace imu
       }
 
       // invert pitch reading to comply with pandora conventions
-      pitch = -pitch;
+      pitch_ = -pitch_;
     }
   }
 }  // namespace imu
