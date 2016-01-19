@@ -147,6 +147,9 @@ namespace imu
         linearAcceleration_[ii] =
           9.81 * boost::lexical_cast<float>(data[ii + 4]);
       }
+
+      // invert pitch reading to comply with pandora conventions
+      pitch = -pitch;
     }
   }
 }  // namespace imu
