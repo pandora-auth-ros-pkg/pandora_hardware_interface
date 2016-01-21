@@ -3,6 +3,7 @@
 #############################################
 add_library(
   skid_steer_velocity_controller
+  src/odometry.cpp
   src/skid_steer_velocity_controller.cpp
 )
 

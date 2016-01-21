@@ -102,9 +102,29 @@ namespace motor
       ROS_ERROR("Could not find track");
       return false;
     }
+    double wheel_separation;
+    if (!ns.getParam("wheel_separation", wheel_separation))
+    {
+      ROS_ERROR("Could not find wheel_separation");
+      return false;
+    }
+
+    if (!ns.getParam("base_frame_id", base_frame_id_))
+    {
+      ROS_ERROR("Could not find base_frame_id");
+      return false;
+    }
+
+    double publish_rate;
+    ns.param("publish_rate", publish_rate, 50.0);
+    publish_period_ = ros::Duration(1.0 / publish_rate);
 
     // Detect if running on simulation
     ns.param("/sim", sim_, false);
+
+    // setup Odometry
+    odometry_.setWheelParams(wheel_separation, wheel_radius_);
+    setOdomPubFields(ns);
 
     // Measurements for linear velocity
     XmlRpc::XmlRpcValue linearMeasurementsList;
@@ -214,6 +234,31 @@ namespace motor
 
   void SkidSteerVelocityController::update(const ros::Time& time, const ros::Duration& period)
   {
+    // COMPUTE AND PUBLISH ODOMETRY
+    // Estimate linear and angular velocity using joint information
+    odometry_.update(left_front_wheel_joint_.getPosition(), right_front_wheel_joint_.getPosition(), time);
+
+    // Publish odometry message
+    if(last_state_publish_time_ + publish_period_ < time)
+    {
+      last_state_publish_time_ += publish_period_;
+      // Compute and store orientation info
+      const geometry_msgs::Quaternion orientation(
+            tf::createQuaternionMsgFromYaw(odometry_.getHeading()));
+
+      // Populate odom message and publish
+      if(odom_pub_->trylock())
+      {
+        odom_pub_->msg_.header.stamp = time;
+        odom_pub_->msg_.pose.pose.position.x = odometry_.getX();
+        odom_pub_->msg_.pose.pose.position.y = odometry_.getY();
+        odom_pub_->msg_.pose.pose.orientation = orientation;
+        odom_pub_->msg_.twist.twist.linear.x  = odometry_.getLinear();
+        odom_pub_->msg_.twist.twist.angular.z = odometry_.getAngular();
+        odom_pub_->unlockAndPublish();
+      }
+    }
+
     // Update cmd_vel commands
     double angular = command_struct_.ang;
     double linear = command_struct_.lin;
@@ -315,6 +360,48 @@ namespace motor
     gsl_matrix_free(cov);
     gsl_vector_free(y);
     gsl_vector_free(c);
+  }
+
+  void SkidSteerVelocityController::setOdomPubFields(ros::NodeHandle& nh)
+  {
+    // Get and check params for covariances
+    XmlRpc::XmlRpcValue pose_cov_list;
+    nh.getParam("pose_covariance_diagonal", pose_cov_list);
+    ROS_ASSERT(pose_cov_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    ROS_ASSERT(pose_cov_list.size() == 6);
+    for (int i = 0; i < pose_cov_list.size(); ++i)
+      ROS_ASSERT(pose_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+
+    XmlRpc::XmlRpcValue twist_cov_list;
+    nh.getParam("twist_covariance_diagonal", twist_cov_list);
+    ROS_ASSERT(twist_cov_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    ROS_ASSERT(twist_cov_list.size() == 6);
+    for (int i = 0; i < twist_cov_list.size(); ++i)
+      ROS_ASSERT(twist_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+
+    // Setup odometry realtime publisher + odom message constant fields
+    odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(nh, "/odom", 100));
+    odom_pub_->msg_.header.frame_id = "odom";
+    odom_pub_->msg_.child_frame_id = base_frame_id_;
+    odom_pub_->msg_.pose.pose.position.z = 0;
+    odom_pub_->msg_.pose.covariance = boost::assign::list_of
+        (static_cast<double>(pose_cov_list[0])) (0)   (0)  (0)  (0)  (0)
+        (0) (static_cast<double>(pose_cov_list[1]))  (0)  (0)  (0)  (0)
+        (0)   (0)  (static_cast<double>(pose_cov_list[2])) (0)  (0)  (0)
+        (0)   (0)   (0) (static_cast<double>(pose_cov_list[3])) (0)  (0)
+        (0)   (0)   (0)  (0) (static_cast<double>(pose_cov_list[4])) (0)
+        (0)   (0)   (0)  (0)  (0)  (static_cast<double>(pose_cov_list[5]));
+    odom_pub_->msg_.twist.twist.linear.y  = 0;
+    odom_pub_->msg_.twist.twist.linear.z  = 0;
+    odom_pub_->msg_.twist.twist.angular.x = 0;
+    odom_pub_->msg_.twist.twist.angular.y = 0;
+    odom_pub_->msg_.twist.covariance = boost::assign::list_of
+        (static_cast<double>(twist_cov_list[0])) (0)   (0)  (0)  (0)  (0)
+        (0) (static_cast<double>(twist_cov_list[1]))  (0)  (0)  (0)  (0)
+        (0)   (0)  (static_cast<double>(twist_cov_list[2])) (0)  (0)  (0)
+        (0)   (0)   (0) (static_cast<double>(twist_cov_list[3])) (0)  (0)
+        (0)   (0)   (0)  (0) (static_cast<double>(twist_cov_list[4])) (0)
+        (0)   (0)   (0)  (0)  (0)  (static_cast<double>(twist_cov_list[5]));
   }
 
 }  // namespace motor
