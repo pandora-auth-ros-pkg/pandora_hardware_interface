@@ -142,11 +142,15 @@ namespace motor
 
     /*--<Read motors actual velocity value from EPOS controllers>--*/
     motors_->getRPM(&velFeed[2], &velFeed[0], &velFeed[3], &velFeed[1]);
+    velFeed[1] *= -1;
+    velFeed[3] *= -1;
     /*-------------------------------------------------------------*/
 
     /*--<Read motors actual current value from EPOS controllers>---*/
     motors_->getCurrent(&currFeed[0], &currFeed[1], &currFeed[2],
       &currFeed[3]);
+    currFeed[1] *= -1;
+    currFeed[3] *= -1;
     /*-------------------------------------------------------------*/
 
     /*
@@ -155,6 +159,8 @@ namespace motor
     /*--<Read motors actual torque value from EPOS controllers>---*/
     motors_->getTorque(&effortFeed[0], &effortFeed[1], &effortFeed[2],
       &effortFeed[3]);
+    effortFeed[1] *= -1;
+    effortFeed[3] *= -1;
     /*-------------------------------------------------------------*/
 
     /*--<Update local velocity, current, and position values>--*/
