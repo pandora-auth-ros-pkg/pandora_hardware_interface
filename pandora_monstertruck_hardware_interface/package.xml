@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pandora_monstertruck_hardware_interface</name>
+  <version>0.0.0</version>
+  <description>The pandora_monstertruck_hardware_interface package</description>
+
+  <maintainer email="gkourosg@yahoo.gr">George Kouros</maintainer>
+
+  <license>BSD</license>
+
+<url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
+<url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
+
+  <author email="gkourosg@yahoo.gr">George Kouros</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslint</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>four_wheel_steer_drive_controller</exec_depend>
+  <exec_depend>double_ackermann_steer_drive_controller</exec_depend>
+
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>joint_limits_interface</depend>
+  <depend>controller_manager</depend>
+  <depend>controller_interface</depend>
+  <depend>pandora_motor_hardware_interface</depend>
+
+  <export>
+  </export>
+</package>

@@ -1,7 +1,0 @@
-<launch>
-  <!-- Launch controller manager with pandora hardware interface-->
-  <include file="$(find pandora_motor_hardware_interface)/motor_hardware_interface/launch/four_wheel_steer_drive_hardware_interface.launch" />
-
-  <!-- spawn controllers -->
-  <include file="$(find four_wheel_steer_drive_controller)/launch/four_wheel_steer_drive_controller.launch" />
-</launch>

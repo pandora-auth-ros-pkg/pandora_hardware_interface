@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2016, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,13 @@
 *
 * Author:  George Kouros
 **********************************************************************/
-#ifndef MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
-#define MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
+#ifndef PANDORA_MONSTERTRUCK_HARDWARE_INTERFACE_MONSTERTRUCK_HARDWARE_INTERFACE_H
+#define PANDORA_MONSTERTRUCK_HARDWARE_INTERFACE_MONSTERTRUCK_HARDWARE_INTERFACE_H
 
 #include "epos2_handler/serial_epos2_handler.h"
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <std_msgs/Float64.h>
@@ -49,13 +48,13 @@
 
 namespace pandora_hardware_interface
 {
-namespace motor
+namespace monstertruck
 {
-  class FourWheelSteerHardwareInterface : public hardware_interface::RobotHW
+  class MonstertruckHardwareInterface : public hardware_interface::RobotHW
   {
     public:
-      explicit FourWheelSteerHardwareInterface(ros::NodeHandle nodeHandle);
-      ~FourWheelSteerHardwareInterface();
+      explicit MonstertruckHardwareInterface(ros::NodeHandle nodeHandle);
+      ~MonstertruckHardwareInterface();
       void read(const ros::Duration& period);
       void write();
 
@@ -66,7 +65,7 @@ namespace motor
 
     private:
       ros::NodeHandle nodeHandle_;
-      boost::scoped_ptr<SerialEpos2Handler> motorHandler_;
+      boost::scoped_ptr<motor::SerialEpos2Handler> motorHandler_;
 
       // steer actuator command publishers
       std::vector<std::string> steerActuatorCommandTopics_;
@@ -125,6 +124,6 @@ namespace motor
       // rear actuator angle to right rear angle
       std::vector<double> pRARRCoeffs_;
   };
-}  // namespace motor
+}  // namespace monstertruck
 }  // namespace pandora_hardware_interface
-#endif  // MOTOR_HARDWARE_INTERFACE_FOUR_WHEEL_STEER_HARDWARE_INTERFACE_H
+#endif  // PANDORA_MONSTERTRUCK_HARDWARE_INTERFACE_MONSTERTRUCK_HARDWARE_INTERFACE_H

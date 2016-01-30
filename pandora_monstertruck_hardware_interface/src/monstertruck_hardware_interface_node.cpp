@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2016, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -35,17 +35,18 @@
 * Author:  George Kouros
 *********************************************************************/
 
-#include "motor_hardware_interface/four_wheel_steer_hardware_interface.h"
+#include "pandora_monstertruck_hardware_interface/monstertruck_hardware_interface.h"
+#include <controller_manager/controller_manager.h>
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "four_wheel_steer_hardware_interface_node");
+  ros::init(argc, argv, "monstertruck_hardware_interface_node");
   ros::NodeHandle nodeHandle;
 
-  pandora_hardware_interface::motor::FourWheelSteerHardwareInterface
-    fourWheelSteerHardwareInterface(nodeHandle);
+  pandora_hardware_interface::monstertruck::MonstertruckHardwareInterface
+    monstertruckHardwareInterface(nodeHandle);
   controller_manager::ControllerManager controllerManager(
-    &fourWheelSteerHardwareInterface,
+    &monstertruckHardwareInterface,
     nodeHandle);
 
   ros::Time
@@ -63,9 +64,9 @@ int main(int argc, char **argv)
     period = now - last;
     last = now;
 
-    fourWheelSteerHardwareInterface.read(period);
+    monstertruckHardwareInterface.read(period);
     controllerManager.update(now, period);
-    fourWheelSteerHardwareInterface.write();
+    monstertruckHardwareInterface.write();
     ros::Duration(0.2).sleep();
   }
   spinner.stop();
