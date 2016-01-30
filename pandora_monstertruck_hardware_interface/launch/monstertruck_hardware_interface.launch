@@ -1,18 +1,18 @@
 <launch>
-  <arg name="namespace" default="motor" />
+  <arg name="namespace" default="monstertruck" />
 
   <!-- load hardware interface configuration parameters -->
   <rosparam
     command="load"
-    file="$(find pandora_motor_hardware_interface)/motor_hardware_interface/config/four_wheel_steer_hardware_interface.yaml"
+    file="$(find pandora_monstertruck_hardware_interface)/config/monstertruck_hardware_interface_params.yaml"
     ns="$(arg namespace)" />
 
 
   <!-- Launch controller manager with pandora hardware interface-->
   <node
-    name="four_wheel_steer_hardware_interface_node"
-    pkg="pandora_motor_hardware_interface"
-    type="four_wheel_steer_hardware_interface_node"
+    name="monstertruck_hardware_interface_node"
+    pkg="pandora_monstertruck_hardware_interface"
+    type="monstertruck_hardware_interface_node"
     output="screen"
     ns="$(arg namespace)">
     <!-- launch-prefix="gdb -ex run"> -->
@@ -20,7 +20,7 @@
     <!-- Load epos configuration parameters -->
     <rosparam
       command="load"
-      file="$(find pandora_motor_hardware_interface)/epos_interface/config/epos_single_motor_configuration.yaml"
+      file="$(find pandora_monstertruck_hardware_interface)/config/epos_single_motor_configuration.yaml"
       ns="/$(arg namespace)/epos2" />
   </node>
 </launch>

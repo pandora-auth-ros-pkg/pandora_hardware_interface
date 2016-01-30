@@ -1,0 +1,19 @@
+<launch>
+  <arg name="namespace" default="steer-drive" />
+
+  <rosparam
+    command="load"
+    file="$(find pandora_monstertruck_hardware_interface)/config/four_wheel_steer_drive_controller_params.yaml"
+    ns="$(arg namespace)" />
+
+  <node
+    name="four_wheel_steer_drive_controller_spawner"
+    pkg="controller_manager"
+    type="controller_manager"
+    output="screen"
+    ns="$(arg namespace)"
+    args=
+      "spawn
+      four_wheel_steer_drive_controller
+      joint_state_controller" />
+</launch>

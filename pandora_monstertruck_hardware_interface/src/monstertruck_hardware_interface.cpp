@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2016, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -35,20 +35,19 @@
 * Author:  George Kouros
 *********************************************************************/
 
-#include "motor_hardware_interface/four_wheel_steer_hardware_interface.h"
-
+#include "pandora_monstertruck_hardware_interface/monstertruck_hardware_interface.h"
 #include <math.h>
 
 namespace pandora_hardware_interface
 {
-namespace motor
+namespace monstertruck
 {
-  FourWheelSteerHardwareInterface::FourWheelSteerHardwareInterface(
+  MonstertruckHardwareInterface::MonstertruckHardwareInterface(
     ros::NodeHandle nodeHandle)
    :
     nodeHandle_(nodeHandle)
   {
-    motorHandler_.reset(new SerialEpos2Handler());
+    motorHandler_.reset(new motor::SerialEpos2Handler());
 
     // load joint names from parameter server
     loadJointConfiguration();
@@ -134,7 +133,7 @@ namespace motor
         steerActuatorJointStateTopics_[ii],
         1,
         boost::bind(
-          &FourWheelSteerHardwareInterface::steerActuatorFeedbackCallback,
+          &MonstertruckHardwareInterface::steerActuatorFeedbackCallback,
           this,
           _1,
           ii));
@@ -146,7 +145,7 @@ namespace motor
     ROS_INFO("[MOTORS] Node Initialized");
   }
 
-  FourWheelSteerHardwareInterface::~FourWheelSteerHardwareInterface()
+  MonstertruckHardwareInterface::~MonstertruckHardwareInterface()
   {
     delete wheelDriveVelocityCommand_;
     delete wheelDrivePosition_;
@@ -160,7 +159,7 @@ namespace motor
   }
 
 
-  void FourWheelSteerHardwareInterface::read(const ros::Duration& period)
+  void MonstertruckHardwareInterface::read(const ros::Duration& period)
   {
     // read wheel drive joint velocities
     double velocity[driveMotorControllerNames_.size()];
@@ -195,7 +194,7 @@ namespace motor
   }
 
 
-  void FourWheelSteerHardwareInterface::write()
+  void MonstertruckHardwareInterface::write()
   {
     double velocity[driveMotorControllerNames_.size()];
 
@@ -258,7 +257,7 @@ namespace motor
   }
 
 
-  void FourWheelSteerHardwareInterface::steerActuatorFeedbackCallback(
+  void MonstertruckHardwareInterface::steerActuatorFeedbackCallback(
     const std_msgs::Float64ConstPtr& msg, int id)
   {
     double leftAngle = 0, rightAngle = 0;
@@ -309,7 +308,7 @@ namespace motor
   }
 
 
-  bool FourWheelSteerHardwareInterface::loadJointConfiguration()
+  bool MonstertruckHardwareInterface::loadJointConfiguration()
   {
     if (nodeHandle_.getParam("wheel_drive_joints/names", wheelDriveJointNames_)
       && nodeHandle_.getParam("wheel_drive_joints/limits/min_velocity",
@@ -393,5 +392,5 @@ namespace motor
         "[MOTORS] Steer mechanism parameters not loaded successfully");
     }
   }
-}  // namespace motor
+}  // namespace monstertruck
 }  // namespace pandora_hardware_interface
