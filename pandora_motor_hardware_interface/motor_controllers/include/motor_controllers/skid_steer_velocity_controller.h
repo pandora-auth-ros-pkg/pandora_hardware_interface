@@ -133,6 +133,7 @@ namespace motor
         Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(1.0), slip_factor_left(0), slip_factor_right(0){}
       };
       Commands command_struct_;
+      Commands last_command_struct_;
 
       // Physical properties
       double wheel_radius_;

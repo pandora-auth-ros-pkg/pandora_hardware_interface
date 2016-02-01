@@ -102,12 +102,6 @@ namespace motor
       ROS_ERROR("Could not find track");
       return false;
     }
-    double wheel_separation;
-    if (!ns.getParam("wheel_separation", wheel_separation))
-    {
-      ROS_ERROR("Could not find wheel_separation");
-      return false;
-    }
 
     if (!ns.getParam("base_frame_id", base_frame_id_))
     {
@@ -123,7 +117,7 @@ namespace motor
     ns.param("/sim", sim_, false);
 
     // setup Odometry
-    odometry_.setWheelParams(wheel_separation, wheel_radius_);
+    odometry_.setWheelParams(track_, wheel_radius_);
     setOdomPubFields(ns);
 
     // Measurements for linear velocity
@@ -234,9 +228,17 @@ namespace motor
 
   void SkidSteerVelocityController::update(const ros::Time& time, const ros::Duration& period)
   {
+    // Update cmd_vel commands
+    double angular = command_struct_.ang;
+    double linear = command_struct_.lin;
+    double terrain_parameter_ = command_struct_.terrain_parameter;
+
     // COMPUTE AND PUBLISH ODOMETRY
     // Estimate linear and angular velocity using joint information
-    odometry_.update(left_front_wheel_joint_.getPosition(), right_front_wheel_joint_.getPosition(), time);
+    odometry_.update(left_front_wheel_joint_.getPosition(),
+                      right_front_wheel_joint_.getPosition(),
+                      time,
+                      terrain_parameter_);
 
     // Publish odometry message
     if(last_state_publish_time_ + publish_period_ < time)
@@ -259,10 +261,8 @@ namespace motor
       }
     }
 
-    // Update cmd_vel commands
-    double angular = command_struct_.ang;
-    double linear = command_struct_.lin;
-    double terrain_parameter_ = command_struct_.terrain_parameter;
+    // update last command
+    last_command_struct_ = command_struct_;
 
     if (!sim_)
     {

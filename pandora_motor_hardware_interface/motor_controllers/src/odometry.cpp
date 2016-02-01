@@ -74,7 +74,8 @@ namespace motor
     timestamp_ = time;
   }
 
-  bool Odometry::update(double left_pos, double right_pos, const ros::Time &time)
+  bool Odometry::update(double left_pos, double right_pos,
+              const ros::Time &time, const double terrain_param)
   {
     /// Get current wheel joint positions:
     const double left_wheel_cur_pos  = left_pos  * wheel_radius_;
@@ -89,8 +90,10 @@ namespace motor
     right_wheel_old_pos_ = right_wheel_cur_pos;
 
     /// Compute linear and angular diff:
-    const double linear  = (right_wheel_est_vel + left_wheel_est_vel) * 0.5 ;
-    const double angular = (right_wheel_est_vel - left_wheel_est_vel) / wheel_separation_;
+    //const double linear  = (right_wheel_est_vel + left_wheel_est_vel) * 0.5 ;
+    //const double angular = (right_wheel_est_vel - left_wheel_est_vel) / wheel_separation_;
+    const double linear = (right_wheel_est_vel + left_wheel_est_vel) * 0.5;
+    const double angular = ( (right_wheel_est_vel - left_wheel_est_vel) / (0.34 * terrain_param) );
 
     /// Integrate odometry:
     integrate_fun_(linear, angular);

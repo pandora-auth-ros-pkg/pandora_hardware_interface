@@ -85,7 +85,7 @@ namespace motor
      * \param time      Current time
      * \return true if the odometry is actually updated
      */
-    bool update(double left_pos, double right_pos, const ros::Time &time);
+    bool update(double left_pos, double right_pos, const ros::Time &time, const double terrain_param);
 
     /**
      * \brief Updates the odometry class with latest velocity command

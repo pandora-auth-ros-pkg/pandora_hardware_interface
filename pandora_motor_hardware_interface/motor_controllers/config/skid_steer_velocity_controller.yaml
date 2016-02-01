@@ -6,26 +6,25 @@ skid_steer_velocity_controller:
   right_rear_wheel: right_rear_wheel_joint
   publish_rate: 50
   wheel_radius: 0.0922
-  wheel_separation: 0.4
   track: 0.344
   terrain_parameter: 1.0
   linear_fit_degree: 5
   angular_fit_degree: 7
   base_frame_id: base_link
   pose_covariance_diagonal:
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
+    - 100.0
+    - 100.0
+    - 100.0
+    - 10.0
+    - 10.0
+    - 10.0
   twist_covariance_diagonal:
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
-    - 1.0
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.1
+    - 0.1
+    - 0.1
 
   # Low friction measurements
   measured_linear_velocities:
