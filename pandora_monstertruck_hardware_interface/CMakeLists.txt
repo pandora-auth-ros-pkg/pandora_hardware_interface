@@ -2,56 +2,52 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pandora_monstertruck_hardware_interface)
 
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
+  roscpp
   roslint
-  joint_limits_interface
+  std_msgs
+  geometry_msgs
+  ackermann_msgs
   controller_manager
   controller_interface
+  dual_controller_interface
+  joint_limits_interface
   pandora_motor_hardware_interface
+  pluginlib
+)
+
+set(THIS_PACKAGE_INCLUDE_DIRS
+  monstertruck_steer_drive_controller/include
+  monstertruck_hardware_interface/include
 )
 
 catkin_package(
   INCLUDE_DIRS
-   include
+    ${THIS_PACKAGE_INCLUDE_DIRS}
   CATKIN_DEPENDS
     roscpp
     std_msgs
-    joint_limits_interface
+    geometry_msgs
+    ackermann_msgs
     controller_manager
     controller_interface
-    message_runtime
+    dual_controller_interface
+    joint_limits_interface
     pandora_motor_hardware_interface
-  # DEPENDS
-  # LIBRARIES
+    pluginlib
+  DEPENDS
+  LIBRARIES
+    monstertruck_steer_drive_controller
 )
 
-include_directories(include
+
+include_directories(
+  ${THIS_PACKAGE_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
-link_directories(${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION})
+add_subdirectory(monstertruck_hardware_interface)
+add_subdirectory(monstertruck_steer_drive_controller)
 
-add_library(monstertruck_hardware_interface
-  src/monstertruck_hardware_interface.cpp
-)
-
-target_link_libraries(monstertruck_hardware_interface
-  serial_epos2_handler
-  ${catkin_LIBRARIES}
-)
-
-add_executable(monstertruck_hardware_interface_node
-  src/monstertruck_hardware_interface_node.cpp
-)
-
-target_link_libraries(monstertruck_hardware_interface_node
-  monstertruck_hardware_interface
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(monstertruck_hardware_interface_node
-  ${catkin_EXPORTED_TARGETS}
-)
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 set(ROSLINT_CPP_OPTS

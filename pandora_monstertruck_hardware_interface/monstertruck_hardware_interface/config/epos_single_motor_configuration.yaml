@@ -6,6 +6,7 @@ interface:
   baudrate: 38400
   timeout: 500
   connection_attempts: 2
+
 controllers:
   epos2Gateway_id: 1
   names: ["drive_shaft_motor_controller"]
@@ -13,4 +14,4 @@ controllers:
 
   # multiply current with current_to_torque_multiplier to get torque
   # divide torque with current_to_torque_multiplier to get current
-  current_to_torque_multiplier: 0
+  current_to_torque_multiplier: 0  #TODO: find/calculate actual multiplier
