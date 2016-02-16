@@ -21,6 +21,6 @@
     <rosparam
       command="load"
       file="$(find pandora_monstertruck_hardware_interface)/monstertruck_hardware_interface/config/epos_single_motor_configuration.yaml"
-      ns="/$(arg namespace)/epos2" />
+      ns="/motor/epos2" />
   </node>
 </launch>
