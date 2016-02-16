@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<library path="lib/libmonstertruck_steer_drive_controller">
+  <class
+    name="monstertruck_steer_drive_controller/MonstertruckSteerDriveController"
+    type="monstertruck_steer_drive_controller::MonstertruckSteerDriveController"
+    base_class_type="controller_interface::ControllerBase">
+
+    <description>
+      Monstertruck Steer Drive Controller
+    </description>
+  </class>
+</library>
