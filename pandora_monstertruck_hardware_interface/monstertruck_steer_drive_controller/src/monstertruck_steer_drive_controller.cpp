@@ -197,8 +197,8 @@ namespace monstertruck_steer_drive_controller
       R = fabs(linVel / angVel);
 
       deltaMean = copysign(wheelbase_/2/R, linSign*angSign);
-      deltaInner = 1.0197*deltaMean - 0.032;
-      deltaOuter = 0.98*deltaMean + 0.033;
+      deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
+      deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
 
       innerVel = linVel * wheelbase_
         * cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
@@ -250,8 +250,8 @@ namespace monstertruck_steer_drive_controller
       R = fabs(wheelbase_ / 2 / tan(deltaMean / 2));
 
       deltaMean = copysign(wheelbase_/2/R, msg->steering_angle);
-      deltaInner = 1.0197 * fabs(deltaMean);
-      deltaOuter = 0.98 * fabs(deltaMean);
+      deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
+      deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
 
       innerVel = msg->speed * wheelbase_
         * cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
