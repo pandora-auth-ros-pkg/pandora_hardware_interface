@@ -42,6 +42,7 @@ namespace monstertruck_steer_drive_controller
   MonstertruckSteerDriveController::MonstertruckSteerDriveController()
    :
     steerDriveCommand_(),
+    commandTimeout_(0.5),
     wheelRadius_(0),
     wheelbase_(0),
     track_(0)
