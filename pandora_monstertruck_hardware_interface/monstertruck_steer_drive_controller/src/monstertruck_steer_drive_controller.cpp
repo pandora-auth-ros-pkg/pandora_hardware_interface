@@ -239,7 +239,7 @@ namespace monstertruck_steer_drive_controller
     // store current time as the timestamp of the command
     steerDriveCommand_.stamp = ros::Time::now();
 
-    if (deltaMean == 0)
+    if (msg->steering_angle == 0)
     {
       steerDriveCommand_.leftVelocity = msg->speed / wheelRadius_;
       steerDriveCommand_.rightVelocity = msg->speed / wheelRadius_;
