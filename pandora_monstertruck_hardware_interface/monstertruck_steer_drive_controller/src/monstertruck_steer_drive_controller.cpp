@@ -93,6 +93,10 @@ namespace monstertruck_steer_drive_controller
       return false;
     }
 
+    // initialize position and velocity of wheels
+    brake();
+    alignWheels();
+
     return true;
   }
 
@@ -197,7 +201,7 @@ namespace monstertruck_steer_drive_controller
 
       R = fabs(linVel / angVel);
 
-      deltaMean = copysign(wheelbase_/2/R, linSign*angSign);
+      deltaMean = copysign(atan(wheelbase_/2/R), linSign*angSign);
       deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
       deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
 
@@ -248,18 +252,18 @@ namespace monstertruck_steer_drive_controller
     }
     else  // deltaMean != 0
     {
-      R = fabs(wheelbase_ / 2 / tan(deltaMean / 2));
+      R = pow(wheelbase_ / tan(msg->steering_angle), 2) + pow(wheelbase_/2, 2);
 
-      deltaMean = copysign(wheelbase_/2/R, msg->steering_angle);
+      deltaMean = copysign(atan(wheelbase_/2/R), msg->steering_angle);
       deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
       deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
 
       innerVel = msg->speed * wheelbase_
-        * cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaInner));
-      outerVel = msg->speed * wheelbase_
+        * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
+        / (2 * wheelRadius_ * R * sin(deltaInner)));
+      outerVel = msg->speed * fabs(wheelbase_
         * cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaOuter));
+        / (2 * wheelRadius_ * R * sin(deltaOuter)));
 
       steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
       steerDriveCommand_.rightVelocity = (deltaMean > 0) ? outerVel : innerVel;
