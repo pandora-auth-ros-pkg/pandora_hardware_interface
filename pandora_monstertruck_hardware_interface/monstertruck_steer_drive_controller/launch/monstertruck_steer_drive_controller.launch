@@ -1,4 +1,5 @@
 <launch>
+  <arg name="robot" default="monstertruck" />
   <arg name="namespace" default="monstertruck" />
 
   <rosparam
