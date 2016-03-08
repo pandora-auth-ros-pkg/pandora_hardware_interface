@@ -206,11 +206,11 @@ namespace monstertruck_steer_drive_controller
       deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
 
       innerVel = linVel * wheelbase_
-        * cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
-        / (2 * wheelRadius_ * R*sin(deltaInner));
+        * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
+        / (2 * wheelRadius_ * R*sin(deltaInner)));
       outerVel = linVel * wheelbase_
-        * cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaOuter));
+        * fabs(cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
+        / (2 * wheelRadius_ * R * sin(deltaOuter)));
 
       steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
       steerDriveCommand_.rightVelocity = (deltaMean > 0) ? outerVel : innerVel;
@@ -261,8 +261,8 @@ namespace monstertruck_steer_drive_controller
       innerVel = msg->speed * wheelbase_
         * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
         / (2 * wheelRadius_ * R * sin(deltaInner)));
-      outerVel = msg->speed * fabs(wheelbase_
-        * cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
+      outerVel = msg->speed * wheelbase_
+        * fabs(cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
         / (2 * wheelRadius_ * R * sin(deltaOuter)));
 
       steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
