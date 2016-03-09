@@ -52,14 +52,15 @@ namespace pololu_maestro
    * @class PololuMaestro
    * @brief Class that controls pololu maestro servo controllers
    * @details
-   * -The maestro module must be configured to dual usb and the channels
+   * -The maestro module must be configured to dual port and the channels
    *  used for input must be configured as such using the official maestro
    *  control center found at https://www.pololu.com/docs/0J40/3.b
-   * - In addition, a udev rule must be created by copying the
-   *   pololu_maestro.rules file in /etc/udev/rules.d directory, or by executing
+   * - In addition, a udev rule must be created by executing
    *   the command:
-   *    $ echo 'KERNEL=="ttyACM*", ATTRS{serial}=="00078719", MODE="0666",
-   *    SYMLINK+="maestro"' > /etc/udev/rules.d/pololu_maestro.rules
+   *
+   *    $ echo 'KERNEL=="ttyACM*", ATTRS{idVendor}=="1ffb",
+   *     ATTRS{idProduct}=="0089", MODE="0666"' >
+   *     /etc/udev/rules.d/pololu_maestro.rules
    */
   class PololuMaestro
   {
@@ -96,6 +97,12 @@ namespace pololu_maestro
      * @return doubel : voltage measurement
      */
     double readVoltage(unsigned char channel);
+
+    /*
+     * @brief Read and clear errors (required due to startup serial error)
+     * @return void
+     */
+    void readErrors();
 
    private:
     boost::scoped_ptr<serial::Serial> serialPtr_;  //!< serial controller pointer
