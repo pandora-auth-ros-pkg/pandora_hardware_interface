@@ -1,0 +1,1 @@
+KERNEL=="ttyACM*", ATTRS{serial}=="00078719", MODE="0666", SYMLINK+="maestro"
