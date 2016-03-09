@@ -59,6 +59,8 @@ namespace pololu_maestro
       ROS_FATAL("%s", ex.what());
       exit(-1);
     }
+
+    readErrors();
   }
 
   PololuMaestro::~PololuMaestro()
@@ -68,14 +70,15 @@ namespace pololu_maestro
 
   bool PololuMaestro::setTarget(unsigned char channel, double target)
   {
-    // convert target from radians to degrees and then to microseconds
+    // convert target from radians to degrees
     unsigned short angle = static_cast<unsigned short>(
-      std::max(std::min(angle * 180.0 / M_PI, 180.0), 0.0));
+      std::max(std::min(target * 180.0 / M_PI, 180.0), 0.0));
 
-    unsigned short command = static_cast<unsigned short>(angle / 10 + 590);
+    // convert angle from degrees to quarter microseconds
+    unsigned short command = static_cast<unsigned short>(angle * 10.48 + 496)*4;
 
     unsigned char cmdBuffer[] =
-      {0x84, channel, command & 0x7F, angle >> 7 & 0x7F};
+      {0x84, 0x00, command & 0x7F, (command >> 7) & 0x7F};
 
     int sentBytes =
       serialPtr_->write(
@@ -97,8 +100,8 @@ namespace pololu_maestro
     // receive feedback
     unsigned char response[2];
     serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
-    return (static_cast<double>(
-          ((256*response[1] + response[0]) - 590) * M_PI / 10 / 180.0));
+    return
+      (static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48;
   }
 
   double PololuMaestro::readVoltage(unsigned char channel)
@@ -111,7 +114,21 @@ namespace pololu_maestro
     unsigned char response[2];
     serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
 
-    return static_cast<double>((256*response[1] + response[0]) / 1024 * 5);
+    return (static_cast<double>(256*response[1] + response[0]) / 1024 * 5);
   }
+
+  void PololuMaestro::readErrors()
+  {
+    // request to read error
+    unsigned char cmdBuffer[] = {0xa1};
+    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(unsigned char));
+
+    // read response
+    unsigned char response[2];
+    serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
+
+    ROS_INFO("[pololu maestro] Error Code: %x %x", response[1], response[0]);
+  }
+
 }  // namespace pololu_maestro
 }  // namespace pandora_hardware_interface

@@ -44,20 +44,24 @@ int main(int argc, char **argv)
   ros::NodeHandle nodeHandle;
 
   pandora_hardware_interface::pololu_maestro::PololuMaestro
-    maestro("/dev/maestro", 9600, 500);
+    maestro("/dev/ttyACM0", 9600, 500);
 
   if (argc == 3)
   {
-    unsigned char channel = argv[1][0];
+    unsigned char channel = argv[1][0]-48;
 
     std::istringstream iss(argv[2]);
     int command;
     iss >> command;
 
-    ROS_INFO("Args: channel=%c, command=%d [degrees]", channel, command);
+    ROS_INFO("Argumentss: channel=%i, command=%d [degrees]", channel, command);
 
     if (argc == 3)
-      maestro.setTarget(channel, static_cast<double>(command/180*3.1415));
+    {
+      maestro.setTarget(channel, static_cast<double>(command)/180.0*M_PI);
+      ROS_INFO("Feedback: %f", maestro.readPosition(0.0));
+      ROS_INFO("AnalogVoltage on channel 5: %f", maestro.readVoltage(5));
+    }
   }
   else
   {
