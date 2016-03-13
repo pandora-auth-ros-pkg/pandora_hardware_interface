@@ -35,7 +35,7 @@
 * Author: George Kouros
 *********************************************************************/
 
-#include "pololu_maestro_driver/pololu_maestro_driver.h"
+#include "pololu_maestro/pololu_maestro.h"
 
 namespace pandora_hardware_interface
 {

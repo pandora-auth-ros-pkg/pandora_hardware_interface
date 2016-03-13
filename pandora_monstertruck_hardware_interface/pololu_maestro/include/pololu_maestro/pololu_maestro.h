@@ -35,8 +35,8 @@
 * Author: George Kouros
 *********************************************************************/
 
-#ifndef POLOLU_MAESTRO_DRIVER_POLOLU_MAESTRO_DRIVER_H
-#define POLOLU_MAESTRO_DRIVER_POLOLU_MAESTRO_DRIVER_H
+#ifndef POLOLU_MAESTRO_POLOLU_MAESTRO_H
+#define POLOLU_MAESTRO_POLOLU_MAESTRO_H
 
 #include <ros/ros.h>
 #include <serial/serial.h>
@@ -111,4 +111,4 @@ namespace pololu_maestro
 
 }  // namespace pololu_maestro
 }  // namespace pandora_hardware_interface
-#endif  // POLOLU_MAESTRO_DRIVER_POLOLU_MAESTRO_DRIVER_H
+#endif  // POLOLU_MAESTRO_POLOLU_MAESTRO_H

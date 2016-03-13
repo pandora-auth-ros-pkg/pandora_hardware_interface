@@ -35,12 +35,12 @@
 * Author: George Kouros
 *********************************************************************/
 
-#include "pololu_maestro_driver/pololu_maestro_driver.h"
+#include "pololu_maestro/pololu_maestro.h"
 #include <sstream>
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "trax_ahrs_configuration_node");
+  ros::init(argc, argv, "pololu_maestro_demo");
   ros::NodeHandle nodeHandle;
 
   pandora_hardware_interface::pololu_maestro::PololuMaestro
