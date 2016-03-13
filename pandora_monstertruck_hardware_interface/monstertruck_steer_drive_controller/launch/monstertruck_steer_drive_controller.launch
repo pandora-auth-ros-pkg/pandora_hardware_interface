@@ -2,6 +2,11 @@
   <arg name="robot" default="monstertruck" />
   <arg name="namespace" default="monstertruck" />
 
+
+  <param
+    name="robot_description"
+    command="$(find xacro)/xacro.py '$(find pandora_robots_description)/$(arg robot)/urdf/$(arg robot).urdf.xacro'"/>
+
   <rosparam
     command="load"
     file="$(find pandora_monstertruck_hardware_interface)/monstertruck_steer_drive_controller/config/monstertruck_steer_drive_controller_params.yaml"
