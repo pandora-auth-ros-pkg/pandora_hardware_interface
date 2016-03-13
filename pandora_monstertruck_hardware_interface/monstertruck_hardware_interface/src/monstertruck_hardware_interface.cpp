@@ -38,6 +38,7 @@
 #include "pandora_monstertruck_hardware_interface/monstertruck_hardware_interface.h"
 #include <math.h>
 #include <algorithm>
+#include <std_msgs/Float64.h>
 
 namespace pandora_hardware_interface
 {
@@ -55,6 +56,9 @@ namespace monstertruck
     // initialize servo hanler
     servoHandler_.reset(
       new pololu_maestro::PololuMaestro("/dev/ttyACM0", 9600, 500));
+
+    batteryVoltagePub_ =
+      nodeHandle_.advertise<std_msgs::Float64>("/battery/voltage", 1);
 
     // load joint names from parameter server
     loadJointConfiguration();
@@ -187,6 +191,11 @@ namespace monstertruck
     wheelSteerPosition_[1] = rearLeftAngle;
     wheelSteerPosition_[2] = frontRightAngle;
     wheelSteerPosition_[3] = rearRightAngle;
+
+    // read battery voltage from pololu maestro and publish it
+    std_msgs::Float64 batteryVoltage;
+    batteryVoltage.data = servoHandler_->readVoltage(5) * 10;
+    batteryVoltagePub_.publish(batteryVoltage);
   }
 
 
