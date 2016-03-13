@@ -6,6 +6,7 @@ add_library(monstertruck_hardware_interface
 
 target_link_libraries(monstertruck_hardware_interface
   serial_epos2_handler
+  pololu_maestro
   ${catkin_LIBRARIES}
 )
 
