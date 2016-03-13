@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 set(THIS_PACKAGE_INCLUDE_DIRS
   monstertruck_steer_drive_controller/include
   monstertruck_hardware_interface/include
-  pololu_maestro_driver/include
+  pololu_maestro/include
 )
 
 catkin_package(
@@ -48,7 +48,7 @@ include_directories(
 
 add_subdirectory(monstertruck_hardware_interface)
 add_subdirectory(monstertruck_steer_drive_controller)
-add_subdirectory(pololu_maestro_driver)
+add_subdirectory(pololu_maestro)
 
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
