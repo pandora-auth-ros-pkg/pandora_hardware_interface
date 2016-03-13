@@ -38,6 +38,7 @@
 #define PANDORA_MONSTERTRUCK_HARDWARE_INTERFACE_MONSTERTRUCK_HARDWARE_INTERFACE_H
 
 #include "epos2_handler/serial_epos2_handler.h"
+#include "pololu_maestro/pololu_maestro.h"
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -59,20 +60,11 @@ namespace monstertruck
       void write();
 
     private:
-      void steerActuatorFeedbackCallback(
-        const std_msgs::Float64ConstPtr& msg, int id);
       bool loadJointConfiguration();
 
-    private:
       ros::NodeHandle nodeHandle_;
       boost::scoped_ptr<motor::SerialEpos2Handler> motorHandler_;
-
-      // steer actuator command publishers
-      std::vector<std::string> steerActuatorCommandTopics_;
-      std::vector<ros::Publisher> steerActuatorCommandPublishers_;
-      // steer actuator feedback subscribers
-      std::vector<std::string> steerActuatorJointStateTopics_;
-      std::vector<ros::Subscriber> steerActuatorJointStateSubscribers_;
+      boost::scoped_ptr<pololu_maestro::PololuMaestro> servoHandler_;
 
       // joint state, velocity and position joint interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
@@ -91,7 +83,6 @@ namespace monstertruck
       // wheel steer joint names, variables and limits
       std::vector<std::string> wheelSteerJointNames_;
       double* wheelSteerPositionCommand_;
-      double* wheelSteerPositionFeedback_;
       double* wheelSteerPosition_;
       double* wheelSteerVelocity_;
       double* wheelSteerEffort_;

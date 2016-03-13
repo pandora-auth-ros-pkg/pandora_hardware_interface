@@ -37,6 +37,7 @@
 
 #include "pandora_monstertruck_hardware_interface/monstertruck_hardware_interface.h"
 #include <math.h>
+#include <algorithm>
 
 namespace pandora_hardware_interface
 {
@@ -47,7 +48,10 @@ namespace monstertruck
    :
     nodeHandle_(nodeHandle)
   {
-    motorHandler_.reset(new motor::SerialEpos2Handler());
+    motorHandler_.reset(
+      new motor::SerialEpos2Handler());
+    servoHandler_.reset(
+      new pololu_maestro::PololuMaestro("/dev/ttyACM0", 9600, 500));
 
     // load joint names from parameter server
     loadJointConfiguration();
@@ -59,7 +63,6 @@ namespace monstertruck
     wheelDriveEffort_ = new double[wheelDriveJointNames_.size()];
 
     wheelSteerPositionCommand_ = new double[wheelSteerJointNames_.size()];
-    wheelSteerPositionFeedback_ = new double[wheelSteerJointNames_.size()];
     wheelSteerPosition_ = new double[wheelSteerJointNames_.size()];
     wheelSteerVelocity_ = new double[wheelSteerJointNames_.size()];
     wheelSteerEffort_ = new double[wheelSteerJointNames_.size()];
@@ -81,8 +84,6 @@ namespace monstertruck
     // create and register the joint state handles for the steer joints
     for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
     {
-      wheelSteerPositionFeedback_[ii] = 0;
-
       wheelSteerPosition_[ii] = 0;
       wheelSteerVelocity_[ii] = 0;
       wheelSteerEffort_[ii] = 0;
@@ -119,30 +120,7 @@ namespace monstertruck
     }
     registerInterface(&positionJointInterface_);
 
-    // generate a command publisher and a feedback subscriber for each actuator
-    for (int ii = 0; ii < steerActuatorJointNames_.size(); ii++)
-    {
-      ros::Publisher pub =
-        nodeHandle_.advertise<std_msgs::Float64>(
-          steerActuatorCommandTopics_[ii], 1);
-
-      // add publisher to corresponding vector
-      steerActuatorCommandPublishers_.push_back(pub);
-
-      ros::Subscriber sub = nodeHandle_.subscribe<std_msgs::Float64>(
-        steerActuatorJointStateTopics_[ii],
-        1,
-        boost::bind(
-          &MonstertruckHardwareInterface::steerActuatorFeedbackCallback,
-          this,
-          _1,
-          ii));
-
-      // add subscriber to corresponding vector
-      steerActuatorJointStateSubscribers_.push_back(sub);
-    }
-
-    ROS_INFO("[MOTORS] Node Initialized");
+    ROS_INFO("[MONSTERTRUCK] Node Initialized");
   }
 
   MonstertruckHardwareInterface::~MonstertruckHardwareInterface()
@@ -152,7 +130,6 @@ namespace monstertruck
     delete wheelDriveVelocity_;
     delete wheelDriveEffort_;
     delete wheelSteerPositionCommand_;
-    delete wheelSteerPositionFeedback_;
     delete wheelSteerPosition_;
     delete wheelSteerVelocity_;
     delete wheelSteerEffort_;
@@ -188,9 +165,37 @@ namespace monstertruck
       exit(1);
     }
 
-    // read wheel steer joint positions
-    for (int ii = 0; ii < wheelSteerJointNames_.size(); ii++)
-      wheelSteerPosition_[ii] = wheelSteerPositionFeedback_[ii];
+    // read wheel steer actuator positions
+    double frontAngle = servoHandler_->readPosition(0);
+    double rearAngle = servoHandler_->readPosition(1);
+
+    double frontLeftAngle = 0;
+    double frontRightAngle = 0;
+    double rearLeftAngle = 0;
+    double rearRightAngle = 0;
+
+    // calculate wheel steer angles from actuator steer angles
+    for (int ii = 0; ii < pFALFCoeffs_.size(); ii++)
+      frontLeftAngle += pFALFCoeffs_[ii] *
+        pow(frontAngle, pFALFCoeffs_.size() - ii - 1);
+
+    for (int ii = 0; ii < pLFRFCoeffs_.size(); ii++)
+      frontRightAngle += pLFRFCoeffs_[ii] *
+        pow(frontLeftAngle, pLFRFCoeffs_.size() - ii - 1);
+
+    for (int ii = 0; ii < pRARRCoeffs_.size(); ii++)
+      rearRightAngle += pRARRCoeffs_[ii] *
+        pow(rearAngle, pRARRCoeffs_.size() - ii - 1);
+
+    for (int ii = 0; ii < pRRLRCoeffs_.size(); ii++)
+      rearLeftAngle += pRRLRCoeffs_[ii] *
+        pow(rearRightAngle, pRRLRCoeffs_.size() - ii - 1);
+
+    // update wheel steer angles
+    wheelSteerPosition_[0] = frontLeftAngle;
+    wheelSteerPosition_[1] = rearLeftAngle;
+    wheelSteerPosition_[2] = frontRightAngle;
+    wheelSteerPosition_[3] = rearRightAngle;
   }
 
 
@@ -238,72 +243,16 @@ namespace monstertruck
         pow(wheelSteerPositionCommand_[3], pRRRACoeffs_.size() - ii - 1);
     }
 
-    // publish the front and rear steer actuator commands to their
-    // corresponding topics
     for (int ii = 0; ii < steerActuatorJointNames_.size(); ii++)
     {
-      std_msgs::Float64 msg;
-      msg.data = steerActuatorCmd[ii];
+      // enforce steer actuator command limits
+      steerActuatorCmd[ii] =
+        std::min(
+          std::max(steerActuatorCmd[ii], steerActuatorMinPosition_[ii]),
+          steerActuatorMaxPosition_[ii]);
 
-      // enforce steer actuator limits
-      if (steerActuatorCmd[ii] > steerActuatorMaxPosition_[ii])
-        steerActuatorCmd[ii] = steerActuatorMaxPosition_[ii];
-      else if (steerActuatorCmd[ii] < steerActuatorMinPosition_[ii])
-        steerActuatorCmd[ii] = steerActuatorMinPosition_[ii];
-
-      // publish command
-      steerActuatorCommandPublishers_[ii].publish(msg);
-    }
-  }
-
-
-  void MonstertruckHardwareInterface::steerActuatorFeedbackCallback(
-    const std_msgs::Float64ConstPtr& msg, int id)
-  {
-    double leftAngle = 0, rightAngle = 0;
-    double actuatorSteerAngle = msg->data;  // steering actuator position
-
-    if (id == 0)  // msg contains front actuator position
-    {
-      // compute left front wheel joint position, using the front actuator
-      // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pFALFCoeffs_.size(); ii++)
-      {
-        leftAngle += pFALFCoeffs_[ii] *
-          pow(actuatorSteerAngle, pFALFCoeffs_.size() - ii - 1);
-      }
-      // compute right front wheel joint position, using the left front wheel
-      // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pLFRFCoeffs_.size(); ii++)
-      {
-        rightAngle += pLFRFCoeffs_[ii] *
-          pow(leftAngle, pLFRFCoeffs_.size() - ii - 1);
-      }
-
-      // write results to corresponding contaner
-      wheelSteerPositionFeedback_[0] = leftAngle;
-      wheelSteerPositionFeedback_[2] = rightAngle;
-    }
-    else if (id == 1)  // msg contains rear actuator position
-    {
-      // compute right rear wheel joint position, using the rear actuator
-      // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pRARRCoeffs_.size(); ii++)
-      {
-        rightAngle += pRARRCoeffs_[ii] *
-          pow(actuatorSteerAngle, pRARRCoeffs_.size() - ii - 1);
-      }
-      // compute left rear wheel joint position, using the right rear wheel
-      // angle and a polynomial approximation of the relationship between them
-      for (int ii = 0; ii < pRRLRCoeffs_.size(); ii++)
-      {
-        leftAngle += pRRLRCoeffs_[ii] *
-          pow(rightAngle, pRRLRCoeffs_.size() - ii - 1);
-      }
-
-      // write results to corresponding container
-      wheelSteerPositionFeedback_[1] = leftAngle;
-      wheelSteerPositionFeedback_[3] = rightAngle;
+      // write command to servoHandler
+      servoHandler_->setTarget(static_cast<uint8_t>(ii), steerActuatorCmd[ii]);
     }
   }
 
@@ -347,10 +296,6 @@ namespace monstertruck
 
     if (nodeHandle_.getParam("steer_actuators/joint_names",
         steerActuatorJointNames_)
-      && nodeHandle_.getParam("steer_actuators/command_topics",
-        steerActuatorCommandTopics_)
-      && nodeHandle_.getParam("steer_actuators/joint_state_topics",
-        steerActuatorJointStateTopics_)
       && nodeHandle_.getParam("steer_actuators/min_position",
         steerActuatorMinPosition_)
       && nodeHandle_.getParam("steer_actuators/max_position",
