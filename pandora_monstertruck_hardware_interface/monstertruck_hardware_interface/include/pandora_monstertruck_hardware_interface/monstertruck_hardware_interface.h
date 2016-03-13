@@ -42,9 +42,6 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
-#include <joint_limits_interface/joint_limits_interface.h>
-#include <joint_limits_interface/joint_limits_rosparam.h>
-#include <std_msgs/Float64.h>
 #include <ros/ros.h>
 
 namespace pandora_hardware_interface
@@ -65,6 +62,8 @@ namespace monstertruck
       ros::NodeHandle nodeHandle_;
       boost::scoped_ptr<motor::SerialEpos2Handler> motorHandler_;
       boost::scoped_ptr<pololu_maestro::PololuMaestro> servoHandler_;
+
+      ros::Publisher batteryVoltagePub_;
 
       // joint state, velocity and position joint interfaces
       hardware_interface::JointStateInterface jointStateInterface_;
