@@ -48,8 +48,11 @@ namespace monstertruck
    :
     nodeHandle_(nodeHandle)
   {
+    // initialize motor handler
     motorHandler_.reset(
       new motor::SerialEpos2Handler());
+
+    // initialize servo hanler
     servoHandler_.reset(
       new pololu_maestro::PololuMaestro("/dev/ttyACM0", 9600, 500));
 
@@ -139,42 +142,24 @@ namespace monstertruck
   void MonstertruckHardwareInterface::read(const ros::Duration& period)
   {
     // read wheel drive joint velocities
-    double velocity[driveMotorControllerNames_.size()];
+    int32_t rpm;
 
-    for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
-    {
-      int32_t rpm;
-      motorHandler_->getRPM(driveMotorControllerNames_[ii], &rpm);
-      velocity[ii] = rpm / driveMotorRatio_[ii] / 60 * 2 * M_PI;
-    }
-
-    if (driveMotorControllerNames_.size() == 1)
-    {
-      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-        wheelDriveVelocity_[ii] = velocity[0];
-    }
-    else if (driveMotorControllerNames_.size() == wheelDriveJointNames_.size())
-    {
-      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-        wheelDriveVelocity_[ii] = velocity[ii];
-    }
-    else
-    {
-      ROS_ERROR("[MOTORS] number of motors is %zu (should be 1 or 4)",
-        driveMotorControllerNames_.size());
-      exit(1);
-    }
-
-    // read wheel steer actuator positions
-    double frontAngle = servoHandler_->readPosition(0);
-    double rearAngle = servoHandler_->readPosition(1);
+    double frontAngle;
+    double rearAngle;
 
     double frontLeftAngle = 0;
     double frontRightAngle = 0;
     double rearLeftAngle = 0;
     double rearRightAngle = 0;
 
-    // calculate wheel steer angles from actuator steer angles
+    // read motor rpm
+    motorHandler_->getRPM(motorControllerName_, &rpm);
+
+    // read wheel steer actuator positions
+    frontAngle = servoHandler_->readPosition(0);
+    rearAngle = servoHandler_->readPosition(1);
+
+    // compute wheel steer angles from actuator steer angles
     for (int ii = 0; ii < pFALFCoeffs_.size(); ii++)
       frontLeftAngle += pFALFCoeffs_[ii] *
         pow(frontAngle, pFALFCoeffs_.size() - ii - 1);
@@ -191,6 +176,12 @@ namespace monstertruck
       rearLeftAngle += pRRLRCoeffs_[ii] *
         pow(rearRightAngle, pRRLRCoeffs_.size() - ii - 1);
 
+    // TODO(gkouros): use parallel steer side velocity equations
+    // compute wheel angular velocities
+    for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+      wheelDriveVelocity_[ii] =
+        static_cast<double>(rpm) / motorRatio_ / 60 * 2 * M_PI;
+
     // update wheel steer angles
     wheelSteerPosition_[0] = frontLeftAngle;
     wheelSteerPosition_[1] = rearLeftAngle;
@@ -201,59 +192,29 @@ namespace monstertruck
 
   void MonstertruckHardwareInterface::write()
   {
-    double velocity[driveMotorControllerNames_.size()];
+    int32_t rpmCmd;
+    double steerAngleCmd;
 
-    if (driveMotorControllerNames_.size() == 1)
-    {
-      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-        velocity[0] +=
-          fabs(wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size());
-        velocity[0] = copysign(velocity[0], wheelDriveVelocityCommand_[0]);
-    }
-    else if (driveMotorControllerNames_.size() == wheelDriveJointNames_.size())
-    {
-      for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-        velocity[ii] = wheelDriveVelocityCommand_[ii];
-    }
-    else
-    {
-      ROS_ERROR("[MOTORS] number of motors is %zu (should be 1 or 4)",
-        driveMotorControllerNames_.size());
-      exit(1);
-    }
+    // compute motor rpm
+    for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
+      rpmCmd +=
+        wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size();
 
-    for (int ii = 0; ii < driveMotorControllerNames_.size(); ii++)
-      motorHandler_->writeRPM(driveMotorControllerNames_[ii],
-        static_cast<int32_t>(driveMotorRatio_[ii] * velocity[ii] * 60 / 2 / M_PI));
+    rpmCmd = static_cast<int32_t>(rpmCmd * motorRatio_ * 60 / 2 / M_PI);
 
-    // compute the front actuator steer angle, using the left front wheel steer
-    // angle and a polynomial approximation of the relationship between the two
-    double steerActuatorCmd[2] = {0, 0};
+    // compute steer actuator command from left front wheel joint
     for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
-    {
-      steerActuatorCmd[0] += pLFFACoeffs_[ii] *
+      steerAngleCmd += pLFFACoeffs_[ii] *
         pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii - 1);
-    }
 
-    // compute the rear actuator steer angle, using the right rear wheel steer
-    // angle and a polynomial approximation of the relationship between the two
-    for (int ii = 0; ii < pRRRACoeffs_.size(); ii++)
-    {
-      steerActuatorCmd[1] += pRRRACoeffs_[ii] *
-        pow(wheelSteerPositionCommand_[3], pRRRACoeffs_.size() - ii - 1);
-    }
+    // enforce limits
+    rpmCmd = std::min(std::max(rpmCmd, motorMinRPM_), motorMaxRPM_);
+    steerAngleCmd = std::min(std::max(steerAngleCmd, -M_PI/4) , M_PI/4);
 
-    for (int ii = 0; ii < steerActuatorJointNames_.size(); ii++)
-    {
-      // enforce steer actuator command limits
-      steerActuatorCmd[ii] =
-        std::min(
-          std::max(steerActuatorCmd[ii], steerActuatorMinPosition_[ii]),
-          steerActuatorMaxPosition_[ii]);
-
-      // write command to servoHandler
-      servoHandler_->setTarget(static_cast<uint8_t>(ii), steerActuatorCmd[ii]);
-    }
+    // write commands
+    motorHandler_->writeRPM(motorControllerName_, rpmCmd);
+    servoHandler_->setTarget(static_cast<uint8_t>(0), steerAngleCmd);
+    servoHandler_->setTarget(static_cast<uint8_t>(1), -steerAngleCmd);
   }
 
 
@@ -279,34 +240,18 @@ namespace monstertruck
       exit(EXIT_FAILURE);
     }
 
-    if (nodeHandle_.getParam("drive_motors/motor_controller_names",
-        driveMotorControllerNames_)
-      && nodeHandle_.getParam("drive_motors/ratios", driveMotorRatio_)
-      && nodeHandle_.getParam("drive_motors/min_rpms", driveMotorMinRPM_)
-      && nodeHandle_.getParam("drive_motors/max_rpms", driveMotorMaxRPM_))
+    if (nodeHandle_.getParam("motor/controller_name",
+        motorControllerName_)
+      && nodeHandle_.getParam("motor/ratio", motorRatio_)
+      && nodeHandle_.getParam("motor/min_rpm", motorMinRPM_)
+      && nodeHandle_.getParam("motor/max_rpm", motorMaxRPM_))
     {
-      ROS_INFO("[MOTORS] Drive motor parameters loaded successfully!");
+      ROS_INFO("[MOTORS] motor parameters loaded successfully!");
     }
     else
     {
       ROS_INFO(
-        "[MOTORS] Drive motors' parameters could not be loaded! Exiting...");
-      exit(EXIT_FAILURE);
-    }
-
-    if (nodeHandle_.getParam("steer_actuators/joint_names",
-        steerActuatorJointNames_)
-      && nodeHandle_.getParam("steer_actuators/min_position",
-        steerActuatorMinPosition_)
-      && nodeHandle_.getParam("steer_actuators/max_position",
-        steerActuatorMaxPosition_))
-    {
-      ROS_INFO("[MOTORS] Steer actuator parameters loaded successfully!");
-    }
-    else
-    {
-      ROS_ERROR(
-        "[MOTORS] Steer actuator parameters could not be loaded! Exiting...");
+        "[MOTORS] motor parameters could not be loaded! Exiting...");
       exit(EXIT_FAILURE);
     }
 

@@ -20,37 +20,11 @@ wheel_steer_joints:
     min_position: deg(-22.5)
     max_position: deg(22.5)
 
-drive_motors:
-  motor_controller_names:
-    - drive_shaft_motor_controller # motor joint connected to all wheels
-  ratios:  # <- final drive ratios of motors
-  # gearbox_ratio = 66
-  # transmission_ratio = 1.68
-  # gear_ratio=spur_ratio/pinion_ratio = 81/60 = 1.35
-  # differential_ratio = 3.3
-  # final_drive_ratio = 66 * 1.68 * 1.35 * 3.3 = 494
-    - 590.4  # measured via experiment
-  min_rpms:  # [rpm] (min wheel rpm: -30rpm)
-    - -18000.0
-  max_rpms:  # [rpm] (max wheel rpm: 30rpm)
-    - 18000.0
-
-steer_actuators:
-  joint_names:
-    - front_steer_actuator_joint
-    - rear_steer_actuator_joint
-  command_topics:
-    - /front_steer_controller/command
-    - /rear_steer_controller/command
-  joint_state_topics:
-    - /front_steer_controller/state
-    - /rear_steer_controller/state
-  min_position:
-    - deg(-45) # -45 degrees or -0.7854 rad
-    - deg(-45) # -45 degrees or -0.7854 rad
-  max_position: # [rads]
-    - deg(45)  # 45 degrees or 0.7854 rad
-    - deg(45)  # 45 degrees or 0.7854 rad
+motor:
+  controller_name: drive_shaft_motor_controller
+  ratio: 590
+  min_rpms: -18000.0
+  max_rpms: 18000.0
 
 steer_mechanism:
   polynomial_approximation_coefficients:

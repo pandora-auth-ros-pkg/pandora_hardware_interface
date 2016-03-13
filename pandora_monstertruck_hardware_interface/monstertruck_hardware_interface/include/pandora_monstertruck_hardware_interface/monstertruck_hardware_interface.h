@@ -90,15 +90,10 @@ namespace monstertruck
       double wheelSteerMaxPosition_;
 
       // drive motor joints and parameters
-      std::vector<std::string> driveMotorControllerNames_;
-      std::vector<double> driveMotorRatio_;
-      std::vector<double> driveMotorMinRPM_;
-      std::vector<double> driveMotorMaxRPM_;
-
-      // steer motor joints' names and variables
-      std::vector<std::string> steerActuatorJointNames_;
-      std::vector<double> steerActuatorMinPosition_;
-      std::vector<double> steerActuatorMaxPosition_;
+      std::string motorControllerName_;
+      int32_t  motorRatio_;
+      int32_t  motorMinRPM_;
+      int32_t motorMaxRPM_;
 
       // Steering Mechanism Polynomial Approximation Coefficients:
 
