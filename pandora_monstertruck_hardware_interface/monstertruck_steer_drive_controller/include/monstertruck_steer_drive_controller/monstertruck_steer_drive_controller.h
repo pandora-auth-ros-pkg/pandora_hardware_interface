@@ -125,6 +125,14 @@ namespace monstertruck_steer_drive_controller
     void ackermannDriveCommandCallback(
       const ackermann_msgs::AckermannDriveConstPtr& msg);
 
+    /*
+     * brief Computes a steer drive command from speed and turning radius
+     * param speed [double] : the linear speed of the vehicle
+     * param turningRadius [double] : the turning radius of the robot trajectory
+     * return void
+     */
+    void computeSteerDriveCommand(double speed, double turningRadius);
+
     /**
      * brief Loads joint names and parameters from the parameter server
      * return void
