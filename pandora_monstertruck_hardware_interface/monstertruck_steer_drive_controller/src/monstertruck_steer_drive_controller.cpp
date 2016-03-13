@@ -163,61 +163,24 @@ namespace monstertruck_steer_drive_controller
       return;
     }
 
-    double R;  // mobile base trajectory radius
-    double linVel;  // mobile base linear velocity
-    double angVel;  // mobile base angular velocity
-
-    int linSign;  // linear velocity sign
-    int angSign;  // angular velocity sign
-
-    double deltaInner;  // inner to trajectory steering angle
-    double deltaOuter;  // outer to trajectory steering angle
-    double deltaMean;  // mean of deltaInner, deltaOuter
-    double innerVel;  // inner velocity
-    double outerVel;  // outer velocity
-
-    steerDriveCommand_.stamp = ros::Time::now();
-
-    linVel = msg->linear.x;
-    angVel = msg->angular.z;
-    linSign = static_cast<int>(copysign(1, linVel));
-    angSign = static_cast<int>(copysign(1, angVel));
-
-    if (angVel == 0)
+    if (fabs(msg->angular.z) < 0.001)
     {
-      steerDriveCommand_.leftVelocity = linVel / wheelRadius_;
-      steerDriveCommand_.rightVelocity = linVel / wheelRadius_;
+      steerDriveCommand_.leftVelocity = msg->linear.x / wheelRadius_;
+      steerDriveCommand_.rightVelocity = msg->linear.x / wheelRadius_;
       steerDriveCommand_.leftSteerAngle = 0;
       steerDriveCommand_.rightSteerAngle = 0;
     }
     else  // if angVel != 0
     {
-      if (linVel == 0)
+      if (msg->linear.x == 0)
       {
         ROS_ERROR("[monstertruck_steer_drive_controller] Invalid command");
         brake();
         return;
       }
 
-      R = fabs(linVel / angVel);
-
-      deltaMean = copysign(atan(wheelbase_/2/R), linSign*angSign);
-      deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
-      deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
-
-      innerVel = linVel * wheelbase_
-        * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
-        / (2 * wheelRadius_ * R*sin(deltaInner)));
-      outerVel = linVel * wheelbase_
-        * fabs(cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaOuter)));
-
-      steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
-      steerDriveCommand_.rightVelocity = (deltaMean > 0) ? outerVel : innerVel;
-      steerDriveCommand_.leftSteerAngle =
-        (deltaMean > 0) ? deltaInner : -deltaOuter;
-      steerDriveCommand_.rightSteerAngle =
-        (deltaMean > 0) ? deltaOuter : -deltaInner;
+      // compute steer drive command
+      computeSteerDriveCommand(msg->linear.x, msg->linear.x / msg->angular.z);
     }
   }
 
@@ -231,18 +194,6 @@ namespace monstertruck_steer_drive_controller
       return;
     }
 
-    double R;  // mobile base trajectory radius
-
-    double deltaInner;  // inner to trajectory steering angle
-    double deltaOuter;  // outer to trajectory steering angle
-    double deltaMean;  // mean of deltaInner, deltaOuter
-
-    double innerVel;  // inner velocity
-    double outerVel;  // outer velocity
-
-    // store current time as the timestamp of the command
-    steerDriveCommand_.stamp = ros::Time::now();
-
     if (fabs(msg->steering_angle) < 0.001)
     {
       steerDriveCommand_.leftVelocity = msg->speed / wheelRadius_;
@@ -252,26 +203,48 @@ namespace monstertruck_steer_drive_controller
     }
     else  // deltaMean != 0
     {
-      R = pow(wheelbase_ / tan(msg->steering_angle), 2) + pow(wheelbase_/2, 2);
+      double turningRadius = copysign(
+        pow(wheelbase_ / tan(msg->steering_angle), 2) + pow(wheelbase_/2, 2),
+        msg->steering_angle);
 
-      deltaMean = copysign(atan(wheelbase_/2/R), msg->steering_angle);
-      deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
-      deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
-
-      innerVel = msg->speed * wheelbase_
-        * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (R - track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaInner)));
-      outerVel = msg->speed * wheelbase_
-        * fabs(cos(deltaOuter - atan(wheelbase_ / 2 / (R + track_/2)))
-        / (2 * wheelRadius_ * R * sin(deltaOuter)));
-
-      steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
-      steerDriveCommand_.rightVelocity = (deltaMean > 0) ? outerVel : innerVel;
-      steerDriveCommand_.leftSteerAngle =
-        (deltaMean > 0) ? deltaInner : -deltaOuter;
-      steerDriveCommand_.rightSteerAngle =
-        (deltaMean > 0) ? deltaOuter : -deltaInner;
+      // compute steer drive command
+      computeSteerDriveCommand(msg->speed, turningRadius);
     }
+  }
+
+  void MonstertruckSteerDriveController::computeSteerDriveCommand(
+    double speed, double turningRadius)
+  {
+    // inner: the side of the robot closest to the center of rotation
+    // outer: the side of the robot farthest from the center of rotation
+
+    double deltaInner;  // inner wheel steer angle
+    double deltaOuter;  // outer wheel steer angle
+    double deltaMean;  // virtual middle wheel steer angle
+
+    double innerVel;  // inner wheel velocity
+    double outerVel;  // outer wheel velocity
+
+    double R = turningRadius;  // mobile base trajectory turning radius
+
+    deltaMean = atan(wheelbase_/2/R);
+    deltaInner = 1.0195 * fabs(deltaMean) - 0.0031;
+    deltaOuter = 0.985 * fabs(deltaMean) + 0.0033;
+
+    innerVel = speed * wheelbase_
+      * fabs(cos(-deltaInner + atan(wheelbase_ / 2 / (fabs(R) - track_/2)))
+        / (2 * wheelRadius_ * fabs(R) * sin(deltaInner)));
+    outerVel = speed * wheelbase_
+      * fabs(cos(deltaOuter - atan(wheelbase_ / 2 / (fabs(R) + track_/2)))
+        / (2 * wheelRadius_ * fabs(R) * sin(deltaOuter)));
+
+    steerDriveCommand_.leftVelocity = (deltaMean > 0) ? innerVel : outerVel;
+    steerDriveCommand_.rightVelocity = (deltaMean > 0) ? outerVel : innerVel;
+    steerDriveCommand_.leftSteerAngle =
+      (deltaMean > 0) ? deltaInner : -deltaOuter;
+    steerDriveCommand_.rightSteerAngle =
+      (deltaMean > 0) ? deltaOuter : -deltaInner;
+    steerDriveCommand_.stamp = ros::Time::now();
   }
 
   void MonstertruckSteerDriveController::loadJointNamesAndParameters(
