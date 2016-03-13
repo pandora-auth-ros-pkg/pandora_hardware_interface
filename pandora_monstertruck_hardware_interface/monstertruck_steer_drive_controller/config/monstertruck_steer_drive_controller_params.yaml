@@ -6,7 +6,7 @@ monstertruck_steer_drive_controller:
   type: monstertruck_steer_drive_controller/MonstertruckSteerDriveController
   publish_rate: 50
 
-  wheel_radius: 0.07  # [m]
+  wheel_radius: 0.075  # [m]
   wheelbase: 0.32  # [m]
   track: 0.26  # [m]
 
