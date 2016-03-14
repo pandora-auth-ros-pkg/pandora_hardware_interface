@@ -222,8 +222,8 @@ namespace monstertruck
 
     // write commands
     motorHandler_->writeRPM(motorControllerName_, rpmCmd);
-    servoHandler_->setTarget(static_cast<uint8_t>(0), steerAngleCmd);
-    servoHandler_->setTarget(static_cast<uint8_t>(1), -steerAngleCmd);
+    servoHandler_->setTarget(0, steerAngleCmd + M_PI/2);
+    servoHandler_->setTarget(1, -steerAngleCmd + M_PI/2);
   }
 
 
