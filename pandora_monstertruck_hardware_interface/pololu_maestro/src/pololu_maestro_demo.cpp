@@ -59,7 +59,8 @@ int main(int argc, char **argv)
     if (argc == 3)
     {
       maestro.setTarget(channel, static_cast<double>(command)/180.0*M_PI);
-      ROS_INFO("Feedback: %f", maestro.readPosition(0.0));
+      ros::Duration(0.5).sleep();
+      ROS_INFO("Feedback: %f", maestro.readPosition(channel));
       ROS_INFO("AnalogVoltage on channel 5: %f", maestro.readVoltage(5));
     }
   }
