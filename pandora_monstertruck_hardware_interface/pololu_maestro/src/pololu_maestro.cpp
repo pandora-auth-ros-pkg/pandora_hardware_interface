@@ -78,7 +78,7 @@ namespace pololu_maestro
     unsigned short command = static_cast<unsigned short>(angle * 10.48 + 496)*4;
 
     unsigned char cmdBuffer[] =
-      {0x84, 0x00, command & 0x7F, (command >> 7) & 0x7F};
+      {0x84, channel, command & 0x7F, (command >> 7) & 0x7F};
 
     int sentBytes =
       serialPtr_->write(
