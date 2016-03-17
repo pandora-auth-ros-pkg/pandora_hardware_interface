@@ -23,8 +23,8 @@ wheel_steer_joints:
 motor:
   controller_name: drive_shaft_motor_controller
   ratio: 590
-  min_rpms: -18000.0
-  max_rpms: 18000.0
+  min_rpm: -18000.0
+  max_rpm: 18000.0
 
 steer_mechanism:
   polynomial_approximation_coefficients:
