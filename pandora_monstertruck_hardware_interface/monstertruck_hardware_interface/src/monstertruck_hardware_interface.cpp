@@ -201,15 +201,16 @@ namespace monstertruck
 
   void MonstertruckHardwareInterface::write()
   {
+    double velocityCmd = 0;
+    double steerAngleCmd = 0;
     int32_t rpmCmd;
-    double steerAngleCmd;
 
     // compute motor rpm
     for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-      rpmCmd +=
+      velocityCmd +=
         wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size();
 
-    rpmCmd = static_cast<int32_t>(rpmCmd * motorRatio_ * 60 / 2 / M_PI);
+    rpmCmd = static_cast<int32_t>(velocityCmd * motorRatio_ * 60 / 2 / M_PI);
 
     // compute steer actuator command from left front wheel joint
     for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
