@@ -80,6 +80,10 @@ namespace pololu_maestro
     unsigned char cmdBuffer[] =
       {0x84, channel, command & 0x7F, (command >> 7) & 0x7F};
 
+    // flush input and output buffers
+    serialPtr_->flush();
+
+    // write command
     int sentBytes =
       serialPtr_->write(
         cmdBuffer,
@@ -127,7 +131,8 @@ namespace pololu_maestro
     unsigned char response[2];
     serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
 
-    ROS_INFO("[pololu maestro] Error Code: %x %x", response[1], response[0]);
+    if (response[0] | response[1])
+      ROS_WARN("[pololu maestro] Error: 0x%x%x", response[1], response[0]);
   }
 
 }  // namespace pololu_maestro
