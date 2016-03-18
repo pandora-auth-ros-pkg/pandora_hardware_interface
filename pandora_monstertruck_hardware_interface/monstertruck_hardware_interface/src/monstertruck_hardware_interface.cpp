@@ -159,6 +159,9 @@ namespace monstertruck
     // read motor rpm
     motorHandler_->getRPM(motorControllerName_, &rpm);
 
+    // read servo handler errors to clear them
+    servoHandler_->readErrors();
+
     // read wheel steer actuator positions
     frontAngle = servoHandler_->readPosition(0);
     rearAngle = servoHandler_->readPosition(1);
@@ -220,6 +223,9 @@ namespace monstertruck
     // enforce limits
     rpmCmd = std::min(std::max(rpmCmd, motorMinRPM_), motorMaxRPM_);
     steerAngleCmd = std::min(std::max(steerAngleCmd, -M_PI/4) , M_PI/4);
+
+    // read servo handler errors to clear them
+    servoHandler_->readErrors();
 
     // write commands
     motorHandler_->writeRPM(motorControllerName_, rpmCmd);
