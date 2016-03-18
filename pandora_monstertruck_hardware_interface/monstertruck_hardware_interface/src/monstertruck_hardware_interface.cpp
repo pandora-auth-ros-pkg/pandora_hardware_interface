@@ -158,6 +158,8 @@ namespace monstertruck
 
     // read motor rpm
     motorHandler_->getRPM(motorControllerName_, &rpm);
+    // reverse motor rotation direction
+    rpm *= -1;
 
     // read servo handler errors to clear them
     servoHandler_->readErrors();
@@ -228,7 +230,7 @@ namespace monstertruck
     servoHandler_->readErrors();
 
     // write commands
-    motorHandler_->writeRPM(motorControllerName_, rpmCmd);
+    motorHandler_->writeRPM(motorControllerName_, -rpmCmd);
     servoHandler_->setTarget(0, steerAngleCmd + M_PI/2);
     servoHandler_->setTarget(1, -steerAngleCmd + M_PI/2);
   }
