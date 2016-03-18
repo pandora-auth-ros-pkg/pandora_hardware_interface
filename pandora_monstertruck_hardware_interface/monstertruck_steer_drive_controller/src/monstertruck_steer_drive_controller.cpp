@@ -169,6 +169,7 @@ namespace monstertruck_steer_drive_controller
       steerDriveCommand_.rightVelocity = msg->linear.x / wheelRadius_;
       steerDriveCommand_.leftSteerAngle = 0;
       steerDriveCommand_.rightSteerAngle = 0;
+      steerDriveCommand_.stamp = ros::Time::now();
     }
     else  // if angVel != 0
     {
@@ -200,6 +201,7 @@ namespace monstertruck_steer_drive_controller
       steerDriveCommand_.rightVelocity = msg->speed / wheelRadius_;
       steerDriveCommand_.leftSteerAngle = 0;
       steerDriveCommand_.rightSteerAngle = 0;
+      steerDriveCommand_.stamp = ros::Time::now();
     }
     else  // deltaMean != 0
     {
