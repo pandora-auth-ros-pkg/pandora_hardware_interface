@@ -55,7 +55,7 @@ namespace monstertruck
 
     // initialize servo hanler
     servoHandler_.reset(
-      new pololu_maestro::PololuMaestro("/dev/ttyACM0", 9600, 500));
+      new pololu_maestro::PololuMaestro("/dev/maestro_serial", 9600, 500));
 
     batteryVoltagePub_ =
       nodeHandle_.advertise<std_msgs::Float64>("/battery/voltage", 1);

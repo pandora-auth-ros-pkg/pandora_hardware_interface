@@ -51,16 +51,6 @@ namespace pololu_maestro
   /*
    * @class PololuMaestro
    * @brief Class that controls pololu maestro servo controllers
-   * @details
-   * -The maestro module must be configured to dual port and the channels
-   *  used for input must be configured as such using the official maestro
-   *  control center found at https://www.pololu.com/docs/0J40/3.b
-   * - In addition, a udev rule must be created by executing
-   *   the command:
-   *
-   *    $ echo 'KERNEL=="ttyACM*", ATTRS{idVendor}=="1ffb",
-   *     ATTRS{idProduct}=="0089", MODE="0666"' >
-   *     /etc/udev/rules.d/pololu_maestro.rules
    */
   class PololuMaestro
   {

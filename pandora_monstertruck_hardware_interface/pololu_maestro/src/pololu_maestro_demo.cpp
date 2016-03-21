@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   ros::NodeHandle nodeHandle;
 
   pandora_hardware_interface::pololu_maestro::PololuMaestro
-    maestro("/dev/ttyACM0", 9600, 500);
+    maestro("/dev/maestro_serial", 9600, 500);
 
   if (argc == 3)
   {
