@@ -105,7 +105,8 @@ namespace pololu_maestro
     unsigned char response[2];
     serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
     return
-      (static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48;
+      ((static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48
+      * M_PI / 180.0);
   }
 
   double PololuMaestro::readVoltage(unsigned char channel)
