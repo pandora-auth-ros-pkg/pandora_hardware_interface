@@ -1,26 +1,42 @@
 <launch>
-    <!-- Start joint controllers -->
+  <arg name="laser" default="true" />
+  <arg name="kinect" default="true" />
+
+  <!-- Start laser stabilizer joint controllers -->
+  <group if="$(arg laser)">
     <rosparam
-      file="$(find pandora_dynamixel_hardware_interface)/config/dynamixel_controllers.yaml"
+      file="$(find pandora_dynamixel_hardware_interface)/config/laser_stabilizer_controllers.yaml"
       command="load"/>
     <node
-      name="dynamixel_controller_spawner"
+      name="laser_dynamixel_controller_spawner"
       pkg="dynamixel_controllers"
       type="controller_spawner.py"
       output="screen"
       args="
-        --manager=dxl_manager
-        --port dynamixel_port
-        laser_pitch_controller
-        laser_roll_controller
-        kinect_pitch_controller
-        kinect_yaw_controller"/>
-        <!--
-        linear_head_pitch_controller
-        linear_head_yaw_controller
-        -->
+      --manager=dxl_manager
+      --port dynamixel_port
+      laser_pitch_controller
+      laser_roll_controller"/>
+  </group>
 
-    <!--Start wrapper to sensor_msgs/JointState-->
-    <include
-      file="$(find pandora_dynamixel_hardware_interface)/launch/joint_states_wrapper.launch" />
+  <!-- Start kinect pan-n-tilt joint controllers -->
+  <group if="$(arg kinect)">
+    <rosparam
+      file="$(find pandora_dynamixel_hardware_interface)/config/kinect_pan_n_tilt_controllers.yaml"
+      command="load"/>
+    <node
+      name="kinect_dynamixel_controller_spawner"
+      pkg="dynamixel_controllers"
+      type="controller_spawner.py"
+      output="screen"
+      args="
+      --manager=dxl_manager
+      --port dynamixel_port
+      kinect_pitch_controller
+      kinect_yaw_controller"/>
+  </group>
+
+  <!--Start wrapper to sensor_msgs/JointState-->
+  <include
+    file="$(find pandora_dynamixel_hardware_interface)/launch/joint_states_wrapper.launch" />
 </launch>
