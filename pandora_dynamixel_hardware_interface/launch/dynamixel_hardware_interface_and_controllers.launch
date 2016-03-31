@@ -1,6 +1,12 @@
 <launch>
-  <include
-    file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controller_manager.launch" />
-  <include
-    file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controllers.launch" />
+  <arg name="laser" default="true" />
+  <arg name="kinect" default="true" />
+
+  <include file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controller_manager.launch" />
+
+  <include file="$(find pandora_dynamixel_hardware_interface)/launch/dynamixel_controllers.launch">
+    <arg name="laser" value="$(arg laser)" />
+    <arg name="kinect" default="$(arg kinect)" />
+  </include>
+
 </launch>
