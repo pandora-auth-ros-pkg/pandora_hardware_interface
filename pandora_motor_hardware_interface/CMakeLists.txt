@@ -86,6 +86,7 @@ catkin_package(
   LIBRARIES
     skid_steer_velocity_controller
     skid_steer_torque_controller
+    serial_epos2_handler
 )
 
 
