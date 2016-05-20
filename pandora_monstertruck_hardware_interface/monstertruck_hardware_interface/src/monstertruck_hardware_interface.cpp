@@ -165,8 +165,8 @@ namespace monstertruck
     servoHandler_->readErrors();
 
     // read wheel steer actuator positions
-    frontAngle = servoHandler_->readPosition(0) - M_PI/2;
-    rearAngle = servoHandler_->readPosition(1) - M_PI/2;
+    frontAngle = servoHandler_->readPosition(1) - M_PI/2;
+    rearAngle = servoHandler_->readPosition(0) - M_PI/2;
 
     // compute wheel steer angles from actuator steer angles
     for (int ii = 0; ii < pFALFCoeffs_.size(); ii++)
@@ -231,8 +231,8 @@ namespace monstertruck
 
     // write commands
     motorHandler_->writeRPM(motorControllerName_, -rpmCmd);
-    servoHandler_->setTarget(0, steerAngleCmd + M_PI/2);
-    servoHandler_->setTarget(1, -steerAngleCmd + M_PI/2);
+    servoHandler_->setTarget(1, steerAngleCmd + M_PI/2);
+    servoHandler_->setTarget(0, -steerAngleCmd + M_PI/2);
   }
 
 
