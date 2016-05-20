@@ -7,8 +7,8 @@ wheel_drive_joints:
     - right_front_wheel_drive_joint
     - right_rear_wheel_drive_joint
   limits:
-    min_velocity: -1.0 # [m/s]
-    max_velocity: 1.0 # [m/s]
+    min_velocity: -0.21 # [m/s]
+    max_velocity: 0.21 # [m/s]
 
 wheel_steer_joints:
   names:
@@ -22,7 +22,7 @@ wheel_steer_joints:
 
 motor:
   controller_name: drive_shaft_motor_controller
-  ratio: 590
+  ratio: 666
   min_rpm: -18000.0
   max_rpm: 18000.0
 
