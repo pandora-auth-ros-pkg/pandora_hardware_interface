@@ -48,67 +48,69 @@ namespace pandora_hardware_interface
 {
 namespace monstertruck
 {
-  class MonstertruckHardwareInterface : public hardware_interface::RobotHW
-  {
-    public:
-      explicit MonstertruckHardwareInterface(ros::NodeHandle nodeHandle);
-      ~MonstertruckHardwareInterface();
-      void read(const ros::Duration& period);
-      void write();
 
-    private:
-      bool loadJointConfiguration();
+class MonstertruckHardwareInterface : public hardware_interface::RobotHW
+{
+  public:
+    explicit MonstertruckHardwareInterface(ros::NodeHandle nodeHandle);
+    ~MonstertruckHardwareInterface();
+    void read(const ros::Duration& period);
+    void write();
 
-      ros::NodeHandle nodeHandle_;
-      boost::scoped_ptr<motor::SerialEpos2Handler> motorHandler_;
-      boost::scoped_ptr<pololu_maestro::PololuMaestro> servoHandler_;
+  private:
+    bool loadJointConfiguration();
 
-      ros::Publisher batteryVoltagePub_;
+    ros::NodeHandle nodeHandle_;
+    boost::scoped_ptr<motor::SerialEpos2Handler> motorHandler_;
+    boost::scoped_ptr<pololu_maestro::PololuMaestro> servoHandler_;
 
-      // joint state, velocity and position joint interfaces
-      hardware_interface::JointStateInterface jointStateInterface_;
-      hardware_interface::VelocityJointInterface velocityJointInterface_;
-      hardware_interface::PositionJointInterface positionJointInterface_;
+    ros::Publisher batteryVoltagePub_;
 
-      // wheel drive joint names, variables and limits
-      std::vector<std::string> wheelDriveJointNames_;
-      double* wheelDriveVelocityCommand_;
-      double* wheelDrivePosition_;
-      double* wheelDriveVelocity_;
-      double* wheelDriveEffort_;
-      double wheelDriveMinVelocity_;
-      double wheelDriveMaxVelocity_;
+    // joint state, velocity and position joint interfaces
+    hardware_interface::JointStateInterface jointStateInterface_;
+    hardware_interface::VelocityJointInterface velocityJointInterface_;
+    hardware_interface::PositionJointInterface positionJointInterface_;
 
-      // wheel steer joint names, variables and limits
-      std::vector<std::string> wheelSteerJointNames_;
-      double* wheelSteerPositionCommand_;
-      double* wheelSteerPosition_;
-      double* wheelSteerVelocity_;
-      double* wheelSteerEffort_;
-      double wheelSteerMinPosition_;
-      double wheelSteerMaxPosition_;
+    // wheel drive joint names, variables and limits
+    std::vector<std::string> wheelDriveJointNames_;
+    double* wheelDriveVelocityCommand_;
+    double* wheelDrivePosition_;
+    double* wheelDriveVelocity_;
+    double* wheelDriveEffort_;
+    double wheelDriveMinVelocity_;
+    double wheelDriveMaxVelocity_;
 
-      // drive motor joints and parameters
-      std::string motorControllerName_;
-      int32_t  motorRatio_;
-      int32_t  motorMinRPM_;
-      int32_t motorMaxRPM_;
+    // wheel steer joint names, variables and limits
+    std::vector<std::string> wheelSteerJointNames_;
+    double* wheelSteerPositionCommand_;
+    double* wheelSteerPosition_;
+    double* wheelSteerVelocity_;
+    double* wheelSteerEffort_;
+    double wheelSteerMinPosition_;
+    double wheelSteerMaxPosition_;
 
-      // Steering Mechanism Polynomial Approximation Coefficients:
+    // drive motor joints and parameters
+    std::string motorControllerName_;
+    int32_t  motorRatio_;
+    int32_t  motorMinRPM_;
+    int32_t motorMaxRPM_;
 
-      // left front to right front angle polynomial coefficients
-      std::vector<double> pLFRFCoeffs_;
-      // right rear to left rear angle polynomial coefficients
-      std::vector<double> pRRLRCoeffs_;
-      // left front angle to front actuator angle
-      std::vector<double> pLFFACoeffs_;
-      // right rear angle to rear actuator angle
-      std::vector<double> pRRRACoeffs_;
-      // front actuator angle to left front angle
-      std::vector<double> pFALFCoeffs_;
-      // rear actuator angle to right rear angle
-      std::vector<double> pRARRCoeffs_;
-  };
+    // Steering Mechanism Polynomial Approximation Coefficients:
+
+    // left front to right front angle polynomial coefficients
+    std::vector<double> pLFRFCoeffs_;
+    // right rear to left rear angle polynomial coefficients
+    std::vector<double> pRRLRCoeffs_;
+    // left front angle to front actuator angle
+    std::vector<double> pLFFACoeffs_;
+    // right rear angle to rear actuator angle
+    std::vector<double> pRRRACoeffs_;
+    // front actuator angle to left front angle
+    std::vector<double> pFALFCoeffs_;
+    // rear actuator angle to right rear angle
+    std::vector<double> pRARRCoeffs_;
+};  // class MonstertruckHardwareInterface
+
 }  // namespace monstertruck
 }  // namespace pandora_hardware_interface
 #endif  // PANDORA_MONSTERTRUCK_HARDWARE_INTERFACE_MONSTERTRUCK_HARDWARE_INTERFACE_H

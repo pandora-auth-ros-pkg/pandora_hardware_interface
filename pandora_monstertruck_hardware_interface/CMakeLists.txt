@@ -53,7 +53,7 @@ add_subdirectory(pololu_maestro)
 
 # To check lint : catkin_make roslint_pandora_motor_hardware_interface
 set(ROSLINT_CPP_OPTS
-  "--filter=-build/include_what_you_use")
+  "--filter=-build/include_what_you_use, -runtime/references")
 
 file(GLOB_RECURSE ${PROJECT_NAME}_LINT_SRCS
   RELATIVE ${PROJECT_SOURCE_DIR}

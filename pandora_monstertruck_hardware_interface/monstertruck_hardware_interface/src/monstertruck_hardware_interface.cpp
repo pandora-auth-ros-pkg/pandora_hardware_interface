@@ -45,9 +45,7 @@ namespace pandora_hardware_interface
 namespace monstertruck
 {
   MonstertruckHardwareInterface::MonstertruckHardwareInterface(
-    ros::NodeHandle nodeHandle)
-   :
-    nodeHandle_(nodeHandle)
+    ros::NodeHandle nodeHandle) : nodeHandle_(nodeHandle)
   {
     // initialize motor handler
     motorHandler_.reset(

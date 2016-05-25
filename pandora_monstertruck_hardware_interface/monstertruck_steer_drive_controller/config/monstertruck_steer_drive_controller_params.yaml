@@ -10,10 +10,10 @@ monstertruck_steer_drive_controller:
   wheelbase: 0.32  # [m]
   track: 0.26  # [m]
 
-  # command_message_type: Twist
-  # command_topic: /cmd_vel
-  command_message_type: AckermannDrive
-  command_topic: /ackermann_cmd
+  max_steer_angle: deg(22.5)
+
+  twist_command_topic: /cmd_vel
+  ackermann_command_topic: /ackermann_cmd
 
   wheel_joints:
     left:

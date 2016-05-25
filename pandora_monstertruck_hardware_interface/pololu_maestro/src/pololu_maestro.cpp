@@ -68,16 +68,16 @@ namespace pololu_maestro
     serialPtr_->close();
   }
 
-  bool PololuMaestro::setTarget(unsigned char channel, double target)
+  bool PololuMaestro::setTarget(uint8_t channel, double target)
   {
     // convert target from radians to degrees
-    unsigned short angle = static_cast<unsigned short>(
+    uint16_t angle = static_cast<uint16_t>(
       std::max(std::min(target * 180.0 / M_PI, 180.0), 0.0));
 
     // convert angle from degrees to quarter microseconds
-    unsigned short command = static_cast<unsigned short>(angle * 10.48 + 496)*4;
+    uint16_t command = static_cast<uint16_t>(angle * 10.48 + 496)*4;
 
-    unsigned char cmdBuffer[] =
+    uint8_t cmdBuffer[] =
       {0x84, channel, command & 0x7F, (command >> 7) & 0x7F};
 
     // flush input and output buffers
@@ -87,37 +87,37 @@ namespace pololu_maestro
     int sentBytes =
       serialPtr_->write(
         cmdBuffer,
-        sizeof(cmdBuffer)/sizeof(unsigned char));
+        sizeof(cmdBuffer)/sizeof(uint8_t));
 
-    if (sentBytes == sizeof(cmdBuffer)/sizeof(unsigned char))
+    if (sentBytes == sizeof(cmdBuffer)/sizeof(uint8_t))
       return true;
     else
       return false;
   }
 
-  double PololuMaestro::readPosition(unsigned char channel)
+  double PololuMaestro::readPosition(uint8_t channel)
   {
     // request feedback for the given channel
-    unsigned char cmdBuffer[] = {0x90, channel};
-    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(unsigned char));
+    uint8_t cmdBuffer[] = {0x90, channel};
+    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(uint8_t));
 
     // receive feedback
-    unsigned char response[2];
-    serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
+    uint8_t response[2];
+    serialPtr_->read(response, sizeof(response)/sizeof(uint8_t));
     return
       ((static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48
       * M_PI / 180.0);
   }
 
-  double PololuMaestro::readVoltage(unsigned char channel)
+  double PololuMaestro::readVoltage(uint8_t channel)
   {
     // request feedback for the given channel
-    unsigned char cmdBuffer[] = {0x90, channel};
-    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(unsigned char));
+    uint8_t cmdBuffer[] = {0x90, channel};
+    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(uint8_t));
 
     // receive feedback
-    unsigned char response[2];
-    serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
+    uint8_t response[2];
+    serialPtr_->read(response, sizeof(response)/sizeof(uint8_t));
 
     return (static_cast<double>(256*response[1] + response[0]) / 1024 * 5);
   }
@@ -125,12 +125,12 @@ namespace pololu_maestro
   void PololuMaestro::readErrors()
   {
     // request to read error
-    unsigned char cmdBuffer[] = {0xa1};
-    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(unsigned char));
+    uint8_t cmdBuffer[] = {0xa1};
+    serialPtr_->write(cmdBuffer, sizeof(cmdBuffer)/sizeof(uint8_t));
 
     // read response
-    unsigned char response[2];
-    serialPtr_->read(response, sizeof(response)/sizeof(unsigned char));
+    uint8_t response[2];
+    serialPtr_->read(response, sizeof(response)/sizeof(uint8_t));
 
     if (response[0] | response[1])
       ROS_WARN("[pololu maestro] Error: 0x%x%x", response[1], response[0]);

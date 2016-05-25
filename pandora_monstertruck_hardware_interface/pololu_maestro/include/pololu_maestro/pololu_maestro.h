@@ -48,56 +48,56 @@ namespace pandora_hardware_interface
 {
 namespace pololu_maestro
 {
+
+/*
+ * @class PololuMaestro
+ * @brief Class that controls pololu maestro servo controllers
+ */
+class PololuMaestro
+{
+ public:
   /*
-   * @class PololuMaestro
-   * @brief Class that controls pololu maestro servo controllers
+   * @brief Constructor
    */
-  class PololuMaestro
-  {
-   public:
-    /*
-     * @brief Constructor
-     */
-    PololuMaestro(const std::string& portName, int baudRate, int timeout);
+  PololuMaestro(const std::string& portName, int baudRate, int timeout);
 
-    /*
-     * @brief Destructor
-     */
-    ~PololuMaestro();
+  /*
+   * @brief Destructor
+   */
+  ~PololuMaestro();
 
-    /*
-     * @brief Writes position commands to pololu maestro on the given channel
-     * @param channel [unsigned char] : servo channel to command
-     * @param target [double] : position command in radians
-     * @return true : command was written successfully
-     * @return false : command wasn't written successfully
-     */
-    bool setTarget(unsigned char channel, double target);
+  /*
+   * @brief Writes position commands to pololu maestro on the given channel
+   * @param channel [uint8_t] : servo channel to command
+   * @param target [double] : position command in radians
+   * @return true : command was written successfully
+   * @return false : command wasn't written successfully
+   */
+  bool setTarget(uint8_t channel, double target);
 
-    /*
-     * @brief Read the current position of the servo in the given channel
-     * @param channel [unsigned char] : the channel to read feedback from
-     * @return double : the position feedback on the given channel
-     */
-    double readPosition(unsigned char channel);
+  /*
+   * @brief Read the current position of the servo in the given channel
+   * @param channel [uint8_t] : the channel to read feedback from
+   * @return double : the position feedback on the given channel
+   */
+  double readPosition(uint8_t channel);
 
-    /*
-     * @brief Read the voltage on the given channel
-     * @param channel [unsigned char] : the channel to read the voltage from
-     * @return doubel : voltage measurement
-     */
-    double readVoltage(unsigned char channel);
+  /*
+   * @brief Read the voltage on the given channel
+   * @param channel [uint8_t] : the channel to read the voltage from
+   * @return doubel : voltage measurement
+   */
+  double readVoltage(uint8_t channel);
 
-    /*
-     * @brief Read and clear errors (required due to startup serial error)
-     * @return void
-     */
-    void readErrors();
+  /*
+   * @brief Read and clear errors (required due to startup serial error)
+   * @return void
+   */
+  void readErrors();
 
-   private:
-    boost::scoped_ptr<serial::Serial> serialPtr_;  //!< serial controller pointer
-
-  };  // class PololuMaestro
+ private:
+  boost::scoped_ptr<serial::Serial> serialPtr_;  //!< serial controller pointer
+};  // class PololuMaestro
 
 }  // namespace pololu_maestro
 }  // namespace pandora_hardware_interface
