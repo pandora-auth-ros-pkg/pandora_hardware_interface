@@ -114,9 +114,11 @@ void MonstertruckSteerDriveController::update(
 
   // write steer commands to the steer joints
   leftSteerJoints_[0].setCommand(steerDriveCommand_.leftSteerAngle);
-  leftSteerJoints_[1].setCommand(-steerDriveCommand_.leftSteerAngle);
+  leftSteerJoints_[1].setCommand(
+    steerDriveCommand_.mode * steerDriveCommand_.leftSteerAngle);
   rightSteerJoints_[0].setCommand(steerDriveCommand_.rightSteerAngle);
-  rightSteerJoints_[1].setCommand(-steerDriveCommand_.rightSteerAngle);
+  rightSteerJoints_[1].setCommand(
+    steerDriveCommand_.mode * steerDriveCommand_.rightSteerAngle);
 }
 
 void MonstertruckSteerDriveController::starting(const ros::Time& time)
@@ -154,12 +156,12 @@ void MonstertruckSteerDriveController::twistCommandCallback(
 {
   if (!isRunning())
   {
-    ROS_ERROR(
+    ROS_WARN(
       "[MonstertruckSteerDriveController] Controller not accepting commands!!!");
     return;
   }
 
-  if (fabs(msg->linear.y) < 0.01)
+  if (fabs(msg->linear.y) < 0.001)
   {  // counter steering mode
     double turningRadius = msg->linear.x / msg->angular.z;
     computeCounterSteerCommand(msg->linear.x, turningRadius);
@@ -175,7 +177,7 @@ void MonstertruckSteerDriveController::ackermannDriveCommandCallback(
 {
   if (!isRunning())
   {
-    ROS_ERROR(
+    ROS_WARN(
       "[MonstertruckSteerDriveController] Controller not accepting commands!!!");
     return;
   }
@@ -192,7 +194,7 @@ void MonstertruckSteerDriveController::computeCounterSteerCommand(
   {
     brake();
     alignWheels();
-    ROS_ERROR("[MonstertruckSteerDriveController] Invalid command!");
+    ROS_WARN("[MonstertruckSteerDriveController] Invalid command!");
     return;
   }
   else if (isnan(turningRadius))
@@ -248,22 +250,28 @@ void MonstertruckSteerDriveController::computeCounterSteerCommand(
     (deltaMean > 0) ? deltaInner : -deltaOuter;
   steerDriveCommand_.rightSteerAngle =
     (deltaMean > 0) ? deltaOuter : -deltaInner;
+  steerDriveCommand_.mode = COUNTER_STEER_MODE;
   steerDriveCommand_.stamp = ros::Time::now();
 }
 
 void MonstertruckSteerDriveController::computeParallelSteerCommand(
   double vx,  double vy)
 {
-  double betaAngle = atan(vx / vy);  // the sideslip angle of the vehicle
-  double velocity = sqrt(vx * vx + vy * vy);  // the velocity of the robot
+  double betaAngle = atan(vy / vx);  // the sideslip angle of the vehicle
+  double velocity = copysign(sqrt(vx * vx + vy * vy), vx);  // the velocity of the robot
 
   if  (fabs(betaAngle) < maxSteerAngle_)
   {
-    steerDriveCommand_.leftVelocity = velocity;
-    steerDriveCommand_.rightVelocity = velocity;
+    steerDriveCommand_.leftVelocity = velocity / wheelRadius_;
+    steerDriveCommand_.rightVelocity = velocity / wheelRadius_;
     steerDriveCommand_.leftSteerAngle = betaAngle;
     steerDriveCommand_.rightSteerAngle = betaAngle;
+    steerDriveCommand_.mode = CRAB_STEER_MODE;
     steerDriveCommand_.stamp = ros::Time::now();
+  }
+  else
+  {
+    ROS_WARN("[MonstertruckSteerDriveController] Invalid steer angle");
   }
 }
 
@@ -299,44 +307,44 @@ void MonstertruckSteerDriveController::loadJointNamesAndParameters(
 
   // load wheel joint names from the parameter server
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("wheel_joints/left/front", jointName),
-    "wheel_joints/left/front not set in parameter server!");
+    nodeHandle.getParam("wheel_drive_joints/left/front", jointName),
+    "wheel_drive_joints/left/front not set in parameter server!");
   leftWheelJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("wheel_joints/left/rear", jointName),
-    "wheel_joints/left/rear not set in parameter server!");
+    nodeHandle.getParam("wheel_drive_joints/left/rear", jointName),
+    "wheel_drive_joints/left/rear not set in parameter server!");
   leftWheelJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("wheel_joints/right/front", jointName),
-    "wheel_joints/right/front not set in parameter server!");
+    nodeHandle.getParam("wheel_drive_joints/right/front", jointName),
+    "wheel_drive_joints/right/front not set in parameter server!");
   rightWheelJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("wheel_joints/right/rear", jointName),
-    "wheel_joints/right/rear not set in parameter server!");
+    nodeHandle.getParam("wheel_drive_joints/right/rear", jointName),
+    "wheel_drive_joints/right/rear not set in parameter server!");
   rightWheelJointNames_.push_back(jointName);
 
   // load wheel steer joints from the parameter server
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("steer_joints/left/front", jointName),
-    "steer_joints/left/front not set in parameter server!");
+    nodeHandle.getParam("wheel_steer_joints/left/front", jointName),
+    "wheel_steer_joints/left/front not set in parameter server!");
   leftSteerJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("steer_joints/left/rear", jointName),
-    "wheel_joints/left/rear not set in parameter server!");
+    nodeHandle.getParam("wheel_steer_joints/left/rear", jointName),
+    "wheel_steer_joints/left/rear not set in parameter server!");
   leftSteerJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("steer_joints/right/front", jointName),
-    "wheel_joints/right/front set in parameter server!");
+    nodeHandle.getParam("wheel_steer_joints/right/front", jointName),
+    "wheel_steer_joints/right/front not set in parameter server!");
   rightSteerJointNames_.push_back(jointName);
 
   ROS_ASSERT_MSG(
-    nodeHandle.getParam("steer_joints/right/rear", jointName),
-    "wheel_joints/right/rear not set in parameter server!");
+    nodeHandle.getParam("wheel_steer_joints/right/rear", jointName),
+    "wheel_steer_joints/right/rear not set in parameter server!");
   rightSteerJointNames_.push_back(jointName);
 }
 

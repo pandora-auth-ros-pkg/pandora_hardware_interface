@@ -48,6 +48,9 @@
 namespace monstertruck_steer_drive_controller
 {
 
+#define CRAB_STEER_MODE 1
+#define COUNTER_STEER_MODE -1
+
 /**
  * class MonstertruckSteerDriveController
  * brief Controller for a monstertruck bi-steerable mobile robot
@@ -151,52 +154,71 @@ class MonstertruckSteerDriveController : public
   void loadJointNamesAndParameters(ros::NodeHandle& nodeHandle);
 
  private:
-  // wheel joints
+  //!< left wheel joint vector
   std::vector<std::string> leftWheelJointNames_;
+  //!< right wheel joint vector
   std::vector<std::string> rightWheelJointNames_;
+  //!< left wheel joint handle vector
   std::vector<hardware_interface::JointHandle> leftWheelJoints_;
+  //!< right wheel joint handle vector
   std::vector<hardware_interface::JointHandle> rightWheelJoints_;
 
-  // steer joints
+  //!< left steer joint names
   std::vector<std::string> leftSteerJointNames_;
+  //!< right steer joint names
   std::vector<std::string> rightSteerJointNames_;
+  //!< left steer joints
   std::vector<hardware_interface::JointHandle> leftSteerJoints_;
+  //!< right steer joints
   std::vector<hardware_interface::JointHandle> rightSteerJoints_;
 
-  // steer drive command struct
+  /**
+   * brief steer drive command struct
+   */
   struct SteerDriveCommand
   {
+    //!< velocity of left wheels
     double leftVelocity;
+    //!< velocity of right wheels
     double rightVelocity;
+    //!< steer angle of left wheels
     double leftSteerAngle;
+    //!< steer angle of right wheels
     double rightSteerAngle;
+    //!< time stamp
     ros::Time stamp;
+    //!< steer mode: CRAB_STEER_MODE or COUNTER_STEER_MODE
+    int mode;
 
     SteerDriveCommand() :
       leftVelocity(0),
       rightVelocity(0),
       leftSteerAngle(0),
       rightSteerAngle(0),
-      stamp(0)
+      stamp(0),
+      mode(1)
     {}
   };
   SteerDriveCommand steerDriveCommand_;
 
-  // command subscribers (only one active at a time)
+  //!< command subscribers
   std::vector<ros::Subscriber> commandSubscriber_;
+  //!< command topics
   std::vector<std::string> commandTopic_;
 
-  // command timeout
+  //!< command timeout
   double commandTimeout_;
 
-  // vehicle base parameters
-  double wheelRadius_;  // wheel radius of the vehicle
-  double wheelbase_;  // front to rear wheel centers distance
-  double track_;  // left to right wheel centers distance
-
-  // limits
-  double minTurningRadius_;  // minimum turning radius of the robot R=v/w
-  double maxSteerAngle_;  // maximum steer angle of the wheels
+  //!< wheels radius of the vehicle
+  double wheelRadius_;
+  //!< front to rear wheel centers distance
+  double wheelbase_;
+  // left to right wheel centers distance
+  double track_;
+  //!< minimum turning radius of the robot
+  double minTurningRadius_;
+  //!< maximum steer angle
+  double maxSteerAngle_;
 };
 
 PLUGINLIB_EXPORT_CLASS(
