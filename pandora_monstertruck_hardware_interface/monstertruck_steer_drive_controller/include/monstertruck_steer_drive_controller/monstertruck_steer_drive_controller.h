@@ -42,13 +42,13 @@
 #include <geometry_msgs/Twist.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <dual_controller_interface/dual_controller_interface.h>
+#include <nav_msgs/Odometry.h>
 #include <pluginlib/class_list_macros.h>
+
+#include "monstertruck_steer_drive_controller/odometry.h"
 
 namespace monstertruck_steer_drive_controller
 {
-
-#define CRAB_STEER_MODE 1
-#define COUNTER_STEER_MODE -1
 
 /**
  * class MonstertruckSteerDriveController
@@ -128,85 +128,99 @@ class MonstertruckSteerDriveController : public
   void ackermannDriveCommandCallback(
     const ackermann_msgs::AckermannDriveConstPtr& msg);
 
-  /*
-   * brief Computes a steer drive command from speed and turning radius
-   * details counter steer => opposite front and rear steer angles
-   * param speed [double] : the linear speed of the vehicle
-   * param turningRadius [double] : the turning radius of the robot trajectory
-   * return void
+  /**
+   * @brief Convert base ackeramnn command to wheel velocities and steering angles
+   * @param speed [double] : base speed
+   * @param steeringAngle [double] : front steering angle
    */
-  void computeCounterSteerCommand(double speed, double turningRadius);
+  void convertBase2JointCmds(double speed, double steeringAngle);
 
-  /*
-   * brief Computes a parallel steer command using vx and vy
-   * details parallel steer => equal front and rear steer angles
-   * param vx [double] : the longitudinal velocity
-   * param vy [double] : the lateral velocity
-   * return void
+  /**
+   * @brief Convert base twist command to wheel velocities and steering angles
+   * @param linVelX [double] : base longitudinal linear velocity
+   * @param linVelY [double] : base lateral linear velocity
+   * @param angVel [double] : base angular velocity
    */
-  void computeParallelSteerCommand(double vx, double vy);
+  void convertBase2JointCmds(double linVelX, double linVelY, double angVel);
 
   /**
    * brief Loads joint names and parameters from the parameter server
    * return void
    */
-  void loadJointNamesAndParameters(ros::NodeHandle& nodeHandle);
+  void loadParams();
 
  private:
-  //!< left wheel joint vector
-  std::vector<std::string> leftWheelJointNames_;
-  //!< right wheel joint vector
-  std::vector<std::string> rightWheelJointNames_;
-  //!< left wheel joint handle vector
-  std::vector<hardware_interface::JointHandle> leftWheelJoints_;
-  //!< right wheel joint handle vector
-  std::vector<hardware_interface::JointHandle> rightWheelJoints_;
-
-  //!< left steer joint names
-  std::vector<std::string> leftSteerJointNames_;
-  //!< right steer joint names
-  std::vector<std::string> rightSteerJointNames_;
-  //!< left steer joints
-  std::vector<hardware_interface::JointHandle> leftSteerJoints_;
-  //!< right steer joints
-  std::vector<hardware_interface::JointHandle> rightSteerJoints_;
 
   /**
    * brief steer drive command struct
    */
   struct SteerDriveCommand
   {
-    //!< velocity of left wheels
-    double leftVelocity;
-    //!< velocity of right wheels
-    double rightVelocity;
-    //!< steer angle of left wheels
-    double leftSteerAngle;
-    //!< steer angle of right wheels
-    double rightSteerAngle;
-    //!< time stamp
+    double leftFrontWheelVelocity;
+    double leftRearWheelVelocity;
+    double rightFrontWheelVelocity;
+    double rightRearWheelVelocity;
+    double frontSteeringAngle;
+    double rearSteeringAngle;
     ros::Time stamp;
-    //!< steer mode: CRAB_STEER_MODE or COUNTER_STEER_MODE
-    int mode;
 
     SteerDriveCommand() :
-      leftVelocity(0),
-      rightVelocity(0),
-      leftSteerAngle(0),
-      rightSteerAngle(0),
-      stamp(0),
-      mode(1)
+      leftFrontWheelVelocity(0.0),
+      leftRearWheelVelocity(0.0),
+      rightFrontWheelVelocity(0.0),
+      rightRearWheelVelocity(0.0),
+      frontSteeringAngle(0),
+      rearSteeringAngle(0),
+      stamp(0)
     {}
   };
+
   SteerDriveCommand steerDriveCommand_;
 
-  //!< command subscribers
-  std::vector<ros::Subscriber> commandSubscriber_;
-  //!< command topics
-  std::vector<std::string> commandTopic_;
+  //!< ros node handle
+  ros::NodeHandle *pnh_;
 
+  // drive joint names
+  std::string leftFrontDriveJointName_;
+  std::string leftRearDriveJointName_;
+  std::string rightFrontDriveJointName_;
+  std::string rightRearDriveJointName_;
+  // steer joint names
+  std::string leftFrontSteerJointName_;
+  std::string leftRearSteerJointName_;
+  std::string rightFrontSteerJointName_;
+  std::string rightRearSteerJointName_;
+
+  // drive joint handles
+  hardware_interface::JointHandle leftFrontDriveJoint_;
+  hardware_interface::JointHandle leftRearDriveJoint_;
+  hardware_interface::JointHandle rightFrontDriveJoint_;
+  hardware_interface::JointHandle rightRearDriveJoint_;
+  // steer joint handles
+  hardware_interface::JointHandle leftFrontSteerJoint_;
+  hardware_interface::JointHandle leftRearSteerJoint_;
+  hardware_interface::JointHandle rightFrontSteerJoint_;
+  hardware_interface::JointHandle rightRearSteerJoint_;
+
+
+  //!< twist command subscriber
+  ros::Subscriber twistCmdSub_;
+  //!< ackermann command subscriber
+  ros::Subscriber ackCmdSub_;
   //!< command timeout
-  double commandTimeout_;
+  double cmdTimeout_;
+
+  // odometry related
+
+  //!< publish period of odometry
+  ros::Duration odomPubPeriod_;
+  //!< last time odometry was published
+  ros::Time lastOdomPubTime_;
+  ros::Publisher odomPub_;
+  nav_msgs::Odometry odom_;
+  Odometry odometry_;
+
+  // robot geometric parameterers
 
   //!< wheels radius of the vehicle
   double wheelRadius_;
@@ -214,10 +228,8 @@ class MonstertruckSteerDriveController : public
   double wheelbase_;
   // left to right wheel centers distance
   double track_;
-  //!< minimum turning radius of the robot
-  double minTurningRadius_;
   //!< maximum steer angle
-  double maxSteerAngle_;
+  double maxSteeringAngle_;
 };
 
 PLUGINLIB_EXPORT_CLASS(

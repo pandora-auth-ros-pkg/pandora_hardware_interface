@@ -6,26 +6,27 @@ monstertruck_steer_drive_controller:
   type: monstertruck_steer_drive_controller/MonstertruckSteerDriveController
   publish_rate: 50
 
+  base_frame_id: base_footprint
+
   wheel_radius: 0.075  # [m]
   wheelbase: 0.32  # [m]
   track: 0.26  # [m]
+  max_steering_angle: deg(23)
 
-  max_steer_angle: deg(23)
-
-  twist_command_topic: /cmd_vel
-  ackermann_command_topic: /ackermann_cmd
-
-  wheel_drive_joints:
+  drive_joints:
     left:
       front: left_front_wheel_drive_joint
       rear: left_rear_wheel_drive_joint
     right:
       front: right_front_wheel_drive_joint
       rear: right_rear_wheel_drive_joint
-  wheel_steer_joints:
+  steer_joints:
     left:
       front: left_front_wheel_steer_joint
       rear: left_rear_wheel_steer_joint
     right:
       front: right_front_wheel_steer_joint
       rear: right_rear_wheel_steer_joint
+
+  odom_pose_covariance: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  odom_twist_covariance: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
