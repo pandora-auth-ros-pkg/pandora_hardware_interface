@@ -1,4 +1,5 @@
 add_library(monstertruck_steer_drive_controller
+  src/odometry.cpp
   src/monstertruck_steer_drive_controller.cpp
 )
 

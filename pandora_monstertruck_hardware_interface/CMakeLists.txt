@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   joint_limits_interface
   pandora_motor_hardware_interface
   pluginlib
+  tf
 )
 
 set(THIS_PACKAGE_INCLUDE_DIRS
@@ -35,6 +36,7 @@ catkin_package(
     joint_limits_interface
     pandora_motor_hardware_interface
     pluginlib
+    tf
   DEPENDS
   LIBRARIES
     monstertruck_steer_drive_controller
