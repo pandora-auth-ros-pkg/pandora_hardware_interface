@@ -51,11 +51,13 @@ namespace monstertruck_steer_drive_controller
 {
 
 MonstertruckSteerDriveController::MonstertruckSteerDriveController()
-  :
-    cmdTimeout_(0.5),
-    wheelRadius_(0),
-    wheelbase_(0),
-    track_(0)
+  : cmdTimeout_(0.5)
+  , ideal4WS_(true)
+  , wheelRadius_(0.0)
+  , wheelbase_(0.0)
+  , rearAxleFactor_(0.0)
+  , track_(0.0)
+  , ctrlName_("monstertruck_steer_drive_controller")
 {
 }
 
@@ -65,11 +67,8 @@ bool MonstertruckSteerDriveController::init(
   hardware_interface::PositionJointInterface* posJointInterface,
   ros::NodeHandle& nh)
 {
-  // create private node handle
-  pnh_ = new ros::NodeHandle(nh);
-
   // load joint names and parameters from the parameter server
-  loadParams();
+  loadParams(nh);
 
   // load drive joint handles
   leftFrontDriveJoint_ =
@@ -92,9 +91,9 @@ bool MonstertruckSteerDriveController::init(
     velJointInterface->getHandle(rightRearSteerJointName_);
 
   // initialize twist and ackermann cmd subscribers
-  twistCmdSub_ = pnh_->subscribe("/cmd_vel", 1,
+  twistCmdSub_ = nh.subscribe("/cmd_vel", 1,
     &MonstertruckSteerDriveController::twistCommandCallback, this);
-  ackCmdSub_ = pnh_->subscribe("/ackermann_cmd", 1,
+  ackCmdSub_ = nh.subscribe("/ackermann_cmd", 1,
       &MonstertruckSteerDriveController::ackermannDriveCommandCallback, this);
 
   return true;
@@ -104,8 +103,27 @@ bool MonstertruckSteerDriveController::init(
 void MonstertruckSteerDriveController::update(
   const ros::Time& time, const ros::Duration& period)
 {
-  // TODO update odometry
+  // get wheel steering angle and velocity feedback
+  double velocity =
+    (leftFrontDriveJoint_.getVelocity() + rightFrontDriveJoint_.getVelocity()
+     + leftRearDriveJoint_.getVelocity() + rightRearDriveJoint_.getVelocity())
+    / 4 * wheelRadius_;
+  double frontSteeringAngle = leftFrontSteerJoint_.getPosition() / 2
+    + rightFrontSteerJoint_.getPosition() / 2;
+  double rearSteeringAngle = leftRearSteerJoint_.getPosition() / 2
+    + rightRearSteerJoint_.getPosition() / 2;
 
+  // update odometry
+  odometry_.update(time, velocity, frontSteeringAngle, rearSteeringAngle);
+
+  // update odom msg and publish
+  if (lastOdomPubTime_ + odomPubPeriod_ < time)
+  {
+    odomPub_->msg_.header.stamp = time;
+    odometry_.getPose(odomPub_->msg_.pose.pose);
+    odometry_.getTwist(odomPub_->msg_.twist.twist);
+    odomPub_->unlockAndPublish();
+  }
 
   // if last received command timed out, brake
   if ((time - steerDriveCommand_.stamp).toSec() > cmdTimeout_)
@@ -118,10 +136,10 @@ void MonstertruckSteerDriveController::update(
   rightRearDriveJoint_.setCommand(steerDriveCommand_.rightRearWheelVelocity);
 
   // write steer commands to the steer joints
-  leftFrontSteerJoint_.setCommand(steerDriveCommand_.frontSteeringAngle);
-  rightFrontSteerJoint_.setCommand(steerDriveCommand_.frontSteeringAngle);
-  leftRearSteerJoint_.setCommand(steerDriveCommand_.rearSteeringAngle);
-  rightRearSteerJoint_.setCommand(steerDriveCommand_.rearSteeringAngle);
+  leftFrontSteerJoint_.setCommand(steerDriveCommand_.leftFrontSteeringAngle);
+  rightFrontSteerJoint_.setCommand(steerDriveCommand_.rightFrontSteeringAngle);
+  leftRearSteerJoint_.setCommand(steerDriveCommand_.leftRearSteeringAngle);
+  rightRearSteerJoint_.setCommand(steerDriveCommand_.rightRearSteeringAngle);
 }
 
 
@@ -131,7 +149,7 @@ void MonstertruckSteerDriveController::starting(const ros::Time& time)
   steerDriveCommand_.stamp = ros::Time::now();
 
   // initialize odometry
-  odometry_.init(time);
+  odometry_.init(time, wheelRadius_, wheelbase_, rearAxleFactor_);
   lastOdomPubTime_ = time;
 }
 
@@ -154,8 +172,10 @@ void MonstertruckSteerDriveController::brake()
 
 void MonstertruckSteerDriveController::alignWheels()
 {
-  steerDriveCommand_.frontSteeringAngle = 0.0;
-  steerDriveCommand_.rearSteeringAngle = 0.0;
+  steerDriveCommand_.leftFrontSteeringAngle = 0.0;
+  steerDriveCommand_.rightFrontSteeringAngle = 0.0;
+  steerDriveCommand_.leftRearSteeringAngle = 0.0;
+  steerDriveCommand_.rightRearSteeringAngle = 0.0;
 }
 
 
@@ -165,7 +185,7 @@ void MonstertruckSteerDriveController::ackermannDriveCommandCallback(
   if (!isRunning())
   {
     ROS_WARN("[%s] Controller not accepting commands!!!",
-      ros::this_node::getName().c_str());
+      ctrlName_.c_str());
     return;
   }
 
@@ -179,7 +199,7 @@ void MonstertruckSteerDriveController::twistCommandCallback(
   if (!isRunning())
   {
     ROS_WARN("[%s] Controller not accepting commands!!!",
-      ros::this_node::getName().c_str());
+      ctrlName_.c_str());
     return;
   }
 
@@ -195,9 +215,9 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
 
   if (fabs(fsa) > maxSteeringAngle_)
   {
-    ROS_ERROR("[%s] Received invalid command (front_steering_angle=%f < "
+    ROS_WARN("[%s] Received invalid command (front_steering_angle=%f < "
       "max_steering_angle=%f)!",
-      ros::this_node::getName().c_str(), fsa, maxSteeringAngle_);
+      ctrlName_.c_str(), fsa, maxSteeringAngle_);
     return;
   }
 
@@ -232,8 +252,10 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   vir /= wheelRadius_;
   vor /= wheelRadius_;
 
-  steerDriveCommand_.frontSteeringAngle = fsa;
-  steerDriveCommand_.rearSteeringAngle = 0.0;
+  steerDriveCommand_.leftFrontSteeringAngle = fsa;
+  steerDriveCommand_.leftRearSteeringAngle = fsa;
+  steerDriveCommand_.leftRearSteeringAngle = 0.0;
+  steerDriveCommand_.rightRearSteeringAngle = 0.0;
   steerDriveCommand_.leftFrontWheelVelocity = (fsa >= 0) ? vif : vof;
   steerDriveCommand_.leftRearWheelVelocity = (fsa >= 0) ? vir : vor;
   steerDriveCommand_.rightFrontWheelVelocity = (fsa >= 0) ? vof : vif;
@@ -250,8 +272,8 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
 
   // robot parameters
   double w = track_;  // the track of the robot
-  double lf = 0.4 * wheelbase_;  // distance of front wheel axle to CoG
-  double lr = 0.6 * wheelbase_;  // distance of rear wheel axle to CoG
+  double lf = (1 - rearAxleFactor_) * wheelbase_;  // d(front_axle, CoG)
+  double lr = rearAxleFactor_ * wheelbase_;  // d(rear_axle, CoG)
 
   // calculate sideslip angle and front and rear steering angles
   double beta = (fabs(linVelY) > 1e-3) ? atan(linVelY / linVelX) : 0.0;
@@ -265,7 +287,7 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   if (fabs(beta) > maxSteeringAngle_)  // beta > beta_max
   {
     ROS_WARN("[%s] Received Invalid Command (beta=%f > beta_max=%f)",
-      ros::this_node::getName().c_str(), beta, maxSteeringAngle_);
+      ctrlName_.c_str(), beta, maxSteeringAngle_);
     return;
   }
 
@@ -273,7 +295,7 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   {
     ROS_WARN("[%s] Received Invalid Command (front_steering_angle=%f > "
       "max_steering_angle=%f)",
-      ros::this_node::getName().c_str(), fsa, maxSteeringAngle_);
+      ctrlName_.c_str(), fsa, maxSteeringAngle_);
     return;
   }
 
@@ -281,7 +303,7 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   {
     ROS_WARN("[%s] Received Invalid Command (rear_steering_angle=%f > "
       "max_steering_angle=%f)",
-      ros::this_node::getName().c_str(), rsa, maxSteeringAngle_);
+      ctrlName_.c_str(), rsa, maxSteeringAngle_);
     return;
   }
 
@@ -291,7 +313,7 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   if (r < wheelbase_ / 2 / tan(maxSteeringAngle_))  // r < rmin
   {
     ROS_WARN("[%s] Received Invalid Command (R=%f < Rmin=%f)",
-      ros::this_node::getName().c_str(), r,
+      ctrlName_.c_str(), r,
       wheelbase_ / 2 / tan(maxSteeringAngle_));
     return;
   }
@@ -308,10 +330,10 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   vr = isnan(vr) ? v : vr;
 
   // calculate the ideal 4WS steering angles for each wheel
-  double ifsa = sin(fsa) / (cos(fsa) - w / 2 / rf);
-  double ofsa = sin(fsa) / (cos(fsa) + w / 2 / rf);
-  double irsa = sin(rsa) / (cos(rsa) - w / 2 / rr);
-  double orsa = sin(rsa) / (cos(rsa) + w / 2 / rr);
+  double ifsa = atan(sin(fsa) / (cos(fsa) - w / 2 / rf));
+  double ofsa = atan(sin(fsa) / (cos(fsa) + w / 2 / rf));
+  double irsa = atan(sin(rsa) / (cos(rsa) - w / 2 / rr));
+  double orsa = atan(sin(rsa) / (cos(rsa) + w / 2 / rr));
 
   // calculate the ideal 4WS velocities for each wheel
   double vif = vf * (cos(fsa) - w / 2 / rf) / cos(ifsa);
@@ -319,11 +341,26 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   double vir = vr * (cos(rsa) - w / 2 / rr) / cos(irsa);
   double vor = vr * (cos(rsa) + w / 2 / rr) / cos(orsa);
 
-  // calculate the actual velocities for each wheel
-  vif /= cos(fsa - ifsa);
-  vof /= cos(fsa - ofsa);
-  vir /= cos(rsa - irsa);
-  vor /= cos(rsa - orsa);
+  if (ideal4WS_)
+  {
+    if (fabs(ifsa) > wheelbase_ / 2 / tan(maxSteeringAngle_))  // r < rmin
+    {
+      ROS_WARN("[%s] Received Invalid Command (inner front steering angle=%f > "
+        "max_steering_angle=%f)", ctrlName_.c_str(), fabs(ifsa),
+        wheelbase_ / 2 / tan(maxSteeringAngle_));
+      return;
+    }
+  }
+  else
+  {// calculate the actual velocities for each wheel in case of non ideal 4WS
+    vif /= cos(fsa - ifsa);
+    vof /= cos(fsa - ofsa);
+    vir /= cos(fsa - irsa);
+    vor /= cos(fsa - orsa);
+
+    ifsa = ofsa = fsa;
+    irsa = orsa = rsa;
+  }
 
   if (fabs(fsa) < 1e-3)
     vif = vof = vir = vor = v;
@@ -335,8 +372,10 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   vor /= wheelRadius_;
 
   // set the steer drive command
-  steerDriveCommand_.frontSteeringAngle = fsa;
-  steerDriveCommand_.rearSteeringAngle = rsa;
+  steerDriveCommand_.leftFrontSteeringAngle = (fsa > 0.0) ? ifsa : ofsa;
+  steerDriveCommand_.rightFrontSteeringAngle = (fsa > 0.0) ? ofsa : ifsa;
+  steerDriveCommand_.leftRearSteeringAngle = (rsa > 0.0) ? irsa : orsa;
+  steerDriveCommand_.rightRearSteeringAngle = (rsa > 0.0) ? orsa : irsa;
   steerDriveCommand_.leftFrontWheelVelocity = (fsa > 0.0) ? vif : vof;
   steerDriveCommand_.rightFrontWheelVelocity = (fsa > 0.0) ? vof : vif;
   steerDriveCommand_.leftRearWheelVelocity = (rsa > 0.0) ? vir : vor;
@@ -345,64 +384,72 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
 }
 
 
-void MonstertruckSteerDriveController::loadParams()
+void MonstertruckSteerDriveController::loadParams(const ros::NodeHandle& nh)
 {
   // load robot parameters from the parameter server
-  ROS_ASSERT_MSG(pnh_->getParam("wheel_radius", wheelRadius_),
+  ROS_ASSERT_MSG(nh.getParam("ideal_4ws", ideal4WS_),
+    "ideal_4ws not set in parameter server");
+  ROS_ASSERT_MSG(nh.getParam("wheel_radius", wheelRadius_),
     "wheel_radius not set in parameter server!");
-  ROS_ASSERT_MSG(pnh_->getParam("wheelbase", wheelbase_),
+  ROS_ASSERT_MSG(nh.getParam("wheelbase", wheelbase_),
     "wheelbase not set in parameter server!");
-  ROS_ASSERT_MSG(pnh_->getParam("track", track_),
+  ROS_ASSERT_MSG(nh.getParam("rear_axle_factor", rearAxleFactor_),
+    "rear_axle_factor not set in parameter server!");
+  ROS_ASSERT_MSG(nh.getParam("track", track_),
     "track not set in parameter server!");
-  ROS_ASSERT_MSG(pnh_->getParam("max_steering_angle", maxSteeringAngle_),
+  ROS_ASSERT_MSG(nh.getParam("max_steering_angle", maxSteeringAngle_),
     "max_steering_angle not set in parameter server");
 
   // load joint names from the parameter server
   ROS_ASSERT_MSG(
-    pnh_->getParam("drive_joints/left/front", leftFrontDriveJointName_),
+    nh.getParam("drive_joints/left/front", leftFrontDriveJointName_),
     "drive_joints/left/front not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("drive_joints/left/rear", leftRearDriveJointName_),
+    nh.getParam("drive_joints/left/rear", leftRearDriveJointName_),
     "drive_joints/left/rear not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("drive_joints/right/front", rightFrontDriveJointName_),
+    nh.getParam("drive_joints/right/front", rightFrontDriveJointName_),
     "drive_joints/right/front not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("drive_joints/right/rear", rightRearDriveJointName_),
+    nh.getParam("drive_joints/right/rear", rightRearDriveJointName_),
     "drive_joints/right/rear not set in parameter server!");
 
   // load steer joints from the parameter server
   ROS_ASSERT_MSG(
-    pnh_->getParam("steer_joints/left/front", leftFrontSteerJointName_),
+    nh.getParam("steer_joints/left/front", leftFrontSteerJointName_),
     "steer_joints/left/front not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("steer_joints/left/rear", leftRearSteerJointName_),
+    nh.getParam("steer_joints/left/rear", leftRearSteerJointName_),
     "steer_joints/left/rear not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("steer_joints/right/front", rightFrontSteerJointName_),
+    nh.getParam("steer_joints/right/front", rightFrontSteerJointName_),
     "steer_joints/right/front not set in parameter server!");
   ROS_ASSERT_MSG(
-    pnh_->getParam("steer_joints/right/rear", rightRearSteerJointName_),
+    nh.getParam("steer_joints/right/rear", rightRearSteerJointName_),
     "steer_joints/right/rear not set in parameter server!");
 
   // setup odometry msg
   std::vector<double> odomPoseCov, odomTwistCov;
-  ROS_ASSERT_MSG(pnh_->getParam("odom_pose_covariance", odomPoseCov),
+  ROS_ASSERT_MSG(nh.getParam("odom_pose_covariance", odomPoseCov),
     "odom_pose_covariance not set in parameter server");
-  ROS_ASSERT_MSG(pnh_->getParam("odom_twist_covariance", odomTwistCov),
+  ROS_ASSERT_MSG(nh.getParam("odom_twist_covariance", odomTwistCov),
     "odom_twist_covariance not set in parameter server");
-  ROS_ASSERT_MSG(pnh_->getParam("base_frame_id", odom_.child_frame_id),
+
+  odomPub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(
+      nh, "odom", 100));
+
+  ROS_ASSERT_MSG(nh.getParam("base_frame_id", odomPub_->msg_.child_frame_id),
     "robot_frame_id not set in parameter server");
 
-  odom_.header.frame_id = "odom";
-  odom_.pose.covariance = boost::assign::list_of
+  odomPub_->msg_.header.frame_id = "odom";
+  odomPub_->msg_.pose.covariance = boost::assign::list_of
     (odomPoseCov[0])  (0)  (0)  (0)  (0)  (0)
     (0)  (odomPoseCov[1])  (0)  (0)  (0)  (0)
     (0)  (0)  (odomPoseCov[2])  (0)  (0)  (0)
     (0)  (0)  (0)  (odomPoseCov[3])  (0)  (0)
     (0)  (0)  (0)  (0)  (odomPoseCov[4])  (0)
     (0)  (0)  (0)  (0)  (0)  (odomPoseCov[5]);
-  odom_.twist.covariance = boost::assign::list_of
+  odomPub_->msg_.twist.covariance = boost::assign::list_of
     (odomTwistCov[0])  (0)  (0)  (0)  (0)  (0)
     (0)  (odomTwistCov[1])  (0)  (0)  (0)  (0)
     (0)  (0)  (odomTwistCov[2])  (0)  (0)  (0)

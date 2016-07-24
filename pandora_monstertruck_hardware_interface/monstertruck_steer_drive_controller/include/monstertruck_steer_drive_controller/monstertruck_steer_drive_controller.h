@@ -44,6 +44,8 @@
 #include <dual_controller_interface/dual_controller_interface.h>
 #include <nav_msgs/Odometry.h>
 #include <pluginlib/class_list_macros.h>
+#include <realtime_tools/realtime_buffer.h>
+#include <realtime_tools/realtime_publisher.h>
 
 #include "monstertruck_steer_drive_controller/odometry.h"
 
@@ -147,7 +149,7 @@ class MonstertruckSteerDriveController : public
    * brief Loads joint names and parameters from the parameter server
    * return void
    */
-  void loadParams();
+  void loadParams(const ros::NodeHandle& nh);
 
  private:
 
@@ -160,8 +162,10 @@ class MonstertruckSteerDriveController : public
     double leftRearWheelVelocity;
     double rightFrontWheelVelocity;
     double rightRearWheelVelocity;
-    double frontSteeringAngle;
-    double rearSteeringAngle;
+    double leftFrontSteeringAngle;
+    double leftRearSteeringAngle;
+    double rightFrontSteeringAngle;
+    double rightRearSteeringAngle;
     ros::Time stamp;
 
     SteerDriveCommand() :
@@ -169,16 +173,18 @@ class MonstertruckSteerDriveController : public
       leftRearWheelVelocity(0.0),
       rightFrontWheelVelocity(0.0),
       rightRearWheelVelocity(0.0),
-      frontSteeringAngle(0),
-      rearSteeringAngle(0),
+      leftFrontSteeringAngle(0.0),
+      leftRearSteeringAngle(0.0),
+      rightFrontSteeringAngle(0.0),
+      rightRearSteeringAngle(0.0),
       stamp(0)
     {}
   };
 
   SteerDriveCommand steerDriveCommand_;
 
-  //!< ros node handle
-  ros::NodeHandle *pnh_;
+  //!< controller name
+  const std::string ctrlName_;
 
   // drive joint names
   std::string leftFrontDriveJointName_;
@@ -212,20 +218,26 @@ class MonstertruckSteerDriveController : public
 
   // odometry related
 
+  // odometry object
+  Odometry odometry_;
+  //!< odometry publisher
+  boost::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> >
+    odomPub_;
   //!< publish period of odometry
   ros::Duration odomPubPeriod_;
   //!< last time odometry was published
   ros::Time lastOdomPubTime_;
-  ros::Publisher odomPub_;
-  nav_msgs::Odometry odom_;
-  Odometry odometry_;
 
   // robot geometric parameterers
 
+  //!< ideal 4ws configuration
+  bool ideal4WS_;
   //!< wheels radius of the vehicle
   double wheelRadius_;
   //!< front to rear wheel centers distance
   double wheelbase_;
+  //!< rearAxleFactor_ * wheelbase = distance between rear axle and CoG
+  double rearAxleFactor_;
   // left to right wheel centers distance
   double track_;
   //!< maximum steer angle

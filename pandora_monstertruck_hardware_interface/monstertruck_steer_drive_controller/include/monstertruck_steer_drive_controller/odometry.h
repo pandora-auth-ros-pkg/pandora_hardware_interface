@@ -59,10 +59,11 @@ namespace monstertruck_steer_drive_controller
 
       ~Odometry();
 
-      void init(const ros::Time& time);
+      void init(const ros::Time& time, double wheelRadius_, double wheelbase_,
+        double rearAxleFactor_);
 
-      bool update(
-        const geometry_msgs::Twist& newTwist, const ros::Time& time);
+      bool update(const ros::Time& time, double velocity,
+        double frontSteeringAngle, double rearSteeringAngle);
 
 
       double getX() {return pose_.position.x;}
@@ -71,14 +72,14 @@ namespace monstertruck_steer_drive_controller
       double getLinVelX() {return twist_.linear.x;}
       double getLinVelY() {return twist_.linear.y;}
       double getAngVel() {return twist_.angular.z;}
-      void getPose(geometry_msgs::Pose& pose) {pose = pose;}
+      void getPose(geometry_msgs::Pose& pose) {pose = pose_;}
       void getTwist(geometry_msgs::Twist& twist) {twist = twist_;}
 
-      void setWheelParams(double wheelRadius, double wheelbase, double track);
 
     private:
 
-      void integrate(const geometry_msgs::Twist& newTwist, double dt);
+      void integrate(double dt, double velocity, double frontSteeringAngle,
+        double rearSteeringAngle);
 
       ros::Time stamp_;
 
@@ -90,7 +91,7 @@ namespace monstertruck_steer_drive_controller
 
       double wheelRadius_;
       double wheelbase_;
-      double track_;
+      double rearAxleFactor_;
   };
 
 }  // namespace monstertruck_steer_drive_controller

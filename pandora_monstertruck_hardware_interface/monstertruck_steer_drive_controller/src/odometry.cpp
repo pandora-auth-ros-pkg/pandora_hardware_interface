@@ -48,9 +48,9 @@ namespace monstertruck_steer_drive_controller
 
   Odometry::Odometry()
   : stamp_(0.0)
-  , wheelRadius_(0.75)
-  , wheelbase_(0.32)
-  , track_(0.26)
+  , wheelRadius_(0.0)
+  , wheelbase_(0.0)
+  , rearAxleFactor_(0.0)
   {
   }
 
@@ -60,48 +60,66 @@ namespace monstertruck_steer_drive_controller
   }
 
 
-  void Odometry::init(const ros::Time& time)
+  void Odometry::init(const ros::Time& time, double wheelRadius,
+    double wheelbase, double rearAxleFactor)
   {
     stamp_ = time;
+    wheelRadius_ = wheelRadius;
+    wheelbase_ = wheelbase;
+    rearAxleFactor_ = rearAxleFactor;
+
     pose_.orientation.w = 1.0;
   }
 
 
-  bool Odometry::update(
-    const geometry_msgs::Twist& newTwist, const ros::Time& time)
+  bool Odometry::update(const ros::Time& time, double velocity,
+    double frontSteeringAngle, double rearSteeringAngle)
   {
     double dt = (time - stamp_).toSec();
     stamp_ = time;
-    integrate(newTwist, dt);
+    integrate(dt, velocity, frontSteeringAngle, rearSteeringAngle);
   }
 
 
-  void Odometry::setWheelParams(
-    double wheelRadius, double wheelbase, double track)
-  {
-    wheelRadius_ = wheelRadius;
-    wheelbase_ = wheelbase;
-    track_ = track;
-  }
-
-
-  void Odometry::integrate(const geometry_msgs::Twist& newTwist, double dt)
+  void Odometry::integrate(double dt, double velocity,
+    double frontSteeringAngle, double rearSteeringAngle)
   {
     prevTwist_ = twist_;
-    twist_ = newTwist;
     prevPose_ = pose_;
 
-    double ds = hypot(twist_.linear.x, twist_.linear.y) * dt;
+    double beta = atan(rearAxleFactor_ * tan(frontSteeringAngle)
+      + (1 - rearAxleFactor_) * tan(rearSteeringAngle));
+
+    twist_.linear.x = velocity / sqrt(1 + pow(tan(beta), 2));
+    twist_.linear.y = twist_.linear.x * tan(beta);
+    twist_.angular.z = velocity * cos(beta)
+      * (tan(frontSteeringAngle) - tan(rearSteeringAngle)) / wheelbase_;
+
+    double r = wheelbase_ / fabs(cos(beta)
+      * (tan(frontSteeringAngle) - tan(rearSteeringAngle)));
+
+    double ds = velocity * dt;
     double dth = twist_.angular.z * dt;
-    double beta = atan2(twist_.linear.y, twist_.linear.x);
-    double prevBeta = atan2(prevTwist_.linear.y, prevTwist_.linear.x);
+
+    double prevBeta = atan(prevTwist_.linear.y / prevTwist_.linear.x);
+    prevBeta = isnan(prevBeta) ? 0.0 : prevBeta;
     double dbeta = beta - prevBeta;
 
-    pose_.position.x += ds * cos(tf::getYaw(prevPose_.orientation) + dth/2
-      + prevBeta + dbeta/2);
+    // my equations
+    pose_.position.x += velocity * (sin(tf::getYaw(prevPose_.orientation) + dth + beta + dbeta)
+      - sin(tf::getYaw(prevPose_.orientation) + beta)) / (twist_.angular.z + dbeta/dt);
+    pose_.position.y += velocity * (-cos(tf::getYaw(prevPose_.orientation) + dth + prevBeta + dbeta)
+      + cos(tf::getYaw(prevPose_.orientation) + prevBeta)) / (twist_.angular.z + dbeta/dt);
 
-    pose_.position.y += ds * sin(tf::getYaw(prevPose_.orientation) + dth/2
-      + prevBeta + dbeta/2);
+    /*
+     * Equations from paper "Automated Odometry Self-Calibration for Car-Like Robots
+     * with Four Wheel Steering (2012)"
+     */
+    // pose_.position.x += ds * cos(tf::getYaw(prevPose_.orientation) + dth/2
+      // + prevBeta + dbeta/2);
+    // pose_.position.y += ds * sin(tf::getYaw(prevPose_.orientation) + dth/2
+      // + prevBeta + dbeta/2);
+
 
     pose_.orientation = tf::createQuaternionMsgFromYaw(
       tf::getYaw(prevPose_.orientation) + dth);
