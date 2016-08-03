@@ -143,10 +143,10 @@ namespace imu
     uint16_t calcCrc(unsigned char* data, size_t dataSize, bool storeCrcInPacket);
 
    private:
-    //!< expression used to extract yaw, pitch, roll from packet
+    //! expression used to extract yaw, pitch, roll from packet
     const boost::regex regex_;
 
-    //!< current time, and last_time trax was reset
+    //! current time, and last_time trax was reset
     ros::Time now_, last_reset_;
   };
 }  // namespace imu

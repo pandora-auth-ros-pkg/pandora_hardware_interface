@@ -105,13 +105,13 @@ namespace arm
     virtual void stopping(const ros::Time& time);
 
    private:
-    //!< CO2 sensor handle
+    //! CO2 sensor handle
     std::vector<Co2SensorHandle> sensorHandles_;
-    //!< CO2 msg publisher
+    //! CO2 msg publisher
     std::vector<Co2RealtimePublisher> realtimePublishers_;
-    //!< Time since last publishing
+    //! Time since last publishing
     std::vector<ros::Time> lastTimePublished_;
-    //!< CO2 msg publishing frequency
+    //! CO2 msg publishing frequency
     double publishRate_;
   };
 }  // namespace arm

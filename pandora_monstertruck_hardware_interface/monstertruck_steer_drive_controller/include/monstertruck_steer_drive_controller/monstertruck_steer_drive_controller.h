@@ -183,7 +183,7 @@ class MonstertruckSteerDriveController : public
 
   SteerDriveCommand steerDriveCommand_;
 
-  //!< controller name
+  //! controller name
   const std::string ctrlName_;
 
   // drive joint names
@@ -209,38 +209,38 @@ class MonstertruckSteerDriveController : public
   hardware_interface::JointHandle rightRearSteerJoint_;
 
 
-  //!< twist command subscriber
+  //! twist command subscriber
   ros::Subscriber twistCmdSub_;
-  //!< ackermann command subscriber
+  //! ackermann command subscriber
   ros::Subscriber ackCmdSub_;
-  //!< command timeout
+  //! command timeout
   double cmdTimeout_;
 
   // odometry related
 
   // odometry object
   Odometry odometry_;
-  //!< odometry publisher
+  //! odometry publisher
   boost::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> >
     odomPub_;
-  //!< publish period of odometry
+  //! publish period of odometry
   ros::Duration odomPubPeriod_;
-  //!< last time odometry was published
+  //! last time odometry was published
   ros::Time lastOdomPubTime_;
 
   // robot geometric parameterers
 
-  //!< ideal 4ws configuration
+  //! ideal 4ws configuration
   bool ideal4WS_;
-  //!< wheels radius of the vehicle
+  //! wheels radius of the vehicle
   double wheelRadius_;
-  //!< front to rear wheel centers distance
+  //! front to rear wheel centers distance
   double wheelbase_;
-  //!< rearAxleFactor_ * wheelbase = distance between rear axle and CoG
+  //! rearAxleFactor_ * wheelbase = distance between rear axle and CoG
   double rearAxleFactor_;
   // left to right wheel centers distance
   double track_;
-  //!< maximum steer angle
+  //! maximum steer angle
   double maxSteeringAngle_;
 };
 

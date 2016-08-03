@@ -93,7 +93,7 @@ namespace imu
     **/
     bool check(const std::string& packet, int crc);
 
-    //!< expression used to extract data from imu packet
+    //! expression used to extract data from imu packet
     const boost::regex regex_;
   };
 }  // namespace imu
