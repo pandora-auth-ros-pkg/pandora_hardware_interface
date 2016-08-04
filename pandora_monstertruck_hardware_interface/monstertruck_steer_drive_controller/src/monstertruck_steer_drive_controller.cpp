@@ -82,13 +82,13 @@ bool MonstertruckSteerDriveController::init(
 
   // load steer joint handles
   leftFrontSteerJoint_ =
-    velJointInterface->getHandle(leftFrontSteerJointName_);
+    posJointInterface->getHandle(leftFrontSteerJointName_);
   leftRearSteerJoint_ =
-    velJointInterface->getHandle(leftRearSteerJointName_);
+    posJointInterface->getHandle(leftRearSteerJointName_);
   rightFrontSteerJoint_ =
-    velJointInterface->getHandle(rightFrontSteerJointName_);
+    posJointInterface->getHandle(rightFrontSteerJointName_);
   rightRearSteerJoint_ =
-    velJointInterface->getHandle(rightRearSteerJointName_);
+    posJointInterface->getHandle(rightRearSteerJointName_);
 
   // initialize twist and ackermann cmd subscribers
   twistCmdSub_ = nh.subscribe("/cmd_vel", 1,
