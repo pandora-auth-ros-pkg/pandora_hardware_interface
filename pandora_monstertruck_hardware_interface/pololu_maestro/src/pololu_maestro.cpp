@@ -72,7 +72,7 @@ namespace pololu_maestro
   {
     // convert target from radians to degrees
     uint16_t angle = static_cast<uint16_t>(
-      std::max(std::min(target * 180.0 / M_PI, 180.0), 0.0));
+      std::max(std::min(180.0 - target * 180.0 / M_PI, 180.0), 0.0));
 
     // convert angle from degrees to quarter microseconds
     uint16_t command = static_cast<uint16_t>(angle * 10.48 + 496)*4;
@@ -105,8 +105,8 @@ namespace pololu_maestro
     uint8_t response[2];
     serialPtr_->read(response, sizeof(response)/sizeof(uint8_t));
     return
-      ((static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48
-      * M_PI / 180.0);
+      M_PI / 180.0 * (180.0 -
+        (static_cast<double>(256*response[1] + response[0]) / 4 - 496) / 10.48);
   }
 
   double PololuMaestro::readVoltage(uint8_t channel)
