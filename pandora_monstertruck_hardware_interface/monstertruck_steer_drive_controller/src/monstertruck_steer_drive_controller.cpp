@@ -253,7 +253,7 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   vor /= wheelRadius_;
 
   steerDriveCommand_.leftFrontSteeringAngle = fsa;
-  steerDriveCommand_.leftRearSteeringAngle = fsa;
+  steerDriveCommand_.rightFrontSteeringAngle = fsa;
   steerDriveCommand_.leftRearSteeringAngle = 0.0;
   steerDriveCommand_.rightRearSteeringAngle = 0.0;
   steerDriveCommand_.leftFrontWheelVelocity = (fsa >= 0) ? vif : vof;

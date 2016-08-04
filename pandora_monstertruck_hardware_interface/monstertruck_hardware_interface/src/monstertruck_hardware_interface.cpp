@@ -183,7 +183,6 @@ namespace monstertruck
       rearLeftAngle += pRRLRCoeffs_[ii] *
         pow(rearRightAngle, pRRLRCoeffs_.size() - ii - 1);
 
-    // TODO(gkouros): use parallel steer side velocity equations
     // compute wheel angular velocities
     for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
       wheelDriveVelocity_[ii] =
@@ -204,33 +203,35 @@ namespace monstertruck
 
   void MonstertruckHardwareInterface::write()
   {
-    double velocityCmd = 0;
-    double steerAngleCmd = 0;
-    int32_t rpmCmd;
-
     // compute motor rpm
+    double velocityCmd = 0;
     for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
       velocityCmd +=
         wheelDriveVelocityCommand_[ii] / wheelDriveJointNames_.size();
 
-    rpmCmd = static_cast<int32_t>(velocityCmd * motorRatio_ * 60 / 2 / M_PI);
+    int32_t rpmCmd =
+      static_cast<int32_t>(velocityCmd * motorRatio_ * 60 / 2 / M_PI);
 
-    // compute steer actuator command from left front wheel joint
-    for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
-      steerAngleCmd += pLFFACoeffs_[ii] *
-        pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii - 1);
+    // compute front and rear steering angles
+    double frontSteeringAngleCmd =
+      (wheelSteerPositionCommand_[0] + wheelSteerPositionCommand_[2]) / 2;
+    double rearSteeringAngleCmd =
+      (wheelSteerPositionCommand_[1] + wheelSteerPositionCommand_[3]) / 2;
 
     // enforce limits
     rpmCmd = std::min(std::max(rpmCmd, motorMinRPM_), motorMaxRPM_);
-    steerAngleCmd = std::min(std::max(steerAngleCmd, -M_PI/4) , M_PI/4);
+    frontSteeringAngleCmd =
+      std::min(std::max(frontSteeringAngleCmd, -M_PI/4), M_PI/4);
+    rearSteeringAngleCmd =
+      std::min(std::max(rearSteeringAngleCmd, -M_PI/4) , M_PI/4);
 
     // read servo handler errors to clear them
     servoHandler_->readErrors();
 
     // write commands
     motorHandler_->writeRPM(motorControllerName_, -rpmCmd);
-    servoHandler_->setTarget(1, steerAngleCmd + M_PI/2);
-    servoHandler_->setTarget(0, -steerAngleCmd + M_PI/2);
+    servoHandler_->setTarget(1, frontSteeringAngleCmd + M_PI/2);
+    servoHandler_->setTarget(0, rearSteeringAngleCmd + M_PI/2);
   }
 
 
