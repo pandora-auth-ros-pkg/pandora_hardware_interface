@@ -46,6 +46,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <realtime_tools/realtime_buffer.h>
 #include <realtime_tools/realtime_publisher.h>
+#include <tf/tfMessage.h>
 
 #include "monstertruck_steer_drive_controller/odometry.h"
 
@@ -223,6 +224,11 @@ class MonstertruckSteerDriveController : public
   //! odometry publisher
   boost::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> >
     odomPub_;
+  //! odometry tf publisher
+  boost::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> >
+    tfOdomPub_;
+  //! determines whether to publish odom tf
+  bool enableOdomTf_;
   //! publish period of odometry
   ros::Duration odomPubPeriod_;
   //! last time odometry was published

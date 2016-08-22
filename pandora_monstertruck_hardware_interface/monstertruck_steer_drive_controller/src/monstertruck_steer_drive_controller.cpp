@@ -35,6 +35,8 @@
  *********************************************************************/
 
 #include "monstertruck_steer_drive_controller/monstertruck_steer_drive_controller.h"
+
+#include <tf/transform_datatypes.h>
 #include <boost/assign.hpp>
 #include <cmath>
 
@@ -58,6 +60,7 @@ MonstertruckSteerDriveController::MonstertruckSteerDriveController()
   , rearAxleFactor_(0.0)
   , track_(0.0)
   , ctrlName_("monstertruck_steer_drive_controller")
+  , enableOdomTf_(true)
 {
 }
 
@@ -103,15 +106,31 @@ bool MonstertruckSteerDriveController::init(
 void MonstertruckSteerDriveController::update(
   const ros::Time& time, const ros::Duration& period)
 {
-  // get wheel steering angle and velocity feedback
-  double velocity =
-    (leftFrontDriveJoint_.getVelocity() + rightFrontDriveJoint_.getVelocity()
-     + leftRearDriveJoint_.getVelocity() + rightRearDriveJoint_.getVelocity())
-    / 4 * wheelRadius_;
+  // get steering angles feedback
   double frontSteeringAngle = leftFrontSteerJoint_.getPosition() / 2
     + rightFrontSteerJoint_.getPosition() / 2;
   double rearSteeringAngle = leftRearSteerJoint_.getPosition() / 2
     + rightRearSteerJoint_.getPosition() / 2;
+  double beta = atan((rearAxleFactor_ * tan(frontSteeringAngle)
+    + (1-rearAxleFactor_) * tan(rearSteeringAngle)) / wheelbase_);
+
+  // get velocities feedback
+  double vf = (leftFrontDriveJoint_.getVelocity()
+    * cos(leftFrontSteerJoint_.getPosition())
+    + rightFrontDriveJoint_.getVelocity()
+    * cos(rightFrontSteerJoint_.getPosition()))
+    / 2 / cos(frontSteeringAngle);
+  double vr = (leftRearDriveJoint_.getVelocity()
+    * cos(leftRearSteerJoint_.getPosition())
+    + rightRearDriveJoint_.getVelocity()
+    * cos(rightRearSteerJoint_.getPosition()))
+    / 2 / cos(rearSteeringAngle);
+  double velocity = (vf * cos(frontSteeringAngle) + vr * cos(rearSteeringAngle))
+    / 2 / cos(beta) * wheelRadius_;
+  // double velocity =
+    // (leftFrontDriveJoint_.getVelocity() + rightFrontDriveJoint_.getVelocity()
+     // + leftRearDriveJoint_.getVelocity() + rightRearDriveJoint_.getVelocity())
+    // / 4 * wheelRadius_;
 
   // update odometry
   odometry_.update(time, velocity, frontSteeringAngle, rearSteeringAngle);
@@ -123,6 +142,19 @@ void MonstertruckSteerDriveController::update(
     odometry_.getPose(odomPub_->msg_.pose.pose);
     odometry_.getTwist(odomPub_->msg_.twist.twist);
     odomPub_->unlockAndPublish();
+  }
+
+  // publish tf /odom frame
+  if (enableOdomTf_)
+  {
+    geometry_msgs::Pose pose;
+    odometry_.getPose(pose);
+    geometry_msgs::TransformStamped& odomFrame = tfOdomPub_->msg_.transforms[0];
+    odomFrame.header.stamp = time;
+    odomFrame.transform.translation.x = pose.position.x;
+    odomFrame.transform.translation.y = pose.position.y;
+    odomFrame.transform.rotation = pose.orientation;
+    tfOdomPub_->unlockAndPublish();
   }
 
   // if last received command timed out, brake
@@ -343,11 +375,11 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
 
   if (ideal4WS_)
   {
-    if (fabs(ifsa) > wheelbase_ / 2 / tan(maxSteeringAngle_))  // r < rmin
+    if (fabs(ifsa) > maxSteeringAngle_)  // r < rmin
     {
       ROS_WARN("[%s] Received Invalid Command (inner front steering angle=%f > "
         "max_steering_angle=%f)", ctrlName_.c_str(), fabs(ifsa),
-        wheelbase_ / 2 / tan(maxSteeringAngle_));
+        maxSteeringAngle_);
       return;
     }
   }
@@ -374,12 +406,12 @@ void MonstertruckSteerDriveController::convertBase2JointCmds(
   // set the steer drive command
   steerDriveCommand_.leftFrontSteeringAngle = (fsa > 0.0) ? ifsa : ofsa;
   steerDriveCommand_.rightFrontSteeringAngle = (fsa > 0.0) ? ofsa : ifsa;
-  steerDriveCommand_.leftRearSteeringAngle = (rsa > 0.0) ? irsa : orsa;
-  steerDriveCommand_.rightRearSteeringAngle = (rsa > 0.0) ? orsa : irsa;
+  steerDriveCommand_.leftRearSteeringAngle = (rsa > 0.0) ? orsa : irsa;
+  steerDriveCommand_.rightRearSteeringAngle = (rsa > 0.0) ? irsa : orsa;
   steerDriveCommand_.leftFrontWheelVelocity = (fsa > 0.0) ? vif : vof;
   steerDriveCommand_.rightFrontWheelVelocity = (fsa > 0.0) ? vof : vif;
-  steerDriveCommand_.leftRearWheelVelocity = (rsa > 0.0) ? vir : vor;
-  steerDriveCommand_.rightRearWheelVelocity = (rsa > 0.0) ? vor : vir;
+  steerDriveCommand_.leftRearWheelVelocity = (rsa > 0.0) ? vor : vir;
+  steerDriveCommand_.rightRearWheelVelocity = (rsa > 0.0) ? vir : vor;
   steerDriveCommand_.stamp = ros::Time::now();
 }
 
@@ -434,6 +466,8 @@ void MonstertruckSteerDriveController::loadParams(const ros::NodeHandle& nh)
     "odom_pose_covariance not set in parameter server");
   ROS_ASSERT_MSG(nh.getParam("odom_twist_covariance", odomTwistCov),
     "odom_twist_covariance not set in parameter server");
+  ROS_ASSERT_MSG(nh.getParam("enable_odom_tf", enableOdomTf_),
+      "enable_odom_tf not set in parameter server");
 
   odomPub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(
       nh, "odom", 100));
@@ -456,6 +490,14 @@ void MonstertruckSteerDriveController::loadParams(const ros::NodeHandle& nh)
     (0)  (0)  (0)  (odomTwistCov[3])  (0)  (0)
     (0)  (0)  (0)  (0)  (odomTwistCov[4])  (0)
     (0)  (0)  (0)  (0)  (0)  (odomTwistCov[5]);
+
+    tfOdomPub_.reset(new realtime_tools::RealtimePublisher<tf::tfMessage>(nh,
+        "/tf", 100));
+    tfOdomPub_->msg_.transforms.resize(1);
+    tfOdomPub_->msg_.transforms[0].transform.translation.z = 0.0;
+    tfOdomPub_->msg_.transforms[0].child_frame_id =
+      odomPub_->msg_.child_frame_id;
+    tfOdomPub_->msg_.transforms[0].header.frame_id = "odom";
 }
 
 }  // namespace monstertruck_steer_drive_controller

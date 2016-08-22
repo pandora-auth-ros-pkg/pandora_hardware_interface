@@ -8,12 +8,14 @@ monstertruck_steer_drive_controller:
 
   base_frame_id: base_footprint
 
+  enable_odom_tf: False #True
+
   ideal_4ws: False
   wheel_radius: 0.075
   wheelbase: 0.32  # wheel separation length
   rear_axle_factor: 0.5  # distance of rear axle to CoG
   track: 0.26  # wheel separation width
-  max_steering_angle: deg(23)
+  max_steering_angle: deg(25)
 
   drive_joints:
     left:
