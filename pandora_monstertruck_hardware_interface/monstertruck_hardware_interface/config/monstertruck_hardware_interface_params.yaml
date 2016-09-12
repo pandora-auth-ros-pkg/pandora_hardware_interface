@@ -17,12 +17,12 @@ wheel_steer_joints:
     - right_front_wheel_steer_joint
     - right_rear_wheel_steer_joint
   limits:
-    min_position: deg(-22.5)
-    max_position: deg(22.5)
+    min_position: deg(-25)
+    max_position: deg(25)
 
 motor:
   controller_name: drive_shaft_motor_controller
-  ratio: 666
+  ratio: 644
   min_rpm: -18000.0
   max_rpm: 18000.0
 
