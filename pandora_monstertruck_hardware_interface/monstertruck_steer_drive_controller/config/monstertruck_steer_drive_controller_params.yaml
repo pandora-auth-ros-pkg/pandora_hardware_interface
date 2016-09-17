@@ -8,7 +8,7 @@ monstertruck_steer_drive_controller:
 
   base_frame_id: base_footprint
 
-  enable_odom_tf: False #True
+  enable_odom_tf: False
 
   ideal_4ws: False
   wheel_radius: 0.075
@@ -32,5 +32,5 @@ monstertruck_steer_drive_controller:
       front: right_front_wheel_steer_joint
       rear: right_rear_wheel_steer_joint
 
-  odom_pose_covariance: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-  odom_twist_covariance: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  odom_pose_covariance: [0.001, 0.001, 9999, 9999, 9999, 0.03]
+  odom_twist_covariance: [0.001, 0.001, 9999, 9999, 9999, 0.03]

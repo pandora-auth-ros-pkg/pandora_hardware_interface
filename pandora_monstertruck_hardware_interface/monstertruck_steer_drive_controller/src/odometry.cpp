@@ -87,8 +87,8 @@ namespace monstertruck_steer_drive_controller
     prevTwist_ = twist_;
     prevPose_ = pose_;
 
-    double beta = atan(rearAxleFactor_ * tan(frontSteeringAngle)
-      + (1 - rearAxleFactor_) * tan(rearSteeringAngle));
+    double beta = atan((rearAxleFactor_ * tan(frontSteeringAngle)
+      + (1 - rearAxleFactor_) * tan(rearSteeringAngle)) / wheelbase_);
 
     twist_.linear.x = velocity / sqrt(1 + pow(tan(beta), 2));
     twist_.linear.y = twist_.linear.x * tan(beta);
