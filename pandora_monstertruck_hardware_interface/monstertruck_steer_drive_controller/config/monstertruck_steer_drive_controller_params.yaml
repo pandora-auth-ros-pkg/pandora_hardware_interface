@@ -8,6 +8,7 @@ monstertruck_steer_drive_controller:
 
   base_frame_id: base_footprint
 
+  odom_topic: /odom
   enable_odom_tf: False
 
   ideal_4ws: False

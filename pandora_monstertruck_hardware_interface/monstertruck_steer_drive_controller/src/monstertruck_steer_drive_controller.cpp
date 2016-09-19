@@ -119,11 +119,11 @@ void MonstertruckSteerDriveController::update(
 
   // get velocities feedback
   double vf = (leftFrontDriveJoint_.getVelocity()
-    + rightFrontDriveJoint_.getVelocity()) / 2;
+    + rightFrontDriveJoint_.getVelocity()) / 2 * wheelRadius_;
   double vr = (leftRearDriveJoint_.getVelocity()
-    + rightRearDriveJoint_.getVelocity()) / 2;
+    + rightRearDriveJoint_.getVelocity()) / 2 * wheelRadius_;
   double velocity = (vf * cos(frontSteeringAngle) + vr * cos(rearSteeringAngle))
-    / 2 / cos(beta) * wheelRadius_;
+    / 2 / cos(beta);
 
   // update odometry
   odometry_.update(time, velocity, frontSteeringAngle, rearSteeringAngle);
@@ -462,8 +462,13 @@ void MonstertruckSteerDriveController::loadParams(const ros::NodeHandle& nh)
   ROS_ASSERT_MSG(nh.getParam("enable_odom_tf", enableOdomTf_),
       "enable_odom_tf not set in parameter server");
 
+  std::string odomTopic;
+  ROS_ASSERT_MSG(nh.getParam("odom_topic", odomTopic),
+      "odom_topic not set in parameter server");
+
+
   odomPub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(
-      nh, "/odom", 100));
+      nh, odomTopic, 100));
 
   ROS_ASSERT_MSG(nh.getParam("base_frame_id", odomPub_->msg_.child_frame_id),
     "robot_frame_id not set in parameter server");
