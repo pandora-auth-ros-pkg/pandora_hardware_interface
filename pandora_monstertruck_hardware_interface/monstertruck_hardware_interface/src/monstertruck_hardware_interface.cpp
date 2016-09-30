@@ -45,7 +45,10 @@ namespace pandora_hardware_interface
 namespace monstertruck
 {
   MonstertruckHardwareInterface::MonstertruckHardwareInterface(
-    ros::NodeHandle nodeHandle) : nodeHandle_(nodeHandle)
+    ros::NodeHandle nodeHandle)
+  : nodeHandle_(nodeHandle)
+  , wheelbase_(0.32)
+  , track_(0.26)
   {
     // initialize motor handler
     motorHandler_.reset(
@@ -183,10 +186,24 @@ namespace monstertruck
       rearLeftAngle += pRRLRCoeffs_[ii] *
         pow(rearRightAngle, pRRLRCoeffs_.size() - ii - 1);
 
-    // compute wheel angular velocities
-    for (int ii = 0; ii < wheelDriveJointNames_.size(); ii++)
-      wheelDriveVelocity_[ii] =
-        static_cast<double>(rpm) / motorRatio_ / 60 * 2 * M_PI;
+    // compute wheel velocities
+    double frontSteeringAngle = atan(
+      2 / (1/tan(frontLeftAngle) + 1/tan(frontRightAngle)));
+    double rearSteeringAngle = atan(
+      2 / (1/tan(rearLeftAngle) + 1/tan(rearRightAngle)));
+    double beta = atan((tan(frontSteeringAngle) + tan(rearSteeringAngle))
+      / wheelbase_);
+    double turningRadius = wheelbase_ / fabs(cos(beta)
+      * (tan(frontSteeringAngle) - tan(rearSteeringAngle)));
+    double velocity =  static_cast<double>(rpm) / motorRatio_ / 60 * 2 * M_PI;
+    wheelDriveVelocity_[0] = velocity * (turningRadius - track_/2)
+      / turningRadius / cos(frontLeftAngle);
+    wheelDriveVelocity_[1] = velocity * (turningRadius + track_/2)
+      / turningRadius / cos(rearLeftAngle);
+    wheelDriveVelocity_[2] = velocity * (turningRadius - track_/2)
+      / turningRadius / cos(frontRightAngle);
+    wheelDriveVelocity_[3] = velocity * (turningRadius + track_/2)
+      / turningRadius / cos(rearRightAngle);
 
     // update wheel steer angles
     wheelSteerPosition_[0] = frontLeftAngle;

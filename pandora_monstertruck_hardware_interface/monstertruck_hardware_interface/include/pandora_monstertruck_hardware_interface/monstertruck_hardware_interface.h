@@ -95,6 +95,10 @@ class MonstertruckHardwareInterface : public hardware_interface::RobotHW
     int32_t  motorMinRPM_;
     int32_t motorMaxRPM_;
 
+    // vehicle parameters
+    double wheelbase_;  // the wheel longitudinal separation
+    double track_;  // the wheel lateral separation
+
     // Steering Mechanism Polynomial Approximation Coefficients:
 
     // left front to right front angle polynomial coefficients
