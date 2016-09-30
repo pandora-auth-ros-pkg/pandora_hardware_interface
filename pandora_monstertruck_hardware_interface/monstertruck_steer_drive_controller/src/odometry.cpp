@@ -87,16 +87,13 @@ namespace monstertruck_steer_drive_controller
     prevTwist_ = twist_;
     prevPose_ = pose_;
 
-    double beta = atan((rearAxleFactor_ * tan(frontSteeringAngle)
-      + (1 - rearAxleFactor_) * tan(rearSteeringAngle)) / wheelbase_);
+    double beta = atan(rearAxleFactor_ * tan(frontSteeringAngle)
+      + (1 - rearAxleFactor_) * tan(rearSteeringAngle));
 
     twist_.linear.x = velocity / sqrt(1 + pow(tan(beta), 2));
     twist_.linear.y = twist_.linear.x * tan(beta);
     twist_.angular.z = velocity * cos(beta)
       * (tan(frontSteeringAngle) - tan(rearSteeringAngle)) / wheelbase_;
-
-    double r = wheelbase_ / fabs(cos(beta)
-      * (tan(frontSteeringAngle) - tan(rearSteeringAngle)));
 
     double ds = velocity * dt;
     double dth = twist_.angular.z * dt;
@@ -106,19 +103,19 @@ namespace monstertruck_steer_drive_controller
     double dbeta = beta - prevBeta;
 
     // my equations
-    pose_.position.x += velocity * (sin(tf::getYaw(prevPose_.orientation) + dth + beta + dbeta)
-      - sin(tf::getYaw(prevPose_.orientation) + beta)) / (twist_.angular.z + dbeta/dt);
-    pose_.position.y += velocity * (-cos(tf::getYaw(prevPose_.orientation) + dth + prevBeta + dbeta)
-      + cos(tf::getYaw(prevPose_.orientation) + prevBeta)) / (twist_.angular.z + dbeta/dt);
+    // pose_.position.x += velocity * (sin(tf::getYaw(prevPose_.orientation) + dth + beta + dbeta)
+      // - sin(tf::getYaw(prevPose_.orientation) + beta)) / (twist_.angular.z + dbeta/dt);
+    // pose_.position.y += velocity * (-cos(tf::getYaw(prevPose_.orientation) + dth + prevBeta + dbeta)
+      // + cos(tf::getYaw(prevPose_.orientation) + prevBeta)) / (twist_.angular.z + dbeta/dt);
 
     /*
      * Equations from paper "Automated Odometry Self-Calibration for Car-Like Robots
      * with Four Wheel Steering (2012)"
      */
-    // pose_.position.x += ds * cos(tf::getYaw(prevPose_.orientation) + dth/2
-      // + prevBeta + dbeta/2);
-    // pose_.position.y += ds * sin(tf::getYaw(prevPose_.orientation) + dth/2
-      // + prevBeta + dbeta/2);
+    pose_.position.x += ds * cos(tf::getYaw(prevPose_.orientation) + dth/2
+      + prevBeta + dbeta/2);
+    pose_.position.y += ds * sin(tf::getYaw(prevPose_.orientation) + dth/2
+      + prevBeta + dbeta/2);
 
 
     pose_.orientation = tf::createQuaternionMsgFromYaw(
