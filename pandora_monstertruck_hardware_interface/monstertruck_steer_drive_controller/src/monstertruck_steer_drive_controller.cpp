@@ -46,6 +46,11 @@ namespace
   {
     return (x >= 0.0) ? 1.0 : -1.0;
   }
+
+  double cot(double x)
+  {
+    return cos(x) / sin(x);
+  }
 }
 
 
@@ -107,21 +112,26 @@ void MonstertruckSteerDriveController::update(
   const ros::Time& time, const ros::Duration& period)
 {
   // get steering angles feedback
-  double frontSteeringAngle = leftFrontSteerJoint_.getPosition() / 2
-    + rightFrontSteerJoint_.getPosition() / 2;
-  double rearSteeringAngle = leftRearSteerJoint_.getPosition() / 2
-    + rightRearSteerJoint_.getPosition() / 2;
-  double beta = atan((rearAxleFactor_ * tan(frontSteeringAngle)
-    + (1-rearAxleFactor_) * tan(rearSteeringAngle)) / wheelbase_);
+  double frontSteeringAngle = atan(2 / (cot(leftFrontSteerJoint_.getPosition())
+    + cot(rightFrontSteerJoint_.getPosition())));
 
-  double R = fabs(
-    wheelbase_ / (tan(frontSteeringAngle) - tan(rearSteeringAngle)));
+  double rearSteeringAngle = atan(2 / (cot(leftRearSteerJoint_.getPosition())
+    + cot(rightRearSteerJoint_.getPosition())));
+
+  double beta = atan(rearAxleFactor_ * tan(frontSteeringAngle)
+    + (1-rearAxleFactor_) * tan(rearSteeringAngle));
 
   // get velocities feedback
   double vf = (leftFrontDriveJoint_.getVelocity()
-    + rightFrontDriveJoint_.getVelocity()) / 2 * wheelRadius_;
+    * cos(leftFrontSteerJoint_.getPosition())
+    + rightFrontDriveJoint_.getVelocity()
+    * cos(rightFrontSteerJoint_.getPosition()))
+    / cos(frontSteeringAngle) / 2 * wheelRadius_;
   double vr = (leftRearDriveJoint_.getVelocity()
-    + rightRearDriveJoint_.getVelocity()) / 2 * wheelRadius_;
+    * cos(leftRearSteerJoint_.getPosition())
+    + rightRearDriveJoint_.getVelocity()
+    * cos(rightRearSteerJoint_.getPosition()))
+    / cos(rearSteeringAngle) / 2 * wheelRadius_;
   double velocity = (vf * cos(frontSteeringAngle) + vr * cos(rearSteeringAngle))
     / 2 / cos(beta);
 
