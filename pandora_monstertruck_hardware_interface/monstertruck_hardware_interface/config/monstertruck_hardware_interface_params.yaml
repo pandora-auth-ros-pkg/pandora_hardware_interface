@@ -28,15 +28,15 @@ motor:
 
 steer_mechanism:
   polynomial_approximation_coefficients:
-    # left to right steer angle wheel polynomial coefficients
-    p_lf_to_rf: [0.0126, -0.0432, 0.0067, -0.0851, 0.9997, 0.0035]
-    # right to left steer angle polynomial coefficients
-    p_rr_to_lr: [0.0126, -0.0432, 0.0067, -0.0851, 0.9997, 0.0035]
+    # left front to right front steer angle wheel polynomial coefficients
+    p_lf_to_rf: [-0.0058, 1.0203, 0.0]
+    # left rear to right rear steer angle polynomial coefficients
+    p_lr_to_rr: [-0.0058, 1.0203, 0.0]
     # left front steer angle to front actuator steer angle
-    p_lf_to_fa: [0.5334, 0.2997, 0.2857, 0.0556, 1.4951, 0.0001]
-    # right rear steer agle to rear actuator steer angle
-    p_rr_to_ra: [0.4225, -0.0959, 0.2930, 0.0668, 1.4949, 0.0]
+    p_lf_to_fa: [0.1047, 1.5362, -0.0009]
+    # left rear steer agle to rear actuator steer angle
+    p_lr_to_ra: [0.0511, 1.5351, 0.0003]
     # front actuator to left front steer angle
-    p_fa_to_lf: [-0.0082, -0.0162, -0.00605, -0.0192, 0.6691, 0.0]
+    p_fa_to_lf: [0.029, 0.6515, 0.0006]
     # rear actuator to right rear steer angle
-    p_ra_to_rr: [-0.0104, 0.0173, -0.0604, -0.0193, 0.6691, 0.0]
+    p_ra_to_lr: [-0.014, 0.6515, -0.0002]

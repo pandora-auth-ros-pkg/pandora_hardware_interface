@@ -103,16 +103,16 @@ class MonstertruckHardwareInterface : public hardware_interface::RobotHW
 
     // left front to right front angle polynomial coefficients
     std::vector<double> pLFRFCoeffs_;
-    // right rear to left rear angle polynomial coefficients
-    std::vector<double> pRRLRCoeffs_;
+    // left rear to left rear angle polynomial coefficients
+    std::vector<double> pLRRRCoeffs_;
     // left front angle to front actuator angle
     std::vector<double> pLFFACoeffs_;
-    // right rear angle to rear actuator angle
-    std::vector<double> pRRRACoeffs_;
+    // left rear angle to rear actuator angle
+    std::vector<double> pLRRACoeffs_;
     // front actuator angle to left front angle
     std::vector<double> pFALFCoeffs_;
-    // rear actuator angle to right rear angle
-    std::vector<double> pRARRCoeffs_;
+    // rear actuator angle to left rear angle
+    std::vector<double> pRALRCoeffs_;
 };  // class MonstertruckHardwareInterface
 
 }  // namespace monstertruck

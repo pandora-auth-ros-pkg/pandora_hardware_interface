@@ -174,17 +174,18 @@ namespace monstertruck
       frontLeftAngle += pFALFCoeffs_[ii] *
         pow(frontAngle, pFALFCoeffs_.size() - ii - 1);
 
+    for (int ii = 0; ii < pRALRCoeffs_.size(); ii++)
+      rearLeftAngle += pRALRCoeffs_[ii] *
+        pow(rearAngle, pRALRCoeffs_.size() - ii - 1);
+
     for (int ii = 0; ii < pLFRFCoeffs_.size(); ii++)
       frontRightAngle += pLFRFCoeffs_[ii] *
         pow(frontLeftAngle, pLFRFCoeffs_.size() - ii - 1);
 
-    for (int ii = 0; ii < pRARRCoeffs_.size(); ii++)
-      rearRightAngle += pRARRCoeffs_[ii] *
-        pow(rearAngle, pRARRCoeffs_.size() - ii - 1);
+    for (int ii = 0; ii < pLRRRCoeffs_.size(); ii++)
+      rearRightAngle += pLRRRCoeffs_[ii] *
+        pow(rearRightAngle, pLRRRCoeffs_.size() - ii - 1);
 
-    for (int ii = 0; ii < pRRLRCoeffs_.size(); ii++)
-      rearLeftAngle += pRRLRCoeffs_[ii] *
-        pow(rearRightAngle, pRRLRCoeffs_.size() - ii - 1);
 
     // compute wheel velocities
     double frontSteeringAngle = atan(
@@ -229,11 +230,13 @@ namespace monstertruck
     int32_t rpmCmd =
       static_cast<int32_t>(velocityCmd * motorRatio_ * 60 / 2 / M_PI);
 
-    // compute front and rear steering angles
-    double frontSteeringAngleCmd =
-      (wheelSteerPositionCommand_[0] + wheelSteerPositionCommand_[2]) / 2;
-    double rearSteeringAngleCmd =
-      (wheelSteerPositionCommand_[1] + wheelSteerPositionCommand_[3]) / 2;
+    double frontSteeringAngleCmd, rearSteeringAngleCmd;
+    for (int ii = 0; ii < pLFFACoeffs_.size(); ii++)
+      frontSteeringAngleCmd += pLFFACoeffs_[ii] *
+        pow(wheelSteerPositionCommand_[0], pLFFACoeffs_.size() - ii - 1);
+    for (int ii = 0; ii < pLRRACoeffs_.size(); ii++)
+      rearSteeringAngleCmd += pLRRACoeffs_[ii] *
+        pow(wheelSteerPositionCommand_[1], pLRRACoeffs_.size() - ii - 1);
 
     // enforce limits
     rpmCmd = std::min(std::max(rpmCmd, motorMinRPM_), motorMaxRPM_);
@@ -249,6 +252,7 @@ namespace monstertruck
     motorHandler_->writeRPM(motorControllerName_, -rpmCmd);
     servoHandler_->setTarget(1, frontSteeringAngleCmd + M_PI/2);
     servoHandler_->setTarget(0, rearSteeringAngleCmd + M_PI/2);
+
   }
 
 
@@ -293,20 +297,20 @@ namespace monstertruck
         "steer_mechanism/polynomial_approximation_coefficients/p_lf_to_rf",
         pLFRFCoeffs_)
       && nodeHandle_.getParam(
-        "steer_mechanism/polynomial_approximation_coefficients/p_rr_to_lr",
-        pRRLRCoeffs_)
+        "steer_mechanism/polynomial_approximation_coefficients/p_lr_to_rr",
+        pLRRRCoeffs_)
       && nodeHandle_.getParam(
         "steer_mechanism/polynomial_approximation_coefficients/p_lf_to_fa",
         pLFFACoeffs_)
       && nodeHandle_.getParam(
-        "steer_mechanism/polynomial_approximation_coefficients/p_rr_to_ra",
-        pRRRACoeffs_)
+        "steef_mechanism/polynomial_approximation_coefficients/p_lr_to_ra",
+        pLRRACoeffs_)
       && nodeHandle_.getParam(
         "steer_mechanism/polynomial_approximation_coefficients/p_fa_to_lf",
         pFALFCoeffs_)
       && nodeHandle_.getParam(
-        "steer_mechanism/polynomial_approximation_coefficients/p_ra_to_rr",
-        pRARRCoeffs_))
+        "steer_mechanism/polynomial_approximation_coefficients/p_ra_to_lr",
+        pRALRCoeffs_))
     {
       ROS_INFO("[MOTORS] Steer mechanism parameters loaded successfully!");
     }
