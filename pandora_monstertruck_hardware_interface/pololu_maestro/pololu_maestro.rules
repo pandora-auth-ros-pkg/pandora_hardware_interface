@@ -1,0 +1,5 @@
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ffb", MODE="0666"
+
+KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ACTION=="add", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="008[0-f]", MODE="0666", PROGRAM="/bin/bash -c '/bin/echo %p | /bin/grep -c :1.0/tty'", RESULT=="1", SYMLINK+="maestro_serial", GROUP="dialout"
+
+KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ACTION=="add", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="008[0-f]", MODE="0666", PROGRAM="/bin/bash -c '/bin/echo %p | /bin/grep -c :1.2/tty'", RESULT=="1", SYMLINK+="maestro_ttl", GROUP="dialout"

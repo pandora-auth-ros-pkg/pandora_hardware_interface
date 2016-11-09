@@ -101,13 +101,13 @@ namespace arm
     virtual void stopping(const ros::Time& time);
 
    private:
-    //!< Battery handle
+    //! Battery handle
     std::vector<BatteryHandle> batteryHandles_;
-    //!< Battery voltage publisher
+    //! Battery voltage publisher
     BatteryRealtimePublisher realtimePublisher_;
-    //!< Time since last publishing
+    //! Time since last publishing
     ros::Time lastTimePublished_;
-    //!< Battery voltage publishing frequency
+    //! Battery voltage publishing frequency
     double publishRate_;
   };
 }  // namespace arm

@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2016, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,71 +32,43 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Chris Zalidis
+* Author:  George Kouros
 *********************************************************************/
 
-#ifndef IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
-#define IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
+#include "pandora_monstertruck_hardware_interface/monstertruck_hardware_interface.h"
+#include <controller_manager/controller_manager.h>
 
-#include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
-
-#include "imu_com_interface/abstract_imu_com_interface.h"
-
-namespace pandora_hardware_interface
+int main(int argc, char **argv)
 {
-namespace imu
-{
-  /**
-   @class ImuComInterface
-   @brief Class used for serial communication with Compass OS-5000 IMU
-  **/
-  class ImuComInterface : public AbstractImuComInterface
+  ros::init(argc, argv, "monstertruck_hardware_interface_node");
+  ros::NodeHandle nodeHandle;
+
+  pandora_hardware_interface::monstertruck::MonstertruckHardwareInterface
+    monstertruckHardwareInterface(nodeHandle);
+  controller_manager::ControllerManager controllerManager(
+    &monstertruckHardwareInterface,
+    nodeHandle);
+
+  ros::Time
+    last,
+    now;
+  now = last = ros::Time::now();
+  ros::Duration period(1.0);
+
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while ( ros::ok() )
   {
-   public:
-    /**
-     @brief Default Constructor
-     @param device [std::string &] : IMU device com port name
-     @param speed [int] : Serial communication speed (baud rate)
-     @param timeout [int] : Connection response timeout
-    **/
-    ImuComInterface(
-      const std::string& device,
-      int speed,
-      int timeout);
+    now = ros::Time::now();
+    period = now - last;
+    last = now;
 
-    /**
-     @brief Establishes serial communication
-     @return void
-    **/
-    void init();
-
-    /**
-     @brief Reads raw data from the IMU and calculates yaw, pitch and roll 
-     @details Init must be called first to establish serial communication
-     @return void
-    **/
-    void read();
-
-   private:
-    /**
-     @brief Transform raw IMU data to yaw, pitch and roll meausurements
-     @param packet [std::string&] : packet containing the raw imu data
-     @return void
-    **/
-    void parse(const std::string& packet);
-
-    /**
-     @brief Check size of latest received IMU data packet
-     @return bool
-    **/
-    bool check(const std::string& packet, int crc);
-
-    //! expression used to extract data from imu packet
-    const boost::regex regex_;
-  };
-}  // namespace imu
-}  // namespace pandora_hardware_interface
-
-#endif  // IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
+    monstertruckHardwareInterface.read(period);
+    controllerManager.update(now, period);
+    monstertruckHardwareInterface.write();
+    ros::Duration(0.2).sleep();
+  }
+  spinner.stop();
+  return 0;
+}

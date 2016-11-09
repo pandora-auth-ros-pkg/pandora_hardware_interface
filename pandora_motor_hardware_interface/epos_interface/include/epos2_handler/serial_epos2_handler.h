@@ -48,6 +48,7 @@ namespace motor
 
   struct Epos2Controller
   {
+    std::string name_;
     uint16_t nodeId_;
     uint32_t errorCode_;
     std::string motorId_;
@@ -59,25 +60,24 @@ namespace motor
 
   // ====================Serial Epos2 Handler Class========================
 
-  class SerialEpos2Handler: public AbstractEposHandler
+  class SerialEpos2Handler
   {
     private:
       /*! NodeHandler under private namespace "~/epos2config"*/
       ros::NodeHandle epos2_nh_;
       boost::scoped_ptr<Epos2Gateway> epos2Gateway_;
-      std::vector<Epos2Controller*> epos2Controllers_;
-      Epos2Controller* rightFrontMotor_;
-      Epos2Controller* rightRearMotor_;
-      Epos2Controller* leftFrontMotor_;
-      Epos2Controller* leftRearMotor_;
+      std::vector<Epos2Controller> epos2Controllers_;
+      std::map<std::string, uint16_t> nameToIndexMap_;
+      double currentToTorqueMultiplier_;
       uint16_t gatewayId_;
 
-      const int MAX_RETRIES_;
+      int connectionAttempts_;
+
       /*
-       * operation_mode_ = 0 ==> velocity mode
-       * operation_mode_ = 1 ==> current mode
+       * operationMode_ = 0 ==> velocity mode
+       * operationMode_ = 1 ==> current mode
        */
-      int operation_mode_;
+      int operationMode_;
 
     public:
       /*!
@@ -92,46 +92,37 @@ namespace motor
 
       /*!
        * @brief Reads current velocity (rpm) from motor controllers
-       * @param leftRearRpm Left-Rear wheel motor velocity in rpm
-       * @param leftFrontRpm Left-Front wheel motor velocity in rpm
-       * @param rightRearRpm Right-Rear wheel motor velocity in rpm
-       * @param rightFrontRpm Right-Front wheel motor velocity in rpm
+       * @details The rpm is also stored in the motor controller object
+       * @param name [std::string] : name of motor controller
+       * @param rpm [int*] : ptr to container to store the rpm
        * @return Void
        */
-      virtual void getRPM(
-        int* leftRearRpm,
-        int* leftFrontRpm,
-        int* rightRearRpm,
-        int* rightFrontRpm);
+      virtual void getRPM(const std::string name, int* const rpm);
 
       /*!
        * @brief Reads output current (mA) from motor controllers
-       * @param leftRearCurrent Left-Rear wheel motor current in mA
-       * @param leftFrontCurrent Left-Front wheel motor current in mA
-       * @param rightRearCurrent Right-Rear wheel motor current in mA
-       * @param rightFrontCurrent Right-Front wheel motor current in mA
+       * @details The current is also stored in the motor controller object
+       * @param name [std::string] : name of motor controller
+       * @param current [int*] : ptr to container to store the current
        * @return Void
        */
-      virtual void getCurrent(
-        int* leftRearCurrent,
-        int* leftFrontCurrent,
-        int* rightRearCurrent,
-        int* rightFrontCurrent);
+      virtual void getCurrent(const std::string name, int* const current);
 
 
       /*!
-       * @TODO -- Doxy
+       * @brief Read error from motor controllers
+       * @return Error
        */
       virtual Error getError();
 
 
       /*!
        * @brief Writes velocity commands (rpm) to motor cotrollers
-       * @param leftRpm   Left side velocity in rpm
-       * @param rightRpm  Right side velocity in rpm
+       * @param name [std::string] : name of motor controller
+       * @param rpm [const int] : rpm to write to controller
        * @return Void
        */
-      virtual uint16_t writeRPM(const int leftRpm, const int rightRpm);
+      virtual uint16_t writeRPM(const std::string name, const int rpm);
 
 
       /*!
@@ -142,58 +133,46 @@ namespace motor
 
 
       /*!
-       * @TODO -- Doxy
+       * @brief Read the state of all motor controllers
        */
       void stateHandle(void);
 
 
       /*!
-       * TODO -- Doxy
+       * Read current of motor, convert to torque and return it
        */
-      void getTorque(
-        double* leftRearTorque,
-        double* leftFrontTorque,
-        double* rightRearTorque,
-        double* rightFrontTorque);
+      void  getTorque(const std::string name, double* const torque);
 
 
       /*!
        * @brief Converts single WHEEL Torque to motor current
        */
-      int16_t torqueToCurrent(
-        double _input_torque);
+      int16_t torqueToCurrent(double _input_torque);
 
 
       /*!
        * @brief Converts single motor current to WHEEL Torque
        */
-      double currentToTorque(
-        int _input_current);
+      double currentToTorque(int _input_current);
 
 
       /*!
-       * @brief Writes torque commands to motor controllers
-       * (needs to convert torques to currents as well)
+       * @brief Writes torque to motor controller
+       * @param name [std::string] : name of motor controller
+       * @param torque [double] : motor controller torque command
        */
-      uint16_t writeTorques(
-        double leftRearTorque,
-        double leftFrontTorque,
-        double rightRearTorque,
-        double rightFrontTorque);
+      uint16_t writeTorque(const std::string name, const double torque);
 
 
       /*!
        * @brief Switches between current and velocity mode
-       *        Constuctor defaul = velocity mode
-       *
-       * @param mode  mode = 0 => velocity mode
-       *              mode = 1 => current mode
+       * @param mode [int] : 0=velocity_mode, 1=current_mode
        */
       void setMode(int mode);
 
 
       /*!
-       * @TODO -- Doxy
+       * @brief returns the operation mode
        */
       int getMode(void);
   };

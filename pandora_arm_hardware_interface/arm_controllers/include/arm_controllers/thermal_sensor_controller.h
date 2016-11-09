@@ -113,19 +113,19 @@ namespace arm
     virtual void stopping(const ros::Time& time);
 
    private:
-    //!< Thermal sensor handle
+    //! Thermal sensor handle
     std::vector<ThermalSensorHandle> sensorHandles_;
-    //!< Thermal image publisher
+    //! Thermal image publisher
     std::vector<ImageRealtimePublisher> imagePublishers_;
-    //!< Thermal image average temperature publisher
+    //! Thermal image average temperature publisher
     std::vector<ThermalMeanRealtimePublisher> meanPublishers_;
-    //!< Time since last thermal image was published
+    //! Time since last thermal image was published
     std::vector<ros::Time> lastTimePublishedImage_;
-    //!< Time since last average temperature of thermal image was published
+    //! Time since last average temperature of thermal image was published
     std::vector<ros::Time> lastTimePublishedMean_;
-    //!< Thermal sensor interface
+    //! Thermal sensor interface
     ThermalSensorInterface* thermalSensorInterface_;
-    //!< thermal image and image average temperature publishing frequency
+    //! thermal image and image average temperature publishing frequency
     double publishRate_;
   };
 }  // namespace arm

@@ -1,4 +1,4 @@
-## --- Skeed Steer Velocity controller --- ##
+## --- Skid Steer Velocity controller --- ##
 # TODO --- Fix gsl dependencies here!!!!
 #############################################
 add_library(
@@ -20,7 +20,7 @@ add_dependencies(
 #############################################
 
 
-## --- Skeed Steer Toruqe controller --- ##
+## --- Skid Steer Torque controller --- ##
 ###########################################
 add_library(
   skid_steer_torque_controller

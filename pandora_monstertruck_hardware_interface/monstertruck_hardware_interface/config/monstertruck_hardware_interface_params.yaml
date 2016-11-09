@@ -1,0 +1,42 @@
+# Joint Order:  1.left front, 2.left rear, 3.right front, 4.right rear
+# joints must always be listed in the above order
+wheel_drive_joints:
+  names:
+    - left_front_wheel_drive_joint
+    - left_rear_wheel_drive_joint
+    - right_front_wheel_drive_joint
+    - right_rear_wheel_drive_joint
+  limits:
+    min_velocity: -0.21 # [m/s]
+    max_velocity: 0.21 # [m/s]
+
+wheel_steer_joints:
+  names:
+    - left_front_wheel_steer_joint
+    - left_rear_wheel_steer_joint
+    - right_front_wheel_steer_joint
+    - right_rear_wheel_steer_joint
+  limits:
+    min_position: deg(-25)
+    max_position: deg(25)
+
+motor:
+  controller_name: drive_shaft_motor_controller
+  ratio: 644
+  min_rpm: -18000.0
+  max_rpm: 18000.0
+
+steer_mechanism:
+  polynomial_approximation_coefficients:
+    # left front to right front steer angle wheel polynomial coefficients
+    p_lf_to_rf: [-0.0058, 1.0203, 0.0]
+    # left rear to right rear steer angle polynomial coefficients
+    p_lr_to_rr: [-0.0058, 1.0203, 0.0]
+    # left front steer angle to front actuator steer angle
+    p_lf_to_fa: [0.1047, 1.5362, -0.0009]
+    # left rear steer agle to rear actuator steer angle
+    p_lr_to_ra: [0.0511, 1.5351, 0.0003]
+    # front actuator to left front steer angle
+    p_fa_to_lf: [0.029, 0.6515, 0.0006]
+    # rear actuator to right rear steer angle
+    p_ra_to_lr: [-0.014, 0.6515, -0.0002]

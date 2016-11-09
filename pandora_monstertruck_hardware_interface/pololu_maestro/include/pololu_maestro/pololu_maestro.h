@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+*  Copyright (c) 2016, P.A.N.D.O.R.A. Team.
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,71 +32,73 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Chris Zalidis
+* Author: George Kouros
 *********************************************************************/
 
-#ifndef IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
-#define IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
+#ifndef POLOLU_MAESTRO_POLOLU_MAESTRO_H
+#define POLOLU_MAESTRO_POLOLU_MAESTRO_H
 
-#include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
-
-#include "imu_com_interface/abstract_imu_com_interface.h"
+#include <ros/ros.h>
+#include <serial/serial.h>
+#include <boost/scoped_ptr.hpp>
+#include <math.h>
+#include <algorithm>
 
 namespace pandora_hardware_interface
 {
-namespace imu
+namespace pololu_maestro
 {
-  /**
-   @class ImuComInterface
-   @brief Class used for serial communication with Compass OS-5000 IMU
-  **/
-  class ImuComInterface : public AbstractImuComInterface
-  {
-   public:
-    /**
-     @brief Default Constructor
-     @param device [std::string &] : IMU device com port name
-     @param speed [int] : Serial communication speed (baud rate)
-     @param timeout [int] : Connection response timeout
-    **/
-    ImuComInterface(
-      const std::string& device,
-      int speed,
-      int timeout);
 
-    /**
-     @brief Establishes serial communication
-     @return void
-    **/
-    void init();
+/*
+ * @class PololuMaestro
+ * @brief Class that controls pololu maestro servo controllers
+ */
+class PololuMaestro
+{
+ public:
+  /*
+   * @brief Constructor
+   */
+  PololuMaestro(const std::string& portName, int baudRate, int timeout);
 
-    /**
-     @brief Reads raw data from the IMU and calculates yaw, pitch and roll 
-     @details Init must be called first to establish serial communication
-     @return void
-    **/
-    void read();
+  /*
+   * @brief Destructor
+   */
+  ~PololuMaestro();
 
-   private:
-    /**
-     @brief Transform raw IMU data to yaw, pitch and roll meausurements
-     @param packet [std::string&] : packet containing the raw imu data
-     @return void
-    **/
-    void parse(const std::string& packet);
+  /*
+   * @brief Writes position commands to pololu maestro on the given channel
+   * @param channel [uint8_t] : servo channel to command
+   * @param target [double] : position command in radians
+   * @return true : command was written successfully
+   * @return false : command wasn't written successfully
+   */
+  bool setTarget(uint8_t channel, double target);
 
-    /**
-     @brief Check size of latest received IMU data packet
-     @return bool
-    **/
-    bool check(const std::string& packet, int crc);
+  /*
+   * @brief Read the current position of the servo in the given channel
+   * @param channel [uint8_t] : the channel to read feedback from
+   * @return double : the position feedback on the given channel
+   */
+  double readPosition(uint8_t channel);
 
-    //! expression used to extract data from imu packet
-    const boost::regex regex_;
-  };
-}  // namespace imu
+  /*
+   * @brief Read the voltage on the given channel
+   * @param channel [uint8_t] : the channel to read the voltage from
+   * @return doubel : voltage measurement
+   */
+  double readVoltage(uint8_t channel);
+
+  /*
+   * @brief Read and clear errors (required due to startup serial error)
+   * @return void
+   */
+  void readErrors();
+
+ private:
+  boost::scoped_ptr<serial::Serial> serialPtr_;  //!< serial controller pointer
+};  // class PololuMaestro
+
+}  // namespace pololu_maestro
 }  // namespace pandora_hardware_interface
-
-#endif  // IMU_COM_INTERFACE_IMU_COM_INTERFACE_H
+#endif  // POLOLU_MAESTRO_POLOLU_MAESTRO_H

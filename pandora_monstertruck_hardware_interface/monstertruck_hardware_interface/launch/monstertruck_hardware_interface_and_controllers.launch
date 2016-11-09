@@ -1,0 +1,9 @@
+<launch>
+
+  <!-- Launch  monstertruck hardware interface-->
+  <include file="$(find pandora_monstertruck_hardware_interface)/monstertruck_hardware_interface/launch/monstertruck_hardware_interface.launch" />
+
+  <!-- launch controller manager and spawn four wheel steer drive controller and joint state controller -->
+  <include file="$(find pandora_monstertruck_hardware_interface)/monstertruck_steer_drive_controller/launch/monstertruck_steer_drive_controller.launch" />
+
+</launch>

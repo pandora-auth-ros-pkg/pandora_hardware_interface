@@ -1,0 +1,25 @@
+<launch>
+  <arg name="robot" default="monstertruck" />
+  <arg name="namespace" default="monstertruck" />
+
+
+  <param
+    name="robot_description"
+    command="$(find xacro)/xacro.py '$(find pandora_robots_description)/$(arg robot)/urdf/$(arg robot).urdf.xacro'"/>
+
+  <rosparam
+    command="load"
+    file="$(find pandora_monstertruck_hardware_interface)/monstertruck_steer_drive_controller/config/monstertruck_steer_drive_controller_params.yaml"
+    ns="$(arg namespace)" />
+
+  <node
+    name="monstertruck_steer_drive_controller_spawner"
+    pkg="controller_manager"
+    type="controller_manager"
+    output="screen"
+    ns="$(arg namespace)"
+    args=
+      "spawn
+      monstertruck_steer_drive_controller
+      joint_state_controller" />
+</launch>

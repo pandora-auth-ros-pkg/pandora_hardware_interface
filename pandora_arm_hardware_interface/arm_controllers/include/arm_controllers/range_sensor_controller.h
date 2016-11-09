@@ -103,17 +103,17 @@ namespace arm
     virtual void stopping(const ros::Time& time);
 
    private:
-    //!< node handle of root namespace
+    //! node handle of root namespace
     const ros::NodeHandle* rootNodeHandle_;
-    //!< range sensor handle
+    //! range sensor handle
     std::vector<RangeSensorHandle> sensorHandles_;
-    //!< range msg publisher
+    //! range msg publisher
     std::vector<RangeRealtimePublisher> realtimePublishers_;
-    //!< Time since last publishing
+    //! Time since last publishing
     std::vector<ros::Time> lastTimePublished_;
-    //!< range sensor interface
+    //! range sensor interface
     RangeSensorInterface* rangeSensorInterface_;
-    //!< CO2 msg publishing frequency
+    //! CO2 msg publishing frequency
     double publishRate_;
   };
 }  // namespace arm

@@ -10,10 +10,10 @@
 
   <url type="bugtracker">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface/issues</url>
   <url type="repository">https://github.com/pandora-auth-ros-pkg/pandora_hardware_interface</url>
-  
+
   <author>Evangelos Apostolidis</author>
   <author>Chris Zalidis</author>
-  
+
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>pandora_dynamixel_hardware_interface</exec_depend>
@@ -25,8 +25,9 @@
   <exec_depend>pandora_hardware_tools</exec_depend>
   <exec_depend>pandora_sensor_msgs</exec_depend>
   <exec_depend>pandora_leddar_hardware_interface</exec_depend>
+  <exec_depend>pandora_monstertruck_hardware_interface</exec_depend>
 
   <export>
     <metapackage/>
-  </export>  
+  </export>
 </package>

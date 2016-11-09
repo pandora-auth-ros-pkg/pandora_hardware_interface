@@ -1,0 +1,37 @@
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+monstertruck_steer_drive_controller:
+  type: monstertruck_steer_drive_controller/MonstertruckSteerDriveController
+  publish_rate: 50
+
+  base_frame_id: base_footprint
+
+  odom_topic: /odom
+  enable_odom_tf: False
+
+  ideal_4ws: False
+  wheel_radius: 0.075
+  wheelbase: 0.32  # wheel separation length
+  rear_axle_factor: 0.5  # distance of rear axle to CoG
+  track: 0.26  # wheel separation width
+  max_steering_angle: deg(25)
+
+  drive_joints:
+    left:
+      front: left_front_wheel_drive_joint
+      rear: left_rear_wheel_drive_joint
+    right:
+      front: right_front_wheel_drive_joint
+      rear: right_rear_wheel_drive_joint
+  steer_joints:
+    left:
+      front: left_front_wheel_steer_joint
+      rear: left_rear_wheel_steer_joint
+    right:
+      front: right_front_wheel_steer_joint
+      rear: right_rear_wheel_steer_joint
+
+  odom_pose_covariance: [0.001, 0.001, 9999, 9999, 9999, 0.03]
+  odom_twist_covariance: [0.001, 0.001, 9999, 9999, 9999, 0.03]

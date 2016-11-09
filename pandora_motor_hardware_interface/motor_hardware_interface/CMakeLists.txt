@@ -5,7 +5,6 @@ add_library(motor_hardware_interface
 )
 
 target_link_libraries(motor_hardware_interface
-  #serial_epos_handler
   serial_epos2_handler
   ${catkin_LIBRARIES}
 )

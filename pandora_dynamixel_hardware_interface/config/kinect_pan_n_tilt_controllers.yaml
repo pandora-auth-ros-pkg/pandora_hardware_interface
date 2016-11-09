@@ -1,0 +1,27 @@
+# value = angle(deg)/0.3
+
+kinect_pitch_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: kinect_pitch_joint
+    joint_speed: 0.5
+    motor:
+        id: 6
+        init: 511 # 0 deg
+        min: 425 # -25.8 deg
+        max: 654 # +43.0 deg
+
+kinect_yaw_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: kinect_yaw_joint
+    joint_speed: 1.0
+    motor:
+        id: 5
+        init: 511 # 0 deg
+        min: 349 # -48.7 deg
+        max: 673 # +48.7 deg
