@@ -51,6 +51,14 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
 
+// Odometry related
+#include <realtime_tools/realtime_buffer.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <nav_msgs/Odometry.h>
+#include "motor_controllers/odometry.h"
+#include <boost/assign.hpp>
+#include <tf/tf.h>
+
 #include <pandora_motor_hardware_interface/KinematicParameters.h>
 
 namespace pandora_hardware_interface
@@ -92,6 +100,7 @@ namespace motor
           const std::vector<double>& expectedValues,
           std::vector<double>& coefficients);
 
+      void setOdomPubFields(ros::NodeHandle& nh);
     private:
       /// Hardware joint handles:
       hardware_interface::JointHandle left_front_wheel_joint_;
@@ -102,6 +111,14 @@ namespace motor
       // cmd_vel ROS subscriber
       ros::Subscriber command_listener_;
       ros::Subscriber parameter_listener_;
+
+      /// Odometry related:
+      boost::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> > odom_pub_;
+      Odometry odometry_;
+      ros::Duration publish_period_;
+      ros::Time last_state_publish_time_;
+      // Frame to use for the robot base:
+      std::string base_frame_id_;
 
       /// Velocity command related struct
       struct Commands
@@ -116,6 +133,7 @@ namespace motor
         Commands() : lin(0.0), ang(0.0), stamp(0.0), terrain_parameter(1.0), slip_factor_left(0), slip_factor_right(0){}
       };
       Commands command_struct_;
+      Commands last_command_struct_;
 
       // Physical properties
       double wheel_radius_;
